@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <fragment android:id="@+id/jvchat_post_new"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:tag="post_new"
+              android:name="com.pentapenguin.jvcbrowser.fragments.PostNewFragment"
+              android:layout_alignParentBottom="true"/>
+
+
+    <android.support.v4.widget.SwipeRefreshLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/jvchat_refresh_layout"
+            android:layout_above="@+id/jvchat_post_new"
+            android:layout_marginTop="?attr/actionBarSize">
+
+    <com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/jvchat_post_list"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/jvchat_loading_bar"
+            android:indeterminate="true"
+            android:visibility="gone"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone"
+            android:id="@+id/jvchat_empty_text"
+            android:text="@string/no_result"/>
+
+
+
+</RelativeLayout>

@@ -1,0 +1,58 @@
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/normal_margin"
+        android:paddingRight="@dimen/normal_margin"
+        android:paddingTop="@dimen/normal_margin"
+        android:paddingBottom="@dimen/normal_margin"
+        android:orientation="vertical"
+        tools:context="com.pentapenguin.jvcbrowser.TopicNewActivity">
+
+    <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/edit_content"
+            android:inputType="textCapSentences|textMultiLine"
+            android:hint="@string/message"
+            android:layout_above="@+id/edit_error"
+            android:layout_alignParentTop="true"/>
+
+    <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:id="@+id/edit_post"
+            android:text="@string/post"/>
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:id="@+id/edit_captcha_layout"
+                  android:layout_above="@id/edit_post"
+                  android:orientation="horizontal">
+
+        <ImageView android:layout_width="0dp"
+                   android:layout_height="wrap_content"
+                   android:id="@+id/edit_captcha"
+                   android:visibility="gone"
+                   android:layout_weight="1"/>
+
+        <EditText android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="1"
+                  android:visibility="gone"
+                  android:contentDescription="@string/captcha"
+                  android:id="@+id/edit_code"
+                  android:inputType="number"/>
+
+    </LinearLayout>
+
+    <TextView android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:id="@+id/edit_error"
+              android:layout_above="@id/edit_captcha_layout"
+              android:visibility="gone"
+              android:textColor="@color/red"/>
+
+</RelativeLayout>

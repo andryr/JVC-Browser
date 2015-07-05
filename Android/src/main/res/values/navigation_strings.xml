@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="not_connected" >
+        <item> </item>
+        <item>Authentification</item>
+        <item>Se connecter</item>
+        <item>Forum</item>
+        <item>Tous les forums</item>
+        <item>Historique</item>
+        <item>Paramètres</item>
+        <item>Options</item>
+        <item>Liste des indésirables</item>
+        <item>About</item>
+        <item>Contributeurs</item>
+    </string-array>
+    <string-array name="connected" >
+        <item> </item>
+        <item>Authentification</item>
+        <item>Se déconnecter</item>
+        <item>Forum</item>
+        <item>Tous les forums</item>
+        <item>Forums favoris</item>
+        <item>Topic favoris</item>
+        <item>Historique</item>
+        <item>Message privé</item>
+        <item>Boite de réception</item>
+        <item>Paramètres</item>
+        <item>Options</item>
+        <item>Liste des indésirables</item>
+        <item>About</item>
+        <item>Contributeurs</item>
+    </string-array>
+
+
+</resources>

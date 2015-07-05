@@ -1,0 +1,30 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/menu_forum_goto_page"
+          android:title="@string/goto_page"
+          android:orderInCategory="4"
+          app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_forum_favorite"
+          android:title="@string/add_favorite"
+          android:orderInCategory="5"
+          app:showAsAction="never"/>
+
+      <item android:id="@+id/menu_forum_search"
+            android:title="@string/search"
+            app:actionViewClass="android.support.v7.widget.SearchView"
+            app:showAsAction="always"/>
+
+    <item android:id="@+id/menu_forum_next"
+          android:title="@string/next"
+          android:orderInCategory="2"
+          app:showAsAction="always"
+          android:icon="@drawable/action_goto_page"/>
+
+    <item android:id="@+id/menu_forum_previous"
+          android:title="@string/prev"
+          android:orderInCategory="1"
+          app:showAsAction="always"
+          android:icon="@drawable/action_goto_page_back"/>
+</menu>

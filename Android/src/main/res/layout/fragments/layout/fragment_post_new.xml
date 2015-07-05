@@ -1,0 +1,70 @@
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:context="com.pentapenguin.jvcbrowser.TestActivity">
+
+    <View android:layout_width="match_parent"
+          android:layout_height="2dp"
+          android:background="@color/primary"
+          android:layout_alignParentTop="true"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/new_post_layout_content">
+
+        <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:maxLines="5"
+                android:layout_weight="1"
+                android:id="@+id/new_post_content"
+                android:inputType="textCapSentences|textMultiLine"
+                android:hint="@string/message"/>
+
+        <Button
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:id="@+id/new_post"
+                android:background="@drawable/round_button"
+                android:layout_gravity="center_vertical"
+                android:text="@string/fap"
+                android:textColor="@color/white"/>
+
+    </LinearLayout>
+
+    <TextView android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:id="@+id/new_post_error"
+              android:layout_below="@id/new_post_layout_content"
+              android:visibility="gone"
+              android:textColor="@color/red"/>
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal"
+                  android:id="@+id/new_post_captcha_layout"
+                  android:layout_below="@id/new_post_error">
+
+        <ImageView android:layout_width="0dp"
+                   android:layout_height="wrap_content"
+                   android:id="@+id/new_post_captcha"
+                   android:visibility="gone"
+                   android:contentDescription="@string/captcha"
+                   android:layout_weight="1"/>
+
+        <EditText android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="1"
+                  android:visibility="gone"
+                  android:id="@+id/new_post_code"
+                  android:inputType="number"/>
+
+    </LinearLayout>
+
+
+</RelativeLayout>

@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".MpActivity">
+
+      <item android:id="@+id/menu_mp_lock"
+            android:title="@string/mp_lock"
+            android:orderInCategory="1"
+            app:showAsAction="ifRoom"
+              android:icon="@drawable/action_lock"/>
+
+      <item android:id="@+id/menu_mp_refresh"
+            android:title="@string/refresh"
+            android:orderInCategory="2"
+            app:showAsAction="always"
+              android:icon="@drawable/action_reload"/>
+</menu>

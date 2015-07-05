@@ -1,0 +1,28 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".TopicActivity">
+
+    <item android:id="@+id/menu_pager_last"
+          android:title="@string/last_page"
+          android:orderInCategory="2"
+          app:showAsAction="ifRoom"
+            android:icon="@drawable/action_last_page"/>
+
+    <item android:id="@+id/menu_topic_goto_page"
+          android:title="@string/goto_page"
+          android:orderInCategory="1"
+          app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_topic_favorite"
+          android:title="@string/add_favorite"
+          android:orderInCategory="4"
+          app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_topic_refresh"
+          android:title="@string/refresh"
+          android:orderInCategory="3"
+          app:showAsAction="always"
+          android:icon="@drawable/action_reload"/>
+
+</menu>

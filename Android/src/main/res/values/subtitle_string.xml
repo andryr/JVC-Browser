@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="subtitle_inbox">Boite de réception</string>
+    <string name="subtitle_inbox_new">Nouveau message privé</string>
+    <string name="subtitle_post_new">Nouveau post</string>
+    <string name="subtitle_topic_new">Nouveau sujet</string>
+    <string name="subtitle_all_forum">Tous les forums</string>
+    <string name="subtitle_favoris_forums">Forums favoris</string>
+    <string name="subtitle_favoris_topic">Topics favoris</string>
+    <string name="subtitle_history">Historique des sujets</string>
+    <string name="subtitle_banned">Liste des indésirables</string>
+    <string name="subtitle_edit">Edition du post</string>
+</resources>

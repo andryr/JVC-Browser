@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      >
+
+    <item android:id="@+id/menu_forum_list_search"
+          android:title="@string/forum_search"
+          android:orderInCategory="100"
+          app:showAsAction="always"
+          android:icon="@drawable/action_search"/>
+
+</menu>

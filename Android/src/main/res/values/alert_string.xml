@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connected">Connexion réussie !</string>
+    <string name="disconnected">Déconnexion</string>
+    <string name="not_ready">Pas encore disponible</string>
+    <string name="no_response">Pas de réponse depuis le serveur</string>
+    <string name="edit_unavailable">Vous ne pouvez plus éditer ce message</string>
+    <string name="delete_unavailable">Vous ne pouvez plus delete ce message</string>
+    <string name="quote_unavailable">Vous ne pouvez plus citer ce message</string>
+    <string name="in_progress">Opération en cours..</string>
+</resources>
