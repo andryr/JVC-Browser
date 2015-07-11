@@ -4,21 +4,16 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.util.TypedValue;
 import android.view.*;
 import android.widget.TextView;
 import com.pentapenguin.jvcbrowser.InboxNewActivity;
-import com.pentapenguin.jvcbrowser.MainActivity;
-import com.pentapenguin.jvcbrowser.MpActivity;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
@@ -26,8 +21,8 @@ import com.pentapenguin.jvcbrowser.app.Bans;
 import com.pentapenguin.jvcbrowser.entities.Mp;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
+import com.pentapenguin.jvcbrowser.util.FragmentLauncher;
 import com.pentapenguin.jvcbrowser.util.Helper;
-import com.pentapenguin.jvcbrowser.util.ItemObserver;
 import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.TitleObserver;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
@@ -46,14 +41,14 @@ public class InboxFragment extends Fragment{
     public static final String TAG = "inbox";
     public static final String CURRENT_PAGE_SAVE = "current_page";
     public static final String MP_NUMBER_SAVE = "mp_number";
+    public static final String data_SAVE = "data";
 
     private RecyclerView2 mRecycler;
-    private ItemObserver mListener;
+    private FragmentLauncher mListener;
     private InboxAdapter mAdapter;
     private int mCurrentPage;
     private int mMpNumber;
     private HashMap<String, String> mData;
-    private int mToolbarHeight;
 
     public static InboxFragment newInstance() {
         return new InboxFragment();
@@ -63,7 +58,7 @@ public class InboxFragment extends Fragment{
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mListener = (ItemObserver) activity;
+            mListener = (FragmentLauncher) activity;
             ((TitleObserver) activity).updateTitle(getActivity().getResources().getString(R.string.subtitle_inbox));
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement interface");
@@ -80,9 +75,11 @@ public class InboxFragment extends Fragment{
         if (savedInstanceState != null) {
             mCurrentPage = savedInstanceState.getInt(CURRENT_PAGE_SAVE);
             mMpNumber = savedInstanceState.getInt(MP_NUMBER_SAVE);
+            ArrayList<Mp> data = savedInstanceState.getParcelableArrayList(data_SAVE);
+            mAdapter = new InboxAdapter(data);
+        } else {
+            mAdapter = new InboxAdapter();
         }
-
-        mAdapter = new InboxAdapter();
         setHasOptionsMenu(true);
     }
 
@@ -92,22 +89,17 @@ public class InboxFragment extends Fragment{
         View layout = inflater.inflate(R.layout.fragment_inbox, container, false);
 
         mRecycler = (RecyclerView2) layout.findViewById(R.id.inbox_mp_list);
-        TypedValue tv = new TypedValue();
-        if (getActivity().getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            mToolbarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
-        }
-
         mRecycler.setAdapter(mAdapter);
         mRecycler.setEmptyView(layout.findViewById(R.id.inbox_empty_text));
         mRecycler.setLoadingView(layout.findViewById(R.id.inbox_loading_bar));
         mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecycler.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-
         mRecycler.addOnItemTouchListener(new RecyclerItemListener(mAdapter,
                 new RecyclerItemListener.RecyclerItemGestureListener() {
                     @Override
                     public void onClick(Object item, int position) {
-                        mListener.gotoItem((Mp) item);
+
+                        mListener.launch(MpFragment.newInstance((Mp) item), true);
                     }
 
                     @Override
@@ -136,27 +128,18 @@ public class InboxFragment extends Fragment{
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            mRecycler.addOnScrollListener(new RecyclerToolbarTranslation(toolbar, mToolbarHeight));
-        }
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(CURRENT_PAGE_SAVE, mCurrentPage);
         outState.putInt(MP_NUMBER_SAVE, mMpNumber);
+        outState.putParcelableArrayList(data_SAVE, mAdapter.mValues);
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_inbox, menu);
         menu.findItem(R.id.menu_inbox_previous).setVisible(mCurrentPage != 1);
-        menu.findItem(R.id.menu_inbox_next).setVisible(mCurrentPage*25 < mMpNumber);
+        menu.findItem(R.id.menu_inbox_next).setVisible(mCurrentPage * 25 < mMpNumber);
     }
 
     @Override
@@ -196,21 +179,23 @@ public class InboxFragment extends Fragment{
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == 777) {
-            data.setClass(getActivity(), MpActivity.class);
-            startActivity(data);
+        if (resultCode == InboxNewActivity.RESULT_CODE) {
+            Mp mp = data.getParcelableExtra(MpFragment.MP_ARG);
+            ((FragmentLauncher) getActivity()).launch(MpFragment.newInstance(mp), true);
         }
     }
 
     private class InboxAdapter extends RecyclerViewAdapter<InboxHolder> {
 
         private ArrayList<Mp> mValues;
-        private LayoutInflater mInflater;
 
         public InboxAdapter() {
             mValues = new ArrayList<Mp>();
-            mInflater = getActivity().getLayoutInflater();
             load();
+        }
+
+        public InboxAdapter(ArrayList<Mp> values) {
+            mValues = new ArrayList<Mp>(values);
         }
 
         public void load() {
@@ -253,7 +238,7 @@ public class InboxFragment extends Fragment{
 
         @Override
         public InboxHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = mInflater.inflate(R.layout.item_mp, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(R.layout.item_mp, parent, false);
             return new InboxHolder(view);
         }
 

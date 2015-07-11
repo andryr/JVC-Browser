@@ -9,7 +9,7 @@ import com.pentapenguin.jvcbrowser.fragments.*;
 
 public class NotConnectedNavigationMenu {
 
-    public static final int LENGTH = 11;
+    public static final int LENGTH = 12;
 
     public static final NavigationFragment.NavigationType[] types = new NavigationFragment.NavigationType[] {
             NavigationFragment.NavigationType.Header,          //0 header
@@ -17,12 +17,13 @@ public class NotConnectedNavigationMenu {
             NavigationFragment.NavigationType.Item,            //2 se connecter
             NavigationFragment.NavigationType.Category,        //3 forum
             NavigationFragment.NavigationType.Item,            //4 tous les forums
-            NavigationFragment.NavigationType.Item,            //5 historique
-            NavigationFragment.NavigationType.Category,        //6 paramètres
-            NavigationFragment.NavigationType.Item,            //7 options
-            NavigationFragment.NavigationType.Item,            //8 bannis
-            NavigationFragment.NavigationType.Category,        //8 about
-            NavigationFragment.NavigationType.Item             //10 contributeurs
+            NavigationFragment.NavigationType.Item,            //5 recherche les forums
+            NavigationFragment.NavigationType.Item,            //6 historique
+            NavigationFragment.NavigationType.Category,        //7 paramètres
+            NavigationFragment.NavigationType.Item,            //8 options
+            NavigationFragment.NavigationType.Item,            //9 bannis
+            NavigationFragment.NavigationType.Category,        //10 about
+            NavigationFragment.NavigationType.Item             //11 contributeurs
     };
 
     public static final String[] contents = App.getContext().getResources().getStringArray(R.array.not_connected);
@@ -33,6 +34,7 @@ public class NotConnectedNavigationMenu {
             R.drawable.menu_authentification,
             0,
             R.drawable.menu_all_forums,
+            0,
             R.drawable.menu_history,
             0,
             R.drawable.menu_options,
@@ -47,6 +49,7 @@ public class NotConnectedNavigationMenu {
             null,
             null,
             ForumListFragment.newInstance(),
+            ForumSearchFragment.newInstance(),
             HistoryFragment.newInstance(),
             null,
             null,
@@ -59,6 +62,7 @@ public class NotConnectedNavigationMenu {
             null,
             null,
             new Intent(App.getContext(), AuthActivity.class),
+            null,
             null,
             null,
             null,

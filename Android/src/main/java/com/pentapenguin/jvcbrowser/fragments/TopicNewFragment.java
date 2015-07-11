@@ -19,6 +19,7 @@ import com.pentapenguin.jvcbrowser.app.Auth;
 import com.pentapenguin.jvcbrowser.entities.Forum;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
+import com.pentapenguin.jvcbrowser.util.ItemPosted;
 import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
 import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
@@ -34,8 +35,8 @@ public class TopicNewFragment extends Fragment {
     public static final String URL = "http://m.jeuxvideo.com/forums/create_topic.php?id_forum=";
     public static final String TAG = "topic_new";
     public static final String TOPIC_NEW_ARG = "new_topic_arg";
-    public static final String TITLE_SAVE = "title_save";
-    public static final String CONTENT_SAVE = "content_save";
+    private static final String TITLE_SAVE = "title_save";
+    private static final String CONTENT_SAVE = "content_save";
     private static final String CLASS_FORM = "form-post-msg";
     private static final String CLASS_ERROR = "alert-danger";
     private static final String CLASS_CAPTCHA = "bloc-captcha";
@@ -48,7 +49,7 @@ public class TopicNewFragment extends Fragment {
     private Button mPost;
     private Forum mForum;
     private HashMap<String, String> mData;
-    private TopicNewObserver mListener;
+    private ItemPosted mListener;
 
     public static TopicNewFragment newInstance(Forum forum) {
         TopicNewFragment fragment = new TopicNewFragment();
@@ -65,7 +66,7 @@ public class TopicNewFragment extends Fragment {
         super.onAttach(activity);
 
         try {
-            mListener = (TopicNewObserver) activity;
+            mListener = (ItemPosted) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement interface");
         }
@@ -204,12 +205,7 @@ public class TopicNewFragment extends Fragment {
 
     private void onPost(final Topic topic) {
         mPost.setEnabled(false);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mListener.onPost(topic);
-            }
-        }, 1000);
+        mListener.onPost(topic);
     }
 
     private String checkField(EditText edit) {
@@ -222,10 +218,5 @@ public class TopicNewFragment extends Fragment {
         mCaptcha.setVisibility(View.GONE);
         mCode.setVisibility(View.GONE);
         mError.setVisibility(View.GONE);
-    }
-
-    public interface TopicNewObserver {
-
-        void onPost(Topic topic);
     }
 }

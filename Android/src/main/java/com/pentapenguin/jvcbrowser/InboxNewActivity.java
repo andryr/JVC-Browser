@@ -8,11 +8,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import com.pentapenguin.jvcbrowser.entities.Item;
+import com.pentapenguin.jvcbrowser.entities.Mp;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.fragments.InboxNewFragment;
 import com.pentapenguin.jvcbrowser.fragments.MpFragment;
+import com.pentapenguin.jvcbrowser.util.ItemPosted;
 
-public class InboxNewActivity extends AppCompatActivity implements InboxNewFragment.InboxNewObserver {
+public class InboxNewActivity extends AppCompatActivity implements ItemPosted {
+
+    public static final int RESULT_CODE = 222;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +54,11 @@ public class InboxNewActivity extends AppCompatActivity implements InboxNewFragm
     }
 
     @Override
-    public void onPost(Topic topic) {
+    public void onPost(Item mp) {
         Intent intent = new Intent();
-        intent.putExtra(MpFragment.MP_ARG, topic);
-        setResult(777, intent);
+
+        intent.putExtra(MpFragment.MP_ARG, (Mp) mp);
+        setResult(RESULT_CODE, intent);
         finish();
     }
 }

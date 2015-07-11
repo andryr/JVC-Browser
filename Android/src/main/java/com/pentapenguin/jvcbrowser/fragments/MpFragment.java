@@ -1,46 +1,32 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.util.TypedValue;
 import android.view.*;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.pentapenguin.jvcbrowser.ForumActivity;
-import com.pentapenguin.jvcbrowser.MpActivity;
 import com.pentapenguin.jvcbrowser.R;
-import com.pentapenguin.jvcbrowser.TopicActivity;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
 import com.pentapenguin.jvcbrowser.app.Bans;
-import com.pentapenguin.jvcbrowser.entities.Forum;
-import com.pentapenguin.jvcbrowser.entities.Item;
-import com.pentapenguin.jvcbrowser.entities.Post;
-import com.pentapenguin.jvcbrowser.entities.Topic;
+import com.pentapenguin.jvcbrowser.app.History;
+import com.pentapenguin.jvcbrowser.entities.*;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
-import com.pentapenguin.jvcbrowser.util.Helper;
-import com.pentapenguin.jvcbrowser.util.NormalizePost;
-import com.pentapenguin.jvcbrowser.util.Parser;
-import com.pentapenguin.jvcbrowser.util.TitleObserver;
+import com.pentapenguin.jvcbrowser.util.*;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
 import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
-import com.pentapenguin.jvcbrowser.util.widgets.RecyclerToolbarTranslation;
 import com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2;
 import com.squareup.picasso.Picasso;
 import org.jsoup.Connection;
@@ -53,48 +39,55 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MpFragment extends Fragment {
+public class MpFragment extends Fragment implements ItemPosted {
 
     public static final String TAG = "mp";
     public static final String MP_ARG = "arg_mp";
+    public static final String LOCKED_SAVE = "locked";
+    public static final String OFFSET_SAVE = "offset";
+    public static final String DATA_SAVE = "data";
+    public static final String TITLE_SAVE = "title";
 
     private RecyclerView2 mRecycler;
-    private TitleObserver mListener;
     private MpAdapter mAdapter;
     private SwipeRefreshLayout mSwipeLayout;
-    private Topic mTopic;
+    private Mp mMp;
     private int mOffset;
     private boolean mLocked;
     private MpNewFragment mPost;
-    private int mToolbarHeight;
+    private String mTitle;
 
-    public static MpFragment newInstance(Topic topic) {
+    public static MpFragment newInstance(Mp mp) {
         MpFragment fragment = new MpFragment();
         Bundle args = new Bundle();
 
-        args.putParcelable(MP_ARG, topic);
+        args.putParcelable(MP_ARG, mp);
         fragment.setArguments(args);
 
         return fragment;
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListener = (TitleObserver) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement interface");
-        }
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mLocked = true;
+        mOffset = 0;
+        mTitle = null;
+        mMp = getArguments().getParcelable(MP_ARG);
 
-        mTopic = getArguments().getParcelable(MP_ARG);
-        mAdapter = new MpAdapter();
-        mListener.updateTitle(mTopic.getContent());
+        if (savedInstanceState != null) {
+            mLocked = savedInstanceState.getBoolean(LOCKED_SAVE);
+            mOffset = savedInstanceState.getInt(OFFSET_SAVE);
+            mTitle = savedInstanceState.getString(TITLE_SAVE);
+            ArrayList<Post> data = savedInstanceState.getParcelableArrayList(DATA_SAVE);
+            mPost = (MpNewFragment) getChildFragmentManager().findFragmentByTag(MpNewFragment.TAG);
+            mAdapter = new MpAdapter(data);
+        } else {
+            mAdapter = new MpAdapter();
+            mPost = MpNewFragment.createInstance();
+            getChildFragmentManager().beginTransaction().add(R.id.mp_new_frame, mPost, MpNewFragment.TAG)
+                    .commit();
+        }
 
         setHasOptionsMenu(true);
     }
@@ -106,11 +99,6 @@ public class MpFragment extends Fragment {
 
         mSwipeLayout = (SwipeRefreshLayout) layout.findViewById(R.id.mp_refresh_layout);
         mRecycler = (RecyclerView2) layout.findViewById(R.id.mp_post_list);
-        TypedValue tv = new TypedValue();
-        if (getActivity().getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            mToolbarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
-        }
-        mSwipeLayout.setProgressViewOffset(false, mToolbarHeight, 150);
         mRecycler.setAdapter(mAdapter);
         mRecycler.setEmptyView(layout.findViewById(R.id.mp_empty_text));
         mRecycler.setLoadingView(layout.findViewById(R.id.mp_loading_bar));
@@ -121,11 +109,9 @@ public class MpFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mLocked = true;
-        mOffset = 0;
-        mPost = (MpNewFragment) getChildFragmentManager().findFragmentByTag(MpNewFragment.TAG);
 
-        mPost.setTopic(mTopic);
+        if (mPost!= null) mPost.setTopic(mMp);
+        if (mTitle != null) ((TitleObserver) getActivity()).updateTitle(mTitle);
         mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         mSwipeLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN);
         mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -137,27 +123,18 @@ public class MpFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        Toolbar toolbar = ((MpActivity) getActivity()).getToolbar();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            mRecycler.addOnScrollListener(new RecyclerToolbarTranslation(toolbar, mToolbarHeight));
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == 777) {
-            mAdapter.load();
-        }
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(LOCKED_SAVE, mLocked);
+        outState.putString(TITLE_SAVE, mTitle);
+        outState.putInt(OFFSET_SAVE, mOffset);
+        outState.putParcelableArrayList(DATA_SAVE, mAdapter.mValues);
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_mp, menu);
-        if (mLocked) menu.findItem(R.id.menu_mp_lock).setVisible(false);
+        menu.findItem(R.id.menu_mp_lock).setVisible(!mLocked);
     }
 
     @Override
@@ -189,7 +166,7 @@ public class MpFragment extends Fragment {
 
     private void lock() {
         final ProgressDialog dialog = App.progress(getActivity(), R.string.in_progress, true);
-        final String url = Helper.mpToUrl(mTopic, mOffset);
+        final String url = Helper.mpToUrl(mMp, mOffset);
 
         dialog.show();
         Ajax.url(url).cookie(Auth.COOKIE_NAME, Auth.getInstance().getCookieValue())
@@ -225,19 +202,27 @@ public class MpFragment extends Fragment {
                 }).execute();
     }
 
+    @Override
+    public void onPost(Item item) {
+        reload();
+        mRecycler.scrollToPosition(mAdapter.getItemCount());
+    }
+
     private class MpAdapter extends RecyclerView.Adapter<MpHolder> {
 
         private ArrayList<Post> mValues;
-        private LayoutInflater mInflater;
 
         public MpAdapter() {
             mValues = new ArrayList<Post>();
-            mInflater = getActivity().getLayoutInflater();
             load();
         }
 
+        public MpAdapter(ArrayList<Post> values) {
+            mValues = new ArrayList<Post>(values);
+        }
+
         public void load() {
-            String url = Helper.mpToUrl(mTopic, mOffset);
+            String url = Helper.mpToUrl(mMp, mOffset);
 
             if (mSwipeLayout != null && !mSwipeLayout.isRefreshing()) {
                 mValues.clear();
@@ -261,8 +246,9 @@ public class MpFragment extends Fragment {
                             mOffset = Parser.mpOffset(doc);
                             mLocked = Parser.hidden(doc, "form-post-topic").size() == 0;
                             if (mLocked) getChildFragmentManager().beginTransaction().hide(mPost).commit();
+                            mTitle = Parser.getTitleMp(doc);
+                            ((TitleObserver) getActivity()).updateTitle(mTitle);
                             if (getActivity() != null) getActivity().supportInvalidateOptionsMenu();
-                            mListener.updateTitle(Parser.getTitleMp(doc));
                             notifyDataSetChanged();
                             if (mOffset == 0) mRecycler.scrollToPosition(getItemCount());
 
@@ -283,7 +269,7 @@ public class MpFragment extends Fragment {
 
         @Override
         public MpHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = mInflater.inflate(R.layout.item_post, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(R.layout.item_post, parent, false);
             return new MpHolder(view);
         }
 
@@ -330,19 +316,14 @@ public class MpFragment extends Fragment {
                     Matcher matcher = Pattern.compile(pattern).matcher(url);
                     if (matcher.matches()) {
                         Item item = Helper.urlResolve(url);
-                        Intent intent;
 
                         if (item != null) {
                             if (item instanceof Forum) {
-                                Forum forum = (Forum) item;
-                                intent = new Intent(getActivity(), ForumActivity.class);
-                                intent.putExtra(ForumFragment.FORUM_ARG, forum);
+                                ((FragmentLauncher) getActivity()).launch(ForumFragment.newInstance((Forum) item), true);
                             } else {
-                                Topic topic = (Topic) item;
-                                intent = new Intent(getActivity(), TopicActivity.class);
-                                intent.putExtra(TopicFragment.TOPIC_ARG, topic);
+                                ((FragmentLauncher) getActivity()).launch(TopicFragment.newInstance((Topic) item), true);
+                                History.add((Topic) item);
                             }
-                            startActivity(intent);
                             return true;
                         }
                     }

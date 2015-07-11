@@ -348,7 +348,7 @@ public class Parser {
         return forums;
     }
 
-    public static Topic newMP(Document doc) throws NoContentFoundException {
+    public static Mp newMP(Document doc) throws NoContentFoundException {
         Elements refreshs = doc.getElementsByClass("btn-actualiser");
 
         if (refreshs.isEmpty()) {
@@ -358,7 +358,7 @@ public class Parser {
         Matcher matcher = Pattern.compile("message\\.php\\?id=([0-9]*?)&").matcher(url);
         if (matcher.find()) {
             int id = Integer.parseInt(matcher.group(1));
-            return new Topic(id, null);
+            return new Mp(id, null);
         }
 
         return null;

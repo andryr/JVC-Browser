@@ -6,8 +6,7 @@
     <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/list_forum_list"
-            android:paddingTop="?attr/actionBarSize"/>
+            android:id="@+id/list_forum_list"/>
 
     <TextView
             android:layout_width="wrap_content"

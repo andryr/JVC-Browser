@@ -2,25 +2,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <fragment android:id="@+id/mp_new"
+    <FrameLayout android:id="@+id/mp_new_frame"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:tag="mp_new"
-              android:name="com.pentapenguin.jvcbrowser.fragments.MpNewFragment"
               android:layout_alignParentBottom="true"/>
 
     <android.support.v4.widget.SwipeRefreshLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/mp_refresh_layout"
-            android:layout_above="@+id/mp_new">
+            android:layout_above="@+id/mp_new_frame">
 
         <com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/mp_post_list"
-                android:clipToPadding="false"
-                android:paddingTop="?attr/actionBarSize"/>
+                android:id="@+id/mp_post_list"/>
 
     </android.support.v4.widget.SwipeRefreshLayout>
 

@@ -19,10 +19,4 @@
           android:orderInCategory="4"
           app:showAsAction="never"/>
 
-    <item android:id="@+id/menu_topic_refresh"
-          android:title="@string/refresh"
-          android:orderInCategory="3"
-          app:showAsAction="always"
-          android:icon="@drawable/action_reload"/>
-
 </menu>

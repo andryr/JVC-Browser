@@ -1,10 +1,9 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -23,6 +22,8 @@ import com.pentapenguin.jvcbrowser.app.Auth;
 import com.pentapenguin.jvcbrowser.app.navigation.NavigationMenu;
 import com.pentapenguin.jvcbrowser.entities.Navigation;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
+import com.pentapenguin.jvcbrowser.util.ActivityLauncher;
+import com.pentapenguin.jvcbrowser.util.FragmentLauncher;
 import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
 import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
@@ -40,22 +41,10 @@ public class NavigationFragment extends Fragment {
 
     public enum NavigationType { Header, Category, Item }
 
-    private NavigationObserver mListener;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private RecyclerView mRecycler;
     private NavigationAdapter mAdapter;
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        try {
-            mListener = (NavigationObserver) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement interface");
-        }
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,23 +64,24 @@ public class NavigationFragment extends Fragment {
         mRecycler.addOnItemTouchListener(new RecyclerItemListener(mAdapter,
                 new RecyclerItemListener.RecyclerItemGestureListener() {
 
-                    private int lastChoice;
-
                     @Override
                     public void onClick(Object item, int position) {
                         Navigation navigation = (Navigation) item;
                         if (navigation.getType() == NavigationType.Item) {
-                            lastChoice = position;
                             if (position == 2 && Auth.getInstance().isConnected()) {
                                 Auth.getInstance().disconnect();
-                                mListener.launchFragment(ForumListFragment.newInstance());
+                                getActivity().getSupportFragmentManager().popBackStack(null,
+                                        FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                                ((FragmentLauncher) getActivity()).launch(ForumListFragment.newInstance(), false);
                                 mAdapter.load();
                                 App.toast(R.string.disconnected);
                             } else if (navigation.getFragment() != null) {
-                                mListener.launchFragment(navigation.getFragment());
+                                getActivity().getSupportFragmentManager().popBackStack(null,
+                                        FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                                ((FragmentLauncher) getActivity()).launch(navigation.getFragment(), false);
 
                             } else if (navigation.getIntent() != null) {
-                                mListener.launchActivity(navigation.getIntent());
+                                ((ActivityLauncher) getActivity()).launch(navigation.getIntent());
                             }
                         }
                         mDrawerLayout.closeDrawer(GravityCompat.START);
@@ -296,11 +286,5 @@ public class NavigationFragment extends Fragment {
             mDetails.setText(navigation.getDetails());
             mThumb.setImageResource(navigation.getThumb());
         }
-    }
-
-    public interface NavigationObserver {
-
-        void launchFragment(Fragment fragment);
-        void launchActivity(Intent intent);
     }
 }

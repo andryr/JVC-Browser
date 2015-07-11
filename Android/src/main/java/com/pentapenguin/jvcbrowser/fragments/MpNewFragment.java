@@ -1,9 +1,7 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -17,6 +15,7 @@ import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
 import com.pentapenguin.jvcbrowser.entities.Topic;
+import com.pentapenguin.jvcbrowser.util.ItemPosted;
 import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
 import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
@@ -27,19 +26,16 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.util.HashMap;
 
-
-// Same class as PostNewFragment
 public class MpNewFragment extends Fragment {
 
     public static final String TAG = "mp_new";
     public static final String URL = "http://www.jeuxvideo.com/messages-prives/message.php?id=";
-    public static final String POST_NEW_MP_ARG = "post_new_post_arg";
     private static final String CLASS_FORM = "form-post-topic";
     private static final String CLASS_ERROR = "alert-raw";
     private static final String CLASS_CAPTCHA = "bloc-cap";
     private static final String CONTENT_SAVE = "content";
+    private static final String TOPIC_ID_SAVE = "topic_id";
 
-    private MpNewObserver mListener;
     private EditText mContent;
     private EditText mCode;
     private ImageView mCaptcha;
@@ -47,17 +43,10 @@ public class MpNewFragment extends Fragment {
     private Button mPost;
     private HashMap<String, String> mData;
     private ProgressDialog mDialog;
-    private Topic mTopic;
+    private int mTopicId;
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        try {
-            mListener = (MpNewObserver) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement interface");
-        }
+    public static MpNewFragment createInstance() {
+        return new MpNewFragment();
     }
 
     @Nullable
@@ -93,17 +82,21 @@ public class MpNewFragment extends Fragment {
                 initData();
             }
         });
-        if (savedInstanceState != null) mContent.setText(savedInstanceState.getString(CONTENT_SAVE));
+        if (savedInstanceState != null) {
+            mContent.setText(savedInstanceState.getString(CONTENT_SAVE));
+            mTopicId = savedInstanceState.getInt(TOPIC_ID_SAVE);
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(CONTENT_SAVE, mContent.getText().toString());
+        outState.putInt(TOPIC_ID_SAVE, mTopicId);
     }
 
     private void initData() {
-        String url = URL + Integer.toString(mTopic.getId());
+        String url = URL + Integer.toString(mTopicId);
 
         mDialog.setMessage("Initialisation...");
         mDialog.show();
@@ -135,7 +128,7 @@ public class MpNewFragment extends Fragment {
     }
 
     private void sendPost() {
-        String url = URL + Integer.toString(mTopic.getId());
+        String url = URL + Integer.toString(mTopicId);
         String content = checkField(mContent);
         String code = checkField(mCode);
 
@@ -186,12 +179,7 @@ public class MpNewFragment extends Fragment {
     private void onPost() {
         mContent.setText("");
         App.hideKeyboard(mContent.getWindowToken());
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mListener.onPost();
-            }
-        }, 1000);
+        ((ItemPosted) getParentFragment()).onPost(null);
     }
 
     private String checkField(EditText edit) {
@@ -207,11 +195,6 @@ public class MpNewFragment extends Fragment {
     }
 
     public void setTopic(Topic topic) {
-        mTopic = topic;
+        mTopicId = topic.getId();
     }
-
-    public interface MpNewObserver {
-        void onPost();
-    }
-
 }

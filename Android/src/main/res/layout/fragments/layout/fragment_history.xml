@@ -5,8 +5,7 @@
     <com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/history_list"
-            android:paddingTop="?attr/actionBarSize"/>
+            android:id="@+id/history_list"/>
 
     <TextView
             android:layout_width="wrap_content"

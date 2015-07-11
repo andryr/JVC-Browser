@@ -4,9 +4,6 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <include layout="@layout/toolbar"
-             android:id="@+id/toolbar"/>
-
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,6 +32,5 @@
     <com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/forum_search_list"
-            android:layout_marginTop="@dimen/small_margin"/>
+            android:id="@+id/forum_search_list"/>
 </LinearLayout>

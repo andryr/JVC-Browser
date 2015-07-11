@@ -1,27 +1,21 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.*;
 import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.util.TypedValue;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
-import com.pentapenguin.jvcbrowser.ForumActivity;
-import com.pentapenguin.jvcbrowser.TopicActivity;
 import com.pentapenguin.jvcbrowser.TopicNewActivity;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
@@ -31,6 +25,7 @@ import com.pentapenguin.jvcbrowser.app.History;
 import com.pentapenguin.jvcbrowser.entities.Forum;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
+import com.pentapenguin.jvcbrowser.util.FragmentLauncher;
 import com.pentapenguin.jvcbrowser.util.Helper;
 import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.TitleObserver;
@@ -57,6 +52,7 @@ public class ForumFragment extends Fragment {
     public static final String SEARCH_SAVE = "search";
     public static final String CURRENT_PAGE_SAVE = "current_page";
     public static final String DATA_SAVE = "data";
+    public static final String TITLE_SAVE = "title";
 
     private Button mNewTopic;
     private Forum mForum;
@@ -64,12 +60,11 @@ public class ForumFragment extends Fragment {
     private SwipeRefreshLayout mSwipeLayout;
     private RecyclerView2 mRecycler;
     private SearchView mSearchView;
-    private ForumObserver mListener;
     private int mSearchChoice;
     private String mSearch;
     private int mCurrentPage;
     private boolean mLoaded;
-    private int mToolbarHeight;
+    private String mTitle;
 
     public static ForumFragment newInstance(Forum forum) {
         ForumFragment fragment = new ForumFragment();
@@ -79,18 +74,6 @@ public class ForumFragment extends Fragment {
         fragment.setArguments(args);
 
         return fragment;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        try {
-            mListener = (ForumObserver) activity;
-
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement interface");
-        }
     }
 
     @Override
@@ -105,12 +88,9 @@ public class ForumFragment extends Fragment {
             mCurrentPage = savedInstanceState.getInt(CURRENT_PAGE_SAVE);
             mSearch = savedInstanceState.getString(SEARCH_SAVE);
             mSearchChoice = savedInstanceState.getInt(SEARCH_CHOICE_SAVE);
-            ArrayList<Parcelable> datas = savedInstanceState.getParcelableArrayList(DATA_SAVE);
-            ArrayList<Topic> values = new ArrayList<Topic>();
-            for (Parcelable data : datas) {
-                values.add((Topic) data);
-            }
-            mAdapter = new ForumAdapter(values);
+            mTitle = savedInstanceState.getString(TITLE_SAVE);
+            ArrayList<Topic> data = savedInstanceState.getParcelableArrayList(DATA_SAVE);
+            mAdapter = new ForumAdapter(data);
         } else {
             mAdapter = new ForumAdapter();
         }
@@ -124,26 +104,17 @@ public class ForumFragment extends Fragment {
         mNewTopic = (Button) layout.findViewById(R.id.forum_new_topic_button);
         mSwipeLayout = (SwipeRefreshLayout) layout.findViewById(R.id.forum_refresh_layout);
         mRecycler = (RecyclerView2) layout.findViewById(R.id.forum_topic_list);
-        TypedValue tv = new TypedValue();
-        if (getActivity().getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            mToolbarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
-        }
-
-        mSwipeLayout.setProgressViewOffset(false, mToolbarHeight, 150);
         mRecycler.setAdapter(mAdapter);
         mRecycler.setEmptyView(layout.findViewById(R.id.forum_empty_text));
         mRecycler.setLoadingView(layout.findViewById(R.id.forum_loading_bar));
         mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecycler.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
-
         mRecycler.addOnItemTouchListener(new RecyclerItemListener(mAdapter,
                 new RecyclerItemListener.RecyclerItemGestureListener() {
                     @Override
                     public void onClick(Object item, int position) {
-                        Topic topic = (Topic) item;
-
-                        mListener.gotoTopic(topic);
-                        History.add(topic);
+                        ((FragmentLauncher) getActivity()).launch(TopicFragment.newInstance((Topic) item), true);
+                        History.add((Topic) item);
                     }
                 }));
 
@@ -156,6 +127,7 @@ public class ForumFragment extends Fragment {
             mNewTopic.setVisibility(View.VISIBLE);
             mRecycler.addOnScrollListener(new RecyclerFloatingButtonListener(mNewTopic));
         }
+        if (mTitle != null) ((TitleObserver) getActivity()).updateTitle(mTitle);
         mNewTopic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -177,32 +149,21 @@ public class ForumFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        Toolbar toolbar = ((ForumActivity) getActivity()).getToolbar();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            mRecycler.addOnScrollListener(new RecyclerToolbarTranslation(toolbar, mToolbarHeight));
-        }
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(SEARCH_SAVE, mSearch);
         outState.putInt(SEARCH_CHOICE_SAVE, mSearchChoice);
         outState.putInt(CURRENT_PAGE_SAVE, mCurrentPage);
-        outState.putParcelableArrayList(DATA_SAVE, mAdapter.getValues());
+        outState.putString(TITLE_SAVE, mTitle);
+        outState.putParcelableArrayList(DATA_SAVE, mAdapter.mValues);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == 777) {
-            mAdapter.load();
-            data.setClass(getActivity(), TopicActivity.class);
-            startActivity(data);
-
+        if (resultCode == TopicNewActivity.RESULT_CODE) {
+           Topic topic = data.getParcelableExtra(TopicPageFragment.TOPIC_ARG);
+            ((FragmentLauncher) getActivity()).launch(TopicFragment.newInstance(topic), true);
         }
     }
 
@@ -254,6 +215,7 @@ public class ForumFragment extends Fragment {
             }
         });
         menu.findItem(R.id.menu_forum_previous).setVisible(mCurrentPage != 1);
+        menu.findItem(R.id.menu_forum_favorite).setVisible(Auth.getInstance().isConnected());
     }
 
     @Override
@@ -375,17 +337,14 @@ public class ForumFragment extends Fragment {
     private class ForumAdapter extends RecyclerViewAdapter<ForumHolder> {
 
         private ArrayList<Topic> mValues;
-        private LayoutInflater mInflater;
 
         public ForumAdapter() {
             mValues = new ArrayList<Topic>();
-            mInflater = getActivity().getLayoutInflater();
             load();
         }
 
         public ForumAdapter(ArrayList<Topic> values) {
             mValues = values;
-            mInflater = getActivity().getLayoutInflater();
         }
 
         public Topic itemAt(int position) {
@@ -414,8 +373,8 @@ public class ForumFragment extends Fragment {
                                 if (Bans.isBanned(topic.getAuthor())) it.remove();
                             }
                             if (mValues.size() == 0) throw new NoContentFoundException();
-                            mListener.updateTitle((mCurrentPage == 1 ? "" : mCurrentPage + " | ")
-                                    + Parser.getTitleForum(doc));
+                            mTitle = (mCurrentPage == 1 ? "" : mCurrentPage + " | ") + Parser.getTitleForum(doc);
+                            ((TitleObserver) getActivity()).updateTitle(mTitle);
                             if (getActivity() != null) getActivity().supportInvalidateOptionsMenu();
                             notifyDataSetChanged();
                             mLoaded = true;
@@ -437,7 +396,7 @@ public class ForumFragment extends Fragment {
 
         @Override
         public ForumHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = mInflater.inflate(R.layout.item_topic, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(R.layout.item_topic, parent, false);
             return new ForumHolder(view);
         }
 
@@ -449,10 +408,6 @@ public class ForumFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mValues.size();
-        }
-
-        public ArrayList<Topic> getValues() {
-            return mValues;
         }
     }
 
@@ -482,9 +437,4 @@ public class ForumFragment extends Fragment {
             Picasso.with(getActivity()).load(topic.getThumbUrl()).into(mThumb);
         }
     }
-
-    public interface ForumObserver extends TitleObserver {
-        void gotoTopic(Topic topic);
-    }
-
 }

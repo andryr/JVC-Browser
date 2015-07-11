@@ -11,7 +11,7 @@ import android.widget.TextView;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.History;
 import com.pentapenguin.jvcbrowser.entities.Topic;
-import com.pentapenguin.jvcbrowser.util.ItemObserver;
+import com.pentapenguin.jvcbrowser.util.FragmentLauncher;
 import com.pentapenguin.jvcbrowser.util.TitleObserver;
 import com.pentapenguin.jvcbrowser.util.widgets.DividerItemDecoration;
 import com.pentapenguin.jvcbrowser.util.widgets.RecyclerItemListener;
@@ -25,22 +25,9 @@ public class HistoryFragment extends Fragment {
     public static final String TAG = "history";
 
     private HistoryAdapter mAdapter;
-    private ItemObserver mListener;
 
     public static HistoryFragment newInstance() {
         return new HistoryFragment();
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        try {
-            mListener = (ItemObserver) activity;
-            ((TitleObserver) activity).updateTitle(getActivity().getResources().getString(R.string.subtitle_history));
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement interface");
-        }
     }
 
     @Override
@@ -58,6 +45,7 @@ public class HistoryFragment extends Fragment {
         RecyclerView2 recycler = (RecyclerView2) layout.findViewById(R.id.history_list);
 
         recycler.setAdapter(mAdapter);
+        ((TitleObserver) getActivity()).updateTitle(getActivity().getResources().getString(R.string.subtitle_history));
         recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         TextView empty = (TextView) layout.findViewById(R.id.history_empty_text);
         empty.setText(R.string.no_history);
@@ -67,7 +55,7 @@ public class HistoryFragment extends Fragment {
                 new RecyclerItemListener.RecyclerItemGestureListener() {
                     @Override
                     public void onClick(Object item, int position) {
-                        mListener.gotoItem((Topic) item);
+                        ((FragmentLauncher) getActivity()).launch(TopicFragment.newInstance((Topic) item), true);
                     }
 
                     @Override

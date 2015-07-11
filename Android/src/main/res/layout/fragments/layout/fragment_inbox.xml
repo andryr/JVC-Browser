@@ -7,9 +7,7 @@
     <com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/inbox_mp_list"
-            android:paddingTop="?attr/actionBarSize"
-            android:clipToPadding="false"/>
+            android:id="@+id/inbox_mp_list"/>
 
     <ProgressBar
             android:layout_width="wrap_content"

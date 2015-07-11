@@ -10,4 +10,5 @@
     <string name="subtitle_history">Historique des sujets</string>
     <string name="subtitle_banned">Liste des indésirables</string>
     <string name="subtitle_edit">Edition du post</string>
+    <string name="subtitle_search_forum">Recherche forum</string>
 </resources>

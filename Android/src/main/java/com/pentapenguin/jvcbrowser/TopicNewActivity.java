@@ -6,11 +6,15 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import com.pentapenguin.jvcbrowser.entities.Forum;
+import com.pentapenguin.jvcbrowser.entities.Item;
 import com.pentapenguin.jvcbrowser.entities.Topic;
-import com.pentapenguin.jvcbrowser.fragments.TopicFragment;
+import com.pentapenguin.jvcbrowser.fragments.TopicPageFragment;
 import com.pentapenguin.jvcbrowser.fragments.TopicNewFragment;
+import com.pentapenguin.jvcbrowser.util.ItemPosted;
 
-public class TopicNewActivity extends AppCompatActivity implements TopicNewFragment.TopicNewObserver {
+public class TopicNewActivity extends AppCompatActivity implements ItemPosted {
+
+    public static final int RESULT_CODE = 111;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,10 +35,10 @@ public class TopicNewActivity extends AppCompatActivity implements TopicNewFragm
     }
 
     @Override
-    public void onPost(Topic topic) {
+    public void onPost(Item topic) {
         Intent intent = new Intent();
-        intent.putExtra(TopicFragment.TOPIC_ARG, topic);
-        setResult(777, intent);
+        intent.putExtra(TopicPageFragment.TOPIC_ARG, (Topic) topic);
+        setResult(RESULT_CODE, intent);
         finish();
     }
 }

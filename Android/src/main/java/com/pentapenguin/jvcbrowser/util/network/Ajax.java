@@ -15,6 +15,8 @@ public class Ajax extends AsyncTask<Void, Void, Connection.Response> {
 
     private Ajax(String url) {
         connection = HttpConnection.connect(url);
+        header("Cache-control", "no-cache");
+        header("Cache-store", "no-store");
     }
 
     public static Ajax url(String url) {
@@ -72,8 +74,6 @@ public class Ajax extends AsyncTask<Void, Void, Connection.Response> {
     }
 
     public Ajax callback(AjaxCallback callback) {
-        header("Cache-control", "no-cache");
-        header("Cache-store", "no-store");
         listener = callback;
         return this;
     }

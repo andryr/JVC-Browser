@@ -8,7 +8,6 @@
         android:paddingTop="@dimen/normal_margin"
         android:paddingBottom="@dimen/normal_margin"
         android:orientation="vertical"
-        android:layout_marginTop="?attr/actionBarSize"
         tools:context="com.pentapenguin.jvcbrowser.TopicNewActivity">
 
     <android.support.v7.widget.AppCompatMultiAutoCompleteTextView

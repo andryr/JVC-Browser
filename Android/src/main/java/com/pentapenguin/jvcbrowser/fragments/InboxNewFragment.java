@@ -16,8 +16,10 @@ import android.widget.*;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
+import com.pentapenguin.jvcbrowser.entities.Mp;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
+import com.pentapenguin.jvcbrowser.util.ItemPosted;
 import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
 import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
@@ -41,7 +43,7 @@ public class InboxNewFragment extends Fragment {
     private static final String TITLE_SAVE = "title";
     private static final String DESTINATION_SAVE = "destination";
 
-    private InboxNewObserver mListener;
+    private ItemPosted mListener;
     private EditText mTitle;
     private EditText mContent;
     private TextView mError;
@@ -60,7 +62,7 @@ public class InboxNewFragment extends Fragment {
         super.onAttach(activity);
 
         try {
-            mListener = (InboxNewObserver) activity;
+            mListener = (ItemPosted) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement interface");
         }
@@ -243,12 +245,12 @@ public class InboxNewFragment extends Fragment {
         mError.setText(error);
     }
 
-    private void onPost(final Topic topic) {
+    private void onPost(final Mp mp) {
         mPost.setEnabled(false);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                mListener.onPost(topic);
+                mListener.onPost(mp);
             }
         }, 1000);
     }
@@ -261,11 +263,5 @@ public class InboxNewFragment extends Fragment {
 
     private void initWidget() {
         mError.setVisibility(View.GONE);
-    }
-
-    public interface InboxNewObserver {
-
-        void onPost(Topic topic);
-
     }
 }

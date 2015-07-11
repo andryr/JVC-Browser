@@ -28,6 +28,13 @@ public class Topic extends Item implements Parcelable {
         this.code = code;
     }
 
+    public Topic(int id, int code, int idForum, String content) {
+        this.id = id;
+        this.idForum = idForum;
+        this.code = code;
+        this.content = content;
+    }
+
     public Topic(int id, int code, int idForum, String content, String author, String lastPostDate, String thumbUrl, int postsNumber) {
         super(id, content);
         this.code = code;

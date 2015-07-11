@@ -1,11 +1,9 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,8 +16,8 @@ import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
 import com.pentapenguin.jvcbrowser.entities.*;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
+import com.pentapenguin.jvcbrowser.util.FragmentLauncher;
 import com.pentapenguin.jvcbrowser.util.Helper;
-import com.pentapenguin.jvcbrowser.util.ItemObserver;
 import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.TitleObserver;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
@@ -42,10 +40,10 @@ public class FavoriteFragment extends Fragment {
     public static final String TAG = "favorite";
     private static final String ARG_FAVORITE = "favorite_type";
     private static final String URL = "http://m.jeuxvideo.com/forums/favoris.php";
+    private static final String DATA_SAVE = "data";
 
     public enum ListType { Forum, Topic}
 
-    private ItemObserver mListener;
     private RecyclerView2 mRecycler;
     private FavoriteAdapter mAdapter;
     private ListType mType;
@@ -59,25 +57,25 @@ public class FavoriteFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mType = ListType.values()[getArguments().getInt(ARG_FAVORITE)];
+        int title = R.string.subtitle_favoris_forums;
 
-        try {
-            mListener = (ItemObserver) activity;
-            mType = ListType.values()[getArguments().getInt(ARG_FAVORITE)];
-            int title = R.string.subtitle_favoris_forums;
-
-            if (mType == ListType.Topic) title = R.string.subtitle_favoris_topic;
-            ((TitleObserver) activity).updateTitle(getActivity().getResources().getString(title));
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement interface");
+        if (mType == ListType.Topic) title = R.string.subtitle_favoris_topic;
+        ((TitleObserver) getActivity()).updateTitle(getActivity().getResources().getString(title));
+        if (savedInstanceState != null) {
+            ArrayList<Link> data = savedInstanceState.getParcelableArrayList(DATA_SAVE);
+            mAdapter = new FavoriteAdapter(data);
+        } else {
+            mAdapter = new FavoriteAdapter();
         }
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mAdapter = new FavoriteAdapter();
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(DATA_SAVE, mAdapter.getData());
     }
 
     @Override
@@ -95,7 +93,15 @@ public class FavoriteFragment extends Fragment {
                     @Override
                     public void onClick(Object item, int position) {
                         Link link = (Link) item;
-                        mListener.gotoItem(Helper.urlResolve(link.getUrl()));
+                        Item itemm = Helper.urlResolve(link.getUrl());
+
+                        if (itemm instanceof Forum) {
+                            ((FragmentLauncher) getActivity()).launch(ForumFragment.newInstance((Forum) itemm), true);
+                        } else if (itemm instanceof Topic) {
+                            ((FragmentLauncher) getActivity()).launch(TopicFragment.newInstance((Topic) itemm), true);
+                        }
+
+
                     }
 
                     @Override
@@ -235,12 +241,18 @@ public class FavoriteFragment extends Fragment {
     private class FavoriteAdapter extends RecyclerViewAdapter<FavoriteHolder> {
 
         private ArrayList<Link> mValues;
-        private LayoutInflater mInflater;
 
         public FavoriteAdapter() {
             mValues = new ArrayList<Link>();
-            mInflater = getActivity().getLayoutInflater();
+            load();
+        }
 
+        public FavoriteAdapter(ArrayList<Link> values) {
+            mValues = new ArrayList<Link>(values);
+            load();
+        }
+
+        private void load() {
             switch (mType) {
                 case Forum:
                     load(0);
@@ -250,9 +262,13 @@ public class FavoriteFragment extends Fragment {
             }
         }
 
+        public ArrayList<Link> getData() {
+            return mValues;
+        }
+
         @Override
         public FavoriteHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = mInflater.inflate(R.layout.item_link, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(R.layout.item_link, parent, false);
             return new FavoriteHolder(view);
         }
 

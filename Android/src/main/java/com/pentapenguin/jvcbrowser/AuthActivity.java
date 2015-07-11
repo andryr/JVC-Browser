@@ -23,6 +23,7 @@ public class AuthActivity extends Activity {
     private static final String CLASS_FORM = "form-connect";
     private static final String CLASS_ERROR = "alert-danger";
     private static final String CLASS_CAPTCHA = "bloc-captcha";
+    public static final int RESULT_CODE = 42;
 
     private HashMap<String, String> mData;
     private HashMap<String, String> mCookies;
@@ -138,7 +139,7 @@ public class AuthActivity extends Activity {
     private void onConnected(String cookie) {
         Auth.getInstance().connect(checkField(mPseudo), cookie);
         App.toast(R.string.connected);
-        setResult(777);
+        setResult(RESULT_CODE);
         finish();
     }
 

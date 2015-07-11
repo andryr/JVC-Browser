@@ -9,7 +9,7 @@ import com.pentapenguin.jvcbrowser.fragments.*;
 
 public class ConnectedNavigationMenu {
 
-    public static final int LENGTH = 15;
+    public static final int LENGTH = 16;
 
     public static final NavigationFragment.NavigationType[] types = new NavigationFragment.NavigationType[] {
             NavigationFragment.NavigationType.Header,          //0 header
@@ -17,16 +17,17 @@ public class ConnectedNavigationMenu {
             NavigationFragment.NavigationType.Item,            //2 se déconnecter
             NavigationFragment.NavigationType.Category,        //3 forum
             NavigationFragment.NavigationType.Item,            //4 tous les forums
-            NavigationFragment.NavigationType.Item,            //5 forums favoris
-            NavigationFragment.NavigationType.Item,            //6 topic favoris
-            NavigationFragment.NavigationType.Item,            //7 historique
-            NavigationFragment.NavigationType.Category,        //8 message privé
-            NavigationFragment.NavigationType.Item,            //9 boite de réception
-            NavigationFragment.NavigationType.Category,        //10 paramètres
-            NavigationFragment.NavigationType.Item,            //11 options
-            NavigationFragment.NavigationType.Item,            //12 bannis
-            NavigationFragment.NavigationType.Category,        //13 about
-            NavigationFragment.NavigationType.Item             //14 contributeurs
+            NavigationFragment.NavigationType.Item,            //5 recherche forums
+            NavigationFragment.NavigationType.Item,            //6 forums favoris
+            NavigationFragment.NavigationType.Item,            //7 topic favoris
+            NavigationFragment.NavigationType.Item,            //8 historique
+            NavigationFragment.NavigationType.Category,        //9 message privé
+            NavigationFragment.NavigationType.Item,            //10 boite de réception
+            NavigationFragment.NavigationType.Category,        //11 paramètres
+            NavigationFragment.NavigationType.Item,            //12 options
+            NavigationFragment.NavigationType.Item,            //13 bannis
+            NavigationFragment.NavigationType.Category,        //14 about
+            NavigationFragment.NavigationType.Item             //15 contributeurs
     };
 
     public static final String[] contents = App.getContext().getResources().getStringArray(R.array.connected);
@@ -37,6 +38,7 @@ public class ConnectedNavigationMenu {
             R.drawable.menu_authentification,
             0,
             R.drawable.menu_all_forums,
+            0,
             R.drawable.menu_fovoris_forums,
             R.drawable.menu_favoris_topics,
             R.drawable.menu_history,
@@ -54,6 +56,7 @@ public class ConnectedNavigationMenu {
             null,
             null,
             ForumListFragment.newInstance(),
+            ForumSearchFragment.newInstance(),
             FavoriteFragment.newInstance(FavoriteFragment.ListType.Forum),
             FavoriteFragment.newInstance(FavoriteFragment.ListType.Topic),
             HistoryFragment.newInstance(),
@@ -70,6 +73,7 @@ public class ConnectedNavigationMenu {
             null,
             null,
             new Intent(App.getContext(), AuthActivity.class),
+            null,
             null,
             null,
             null,

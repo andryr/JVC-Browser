@@ -11,9 +11,7 @@
         <com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/forum_topic_list"
-                android:clipToPadding="false"
-                android:paddingTop="?attr/actionBarSize"/>
+                android:id="@+id/forum_topic_list"/>
 
     </android.support.v4.widget.SwipeRefreshLayout>
 

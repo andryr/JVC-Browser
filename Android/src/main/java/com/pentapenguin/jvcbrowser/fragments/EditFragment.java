@@ -1,9 +1,7 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -17,6 +15,7 @@ import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
 import com.pentapenguin.jvcbrowser.entities.Topic;
+import com.pentapenguin.jvcbrowser.util.ItemPosted;
 import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
 import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
@@ -47,7 +46,6 @@ public class EditFragment extends Fragment{
     private Button mPost;
     private HashMap<String, String> mData;
     private Topic mTopic;
-    private EditObserver mListener;
 
     public static EditFragment newInstance(Topic topic) {
         EditFragment fragment = new EditFragment();
@@ -58,18 +56,6 @@ public class EditFragment extends Fragment{
 
         return fragment;
     }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        try {
-            mListener = (EditObserver) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement interface");
-        }
-    }
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -179,12 +165,7 @@ public class EditFragment extends Fragment{
 
     private void onPost(final Topic topic) {
         mPost.setEnabled(false);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mListener.onPost();
-            }
-        }, 1000);
+        ((ItemPosted) getActivity()).onPost(topic);
     }
 
     private String checkField(EditText edit) {
@@ -197,9 +178,5 @@ public class EditFragment extends Fragment{
         mCaptcha.setVisibility(View.GONE);
         mCode.setVisibility(View.GONE);
         mError.setVisibility(View.GONE);
-    }
-
-    public interface EditObserver {
-        void onPost();
     }
 }

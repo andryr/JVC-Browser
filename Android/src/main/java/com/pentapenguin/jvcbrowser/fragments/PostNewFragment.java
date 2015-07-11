@@ -1,9 +1,7 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -18,6 +16,7 @@ import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
+import com.pentapenguin.jvcbrowser.util.ItemPosted;
 import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
 import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
@@ -35,8 +34,8 @@ public class PostNewFragment extends Fragment {
     private static final String CLASS_ERROR = "alert-danger";
     private static final String CLASS_CAPTCHA = "bloc-captcha";
     private static final String CONTENT_SAVE = "content";
+    private static final String POST_URL_SAVE = "post_url";
 
-    private PostNewObserver mListener;
     private EditText mContent;
     private EditText mCode;
     private ImageView mCaptcha;
@@ -46,15 +45,8 @@ public class PostNewFragment extends Fragment {
     private ProgressDialog mDialog;
     private String mPostUrl;
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        try {
-            mListener = (PostNewObserver) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement interface");
-        }
+    public static PostNewFragment createInstance() {
+        return new PostNewFragment();
     }
 
     @Nullable
@@ -90,13 +82,17 @@ public class PostNewFragment extends Fragment {
                 initData();
             }
         });
-        if (savedInstanceState != null) mContent.setText(savedInstanceState.getString(CONTENT_SAVE));
+        if (savedInstanceState != null) {
+            mContent.setText(savedInstanceState.getString(CONTENT_SAVE));
+            mPostUrl = savedInstanceState.getString(POST_URL_SAVE);
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(CONTENT_SAVE, mContent.getText().toString());
+        outState.putString(POST_URL_SAVE, mPostUrl);
     }
 
     private void initData() {
@@ -186,12 +182,7 @@ public class PostNewFragment extends Fragment {
     private void onPost(final Topic topic) {
         mContent.setText("");
         App.hideKeyboard(mContent.getWindowToken());
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mListener.onPost(topic);
-            }
-        }, 1000);
+        ((ItemPosted) getParentFragment()).onPost(topic);
     }
 
     private String checkField(EditText edit) {
@@ -212,9 +203,5 @@ public class PostNewFragment extends Fragment {
 
     public void append(String content) {
         mContent.append(content);
-    }
-
-    public interface PostNewObserver {
-        void onPost(Topic topic);
     }
 }

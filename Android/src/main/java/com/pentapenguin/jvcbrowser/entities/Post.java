@@ -82,5 +82,8 @@ public class Post extends Item implements Parcelable{
         parcel.writeString(profilUrl);
     }
 
-
+    @Override
+    public String toString() {
+        return content;
+    }
 }

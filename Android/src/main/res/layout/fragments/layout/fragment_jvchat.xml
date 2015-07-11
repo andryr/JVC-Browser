@@ -7,7 +7,6 @@
     <fragment android:id="@+id/jvchat_post_new"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:tag="post_new"
               android:name="com.pentapenguin.jvcbrowser.fragments.PostNewFragment"
               android:layout_alignParentBottom="true"/>
 
@@ -16,8 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/jvchat_refresh_layout"
-            android:layout_above="@+id/jvchat_post_new"
-            android:layout_marginTop="?attr/actionBarSize">
+            android:layout_above="@+id/jvchat_post_new">
 
     <com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2
             android:layout_width="match_parent"

@@ -6,19 +6,20 @@
         android:layout_height="match_parent"
         tools:context="com.pentapenguin.jvcbrowser.MainActivity" >
 
-    <RelativeLayout android:layout_width="match_parent"
+    <LinearLayout android:layout_width="match_parent"
                   android:layout_height="match_parent"
                   android:orientation="vertical"
                   android:id="@+id/layout_main">
+
+        <include layout="@layout/toolbar"
+                 android:id="@+id/toolbar"/>
 
         <FrameLayout android:layout_width="match_parent"
                      android:layout_height="match_parent"
                      android:id="@+id/frame_main">
         </FrameLayout>
 
-        <include layout="@layout/toolbar"
-                 android:id="@+id/toolbar"/>
-    </RelativeLayout>
+    </LinearLayout>
 
     <fragment android:id="@+id/navigation_drawer"
               android:layout_width="320dp"
