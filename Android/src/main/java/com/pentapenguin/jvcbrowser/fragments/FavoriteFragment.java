@@ -60,10 +60,7 @@ public class FavoriteFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mType = ListType.values()[getArguments().getInt(ARG_FAVORITE)];
-        int title = R.string.subtitle_favoris_forums;
 
-        if (mType == ListType.Topic) title = R.string.subtitle_favoris_topic;
-        ((TitleObserver) getActivity()).updateTitle(getActivity().getResources().getString(title));
         if (savedInstanceState != null) {
             ArrayList<Link> data = savedInstanceState.getParcelableArrayList(DATA_SAVE);
             mAdapter = new FavoriteAdapter(data);
@@ -221,6 +218,10 @@ public class FavoriteFragment extends Fragment {
                         }).execute();
                     }
                 }));
+
+        int title = R.string.subtitle_favoris_forums;
+        if (mType == ListType.Topic) title = R.string.subtitle_favoris_topic;
+        ((TitleObserver) getActivity()).updateTitle(getActivity().getResources().getString(title));
 
         return layout;
     }

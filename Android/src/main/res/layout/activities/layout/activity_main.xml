@@ -16,8 +16,7 @@
 
         <FrameLayout android:layout_width="match_parent"
                      android:layout_height="match_parent"
-                     android:id="@+id/frame_main">
-        </FrameLayout>
+                     android:id="@+id/frame_main"/>
 
     </LinearLayout>
 
@@ -27,5 +26,6 @@
               android:layout_gravity="start"
               android:tag="navigation"
               android:name="com.pentapenguin.jvcbrowser.fragments.NavigationFragment"/>
+
 </android.support.v4.widget.DrawerLayout>
 

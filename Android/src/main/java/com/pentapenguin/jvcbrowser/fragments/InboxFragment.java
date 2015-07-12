@@ -1,6 +1,5 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -44,7 +43,6 @@ public class InboxFragment extends Fragment{
     public static final String data_SAVE = "data";
 
     private RecyclerView2 mRecycler;
-    private FragmentLauncher mListener;
     private InboxAdapter mAdapter;
     private int mCurrentPage;
     private int mMpNumber;
@@ -52,17 +50,6 @@ public class InboxFragment extends Fragment{
 
     public static InboxFragment newInstance() {
         return new InboxFragment();
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListener = (FragmentLauncher) activity;
-            ((TitleObserver) activity).updateTitle(getActivity().getResources().getString(R.string.subtitle_inbox));
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement interface");
-        }
     }
 
     @Override
@@ -99,7 +86,7 @@ public class InboxFragment extends Fragment{
                     @Override
                     public void onClick(Object item, int position) {
 
-                        mListener.launch(MpFragment.newInstance((Mp) item), true);
+                        ((FragmentLauncher) getActivity()).launch(MpFragment.newInstance((Mp) item), true);
                     }
 
                     @Override
@@ -123,6 +110,7 @@ public class InboxFragment extends Fragment{
                                 }).create().show();
                     }
                 }));
+        ((TitleObserver) getActivity()).updateTitle(getActivity().getResources().getString(R.string.subtitle_inbox));
 
         return layout;
     }

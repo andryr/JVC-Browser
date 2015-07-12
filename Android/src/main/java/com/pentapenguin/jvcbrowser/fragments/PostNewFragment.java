@@ -30,11 +30,10 @@ import java.util.HashMap;
 public class PostNewFragment extends Fragment {
 
     public static final String TAG = "post_new";
+    public static final String POST_NEW_ARG = "arg";
     private static final String CLASS_FORM_NORMAL = "form-post-msg";
     private static final String CLASS_ERROR = "alert-danger";
     private static final String CLASS_CAPTCHA = "bloc-captcha";
-    private static final String CONTENT_SAVE = "content";
-    private static final String POST_URL_SAVE = "post_url";
 
     private EditText mContent;
     private EditText mCode;
@@ -44,9 +43,16 @@ public class PostNewFragment extends Fragment {
     private HashMap<String, String> mData;
     private ProgressDialog mDialog;
     private String mPostUrl;
+    private String mPostContent;
 
-    public static PostNewFragment createInstance() {
-        return new PostNewFragment();
+    public static PostNewFragment createInstance(String content) {
+        PostNewFragment fragment = new PostNewFragment();
+        Bundle args = new Bundle();
+
+        args.putString(POST_NEW_ARG, content);
+        fragment.setArguments(args);
+
+        return fragment;
     }
 
     @Nullable
@@ -69,6 +75,7 @@ public class PostNewFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mContent.setText(getArguments().getString(POST_NEW_ARG));
         mDialog.setCancelable(false);
         mPost.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,17 +89,6 @@ public class PostNewFragment extends Fragment {
                 initData();
             }
         });
-        if (savedInstanceState != null) {
-            mContent.setText(savedInstanceState.getString(CONTENT_SAVE));
-            mPostUrl = savedInstanceState.getString(POST_URL_SAVE);
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString(CONTENT_SAVE, mContent.getText().toString());
-        outState.putString(POST_URL_SAVE, mPostUrl);
     }
 
     private void initData() {
@@ -181,6 +177,7 @@ public class PostNewFragment extends Fragment {
 
     private void onPost(final Topic topic) {
         mContent.setText("");
+        initWidget();
         App.hideKeyboard(mContent.getWindowToken());
         ((ItemPosted) getParentFragment()).onPost(topic);
     }
@@ -203,5 +200,9 @@ public class PostNewFragment extends Fragment {
 
     public void append(String content) {
         mContent.append(content);
+    }
+
+    public String getContent() {
+        return mContent.getText().toString();
     }
 }

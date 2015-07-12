@@ -9,6 +9,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
 import com.pentapenguin.jvcbrowser.fragments.*;
@@ -71,12 +72,15 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
 
     @Override
     public void updateTitle(String title) {
-        if (mToolbar != null) mToolbar.setSubtitle(title);
+        if (mToolbar != null) {
+            mToolbar.setSubtitle(title);
+        }
     }
 
     @Override
     public void launch(Fragment fragment, boolean isBackStacked) {
         if (fragment != null) {
+            mToolbar.setSubtitle("");
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.frame_main, fragment);
             if (isBackStacked) transaction.addToBackStack(null);

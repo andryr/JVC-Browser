@@ -4,36 +4,35 @@ import android.content.Intent;
 import android.support.v4.app.Fragment;
 import com.pentapenguin.jvcbrowser.AuthActivity;
 import com.pentapenguin.jvcbrowser.R;
+import com.pentapenguin.jvcbrowser.SettingsActivity;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.fragments.*;
 
 public class ConnectedNavigationMenu {
 
-    public static final int LENGTH = 16;
+    public static final int LENGTH = 15;
 
     public static final NavigationFragment.NavigationType[] types = new NavigationFragment.NavigationType[] {
-            NavigationFragment.NavigationType.Header,          //0 header
-            NavigationFragment.NavigationType.Category,        //1 authentification
-            NavigationFragment.NavigationType.Item,            //2 se déconnecter
-            NavigationFragment.NavigationType.Category,        //3 forum
-            NavigationFragment.NavigationType.Item,            //4 tous les forums
-            NavigationFragment.NavigationType.Item,            //5 recherche forums
-            NavigationFragment.NavigationType.Item,            //6 forums favoris
-            NavigationFragment.NavigationType.Item,            //7 topic favoris
-            NavigationFragment.NavigationType.Item,            //8 historique
-            NavigationFragment.NavigationType.Category,        //9 message privé
-            NavigationFragment.NavigationType.Item,            //10 boite de réception
-            NavigationFragment.NavigationType.Category,        //11 paramètres
-            NavigationFragment.NavigationType.Item,            //12 options
-            NavigationFragment.NavigationType.Item,            //13 bannis
-            NavigationFragment.NavigationType.Category,        //14 about
-            NavigationFragment.NavigationType.Item             //15 contributeurs
+            NavigationFragment.NavigationType.Header,          //header
+            NavigationFragment.NavigationType.Item,            //se déconnecter
+            NavigationFragment.NavigationType.Category,        // forum
+            NavigationFragment.NavigationType.Item,            // tous les forums
+            NavigationFragment.NavigationType.Item,            // recherche forums
+            NavigationFragment.NavigationType.Item,            // forums favoris
+            NavigationFragment.NavigationType.Item,            // topic favoris
+            NavigationFragment.NavigationType.Item,            // historique
+            NavigationFragment.NavigationType.Category,        // message privé
+            NavigationFragment.NavigationType.Item,            // boite de réception
+            NavigationFragment.NavigationType.Category,        // paramètres
+            NavigationFragment.NavigationType.Item,            // options
+            NavigationFragment.NavigationType.Item,            // bannis
+            NavigationFragment.NavigationType.Category,        // about
+            NavigationFragment.NavigationType.Item             // contributeurs
     };
 
     public static final String[] contents = App.getContext().getResources().getStringArray(R.array.connected);
 
     public static final int[] thumbs = new int[] {
-            0,
             0,
             R.drawable.menu_authentification,
             0,
@@ -54,7 +53,6 @@ public class ConnectedNavigationMenu {
             null,
             null,
             null,
-            null,
             ForumListFragment.newInstance(),
             ForumSearchFragment.newInstance(),
             FavoriteFragment.newInstance(FavoriteFragment.ListType.Forum),
@@ -71,7 +69,6 @@ public class ConnectedNavigationMenu {
 
     public static final Intent[] intents = new Intent[] {
             null,
-            null,
             new Intent(App.getContext(), AuthActivity.class),
             null,
             null,
@@ -82,7 +79,7 @@ public class ConnectedNavigationMenu {
             null,
             null,
             null,
-            null,
+            new Intent(App.getContext(), SettingsActivity.class),
             null,
             null,
             null

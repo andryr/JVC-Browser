@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.*;
 import android.webkit.WebView;
@@ -106,6 +107,14 @@ public class TopicPageFragment extends Fragment implements Reloadable {
     }
 
     @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && !mLoaded && mAdapter != null) {
+            mAdapter.load();
+        }
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(LOADED_SAVE, mLoaded);
@@ -128,29 +137,23 @@ public class TopicPageFragment extends Fragment implements Reloadable {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Log.d("result", "ok");
-        if (resultCode == EditActivity.RESULT_CODE) reload();
-    }
-
-    @Override
     public void reload() {
-        Log.d("page", mTopic.getPage() + "");
         mAdapter.load();
     }
 
-    private class TopicAdapter extends RecyclerView2.Adapter<TopicHolder> {
+    private class TopicAdapter extends RecyclerView2.Adapter<RecyclerView.ViewHolder> {
 
         private ArrayList<Post> mValues;
+//        private ArrayList<Post> mCache;
 
         public TopicAdapter() {
             mValues = new ArrayList<Post>();
-            load();
+//            mCache = new ArrayList<Post>();
         }
 
         public TopicAdapter(ArrayList<Post> values) {
             mValues = new ArrayList<Post>(values);
+//            mCache = new ArrayList<Post>(values);
         }
 
         public void load() {
@@ -158,46 +161,53 @@ public class TopicPageFragment extends Fragment implements Reloadable {
             notifyDataSetChanged();
             Ajax.url(Helper.topicToMobileUrl(mTopic) + "?bide=" + System.currentTimeMillis()).post()
                     .callback(new AjaxCallback() {
-                @Override
-                public void onComplete(Connection.Response response) {
-                    if (response != null) {
-                        try {
-                            Document doc = response.parse();
-                            mValues = Parser.topic(doc);
-                            Iterator<Post> it = mValues.iterator();
+                        @Override
+                        public void onComplete(Connection.Response response) {
+                            if (response != null) {
+                                try {
+                                    Document doc = response.parse();
+                                    ArrayList<Post> values = Parser.topic(doc);
 
-                            while (it.hasNext()) {
-                                Post post = it.next();
-                                if (Bans.isBanned(post.getAuthor())) it.remove();
-                            }
-                            int length = mValues.size();
-                            if (length == 0) throw new NoContentFoundException();
-                            ((TopicObserver) getParentFragment()).updatePostUrl(Parser.newPostUrl(doc));
-                            ((TopicObserver) getParentFragment()).updatePages(Parser.page(doc));
-                            ((TitleObserver) getParentFragment()).updateTitle(Parser.getTitleTopic(doc));
-                            notifyDataSetChanged();
-                            if (mLoaded) {
-                                new Handler().postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mRecycler.smoothScrollToPosition(mAdapter.getItemCount());
+//                                    if (mCache.size() >= values.size()) {
+//                                        mValues = new ArrayList<Post>(mCache);
+//                                    } else {
+//                                        mCache = new ArrayList<Post>(values);
+//                                    }
+                                    mValues = new ArrayList<Post>(values);
+                                    Iterator<Post> it = mValues.iterator();
+                                    while (it.hasNext()) {
+                                        Post post = it.next();
+                                        if (Bans.isBanned(post.getAuthor())) it.remove();
                                     }
-                                }, WAIT_BEFORE_SCROLL);
-                            }
-                            mLoaded = true;
+                                    int length = mValues.size();
+                                    if (length == 0) throw new NoContentFoundException();
+                                    ((TopicObserver) getParentFragment()).updatePostUrl(Parser.newPostUrl(doc));
+                                    int pages = Parser.page(doc);
+                                    ((TopicObserver) getParentFragment()).updatePages(pages);
+                                    mValues.add(0, new Post(pages, Parser.getTitleTopic(doc)));
+                                    notifyDataSetChanged();
+                                    if (mLoaded) {
+                                        new Handler().postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                mRecycler.smoothScrollToPosition(mAdapter.getItemCount());
+                                            }
+                                        }, WAIT_BEFORE_SCROLL);
+                                    }
+                                    mLoaded = true;
 
-                            return;
-                        } catch (IOException e) {
-                            App.alert(getActivity(), e.getMessage());
-                        } catch (NoContentFoundException e) {
-                            App.alert(getActivity(), e.getMessage());
+                                    return;
+                                } catch (IOException e) {
+                                    App.alert(getActivity(), e.getMessage());
+                                } catch (NoContentFoundException e) {
+                                    App.alert(getActivity(), e.getMessage());
+                                }
+                            } else {
+                                App.alert(getActivity(), R.string.no_response);
+                            }
+                            mRecycler.showNoResults();
                         }
-                    } else {
-                        App.alert(getActivity(), R.string.no_response);
-                    }
-                    mRecycler.showNoResults();
-                }
-            }).execute();
+                    }).execute();
         }
 
         public void removeItem(int position) {
@@ -206,23 +216,38 @@ public class TopicPageFragment extends Fragment implements Reloadable {
         }
 
         @Override
-        public TopicHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            TopicFragment.TopicType type = TopicFragment.TopicType.values()[viewType];
+
+            if (type == TopicFragment.TopicType.Title) {
+                View view = getActivity().getLayoutInflater().inflate(R.layout.item_topic_header, parent, false);
+                return new TopicHeaderHolder(view);
+            }
             View view = getActivity().getLayoutInflater().inflate(R.layout.item_post, parent, false);
             return new TopicHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(TopicHolder holder, int position) {
-            holder.bind(mValues.get(position), position);
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            if (holder instanceof TopicHeaderHolder) {
+                ((TopicHeaderHolder) holder).bind(mValues.get(0));
+            } else {
+                ((TopicHolder) holder).bind(mValues.get(position), position);
+            }
         }
 
         @Override
         public int getItemCount() {
             return mValues.size();
         }
+
+        @Override
+        public int getItemViewType(int position) {
+            return position == 0 ? TopicFragment.TopicType.Title.ordinal() : TopicFragment.TopicType.Core.ordinal();
+        }
     }
 
-    private class TopicHolder extends RecyclerView2.ViewHolder {
+    private class TopicHolder extends RecyclerView.ViewHolder {
 
         private ImageView mThumb;
         private TextView mAuthor;
@@ -334,6 +359,13 @@ public class TopicPageFragment extends Fragment implements Reloadable {
             menu.show();
         }
 
+        private void edit(Post post) {
+            Intent intent = new Intent(getActivity(), EditActivity.class);
+            intent.putExtra(EditFragment.EDIT_TOPIC_ARG, mTopic);
+            intent.putExtra(EditFragment.POST_ID_ARG, post.getId());
+            getParentFragment().startActivityForResult(intent, 777);
+        }
+
         private void ignore(Post post) {
             Bans.add(post.getAuthor());
             mAdapter.load();
@@ -380,72 +412,6 @@ public class TopicPageFragment extends Fragment implements Reloadable {
                                     if (errors.length() != 0) {
                                         return errors.get(0).toString();
                                     }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                return null;
-                            }
-
-                        }).execute();
-
-                        return;
-                    }
-                    dialog.dismiss();
-                    App.alert(getActivity(), R.string.no_response);
-                }
-            }).execute();
-        }
-
-        private void edit(final Post post) {
-            String url = Helper.topicToMobileUrl(mTopic).replace("http://m", "http://www");
-            final ProgressDialog dialog = App.progress(getActivity(), R.string.in_progress, true);
-
-            dialog.show();
-            Ajax.url(url).cookie(Auth.COOKIE_NAME, Auth.getInstance().getCookieValue()).callback(new AjaxCallback() {
-                @Override
-                public void onComplete(Connection.Response response) {
-                    if (response != null) {
-                        String url = "http://www.jeuxvideo.com/forums/ajax_edit_message.php";
-                        String html = response.body();
-                        final HashMap<String, String> data = new HashMap<String, String>();
-
-                        data.put("ajax_timestamp", Parser.timestamp(html));
-                        data.put("ajax_hash", Parser.hash1(html));
-                        data.put("action", "get");
-                        data.put("id_message", Integer.toString(post.getId()));
-                        Ajax.url(url).data(data).cookie(Auth.COOKIE_NAME, Auth.getInstance().getCookieValue())
-                                .ignoreContentType(true).callback(new AjaxCallback() {
-                            @Override
-                            public void onComplete(Connection.Response response) {
-                                dialog.dismiss();
-                                if (response != null) {
-                                    String edit = json(response.body());
-                                    if (edit != null) {
-                                        String hash = data.get("ajax_hash");
-                                        String timestamp = data.get("ajax_timestamp");
-                                        Intent intent = new Intent(getActivity(), EditActivity.class);
-                                        Topic topic = new Topic(mTopic.getId(), mTopic.getCode(),
-                                                mTopic.getIdForum(), edit, hash, timestamp, null, post.getId());
-                                        intent.putExtra(EditFragment.EDIT_TOPIC_ARG, topic);
-                                        getParentFragment().startActivityForResult(intent, 777);
-
-                                        return;
-                                    }
-                                    App.alert(getActivity(), R.string.edit_unavailable);
-
-                                    return;
-                                }
-                                App.alert(getActivity(), R.string.no_response);
-                            }
-
-                            private String json(String message) {
-                                try {
-                                    JSONObject json = new JSONObject(message);
-                                    JSONArray errors = json.getJSONArray("erreur");
-                                    if (errors.length() != 0) {
-                                        return null;
-                                    }
-                                    return json.getString("html");
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -525,7 +491,21 @@ public class TopicPageFragment extends Fragment implements Reloadable {
         }
     }
 
-    public interface TopicObserver extends TitleObserver {
+    private class TopicHeaderHolder extends RecyclerView.ViewHolder {
+
+        private TextView mTitle;
+
+        public TopicHeaderHolder(View itemView) {
+            super(itemView);
+            mTitle = (TextView) itemView.findViewById(R.id.topic_header_title);
+        }
+
+        public void bind(Post post) {
+            mTitle.setText("Sujet : " + post.getContent() + "\nPage " + mTopic.getPage() + "/" + post.getId());
+        }
+    }
+
+    public interface TopicObserver {
         void updatePages(int max);
         void updatePostUrl(String postUrl);
         void gotoLastPage();

@@ -5,6 +5,10 @@
 
     </style>
 
+    <style name="SettingsTheme" parent="android:Theme.Light">
+
+    </style>
+
     <style name="toolbar_style" parent="AppTheme">
         <item name="android:background">@color/primary</item>
         <item name="android:textColorPrimary">@color/white</item>

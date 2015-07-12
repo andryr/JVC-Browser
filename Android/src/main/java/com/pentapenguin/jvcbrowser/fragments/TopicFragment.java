@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.InputType;
+import android.util.Log;
 import android.view.*;
 import android.widget.EditText;
 import com.pentapenguin.jvcbrowser.EditActivity;
@@ -31,6 +32,7 @@ import org.json.JSONObject;
 import org.jsoup.Connection;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class TopicFragment extends Fragment implements TopicPageFragment.TopicObserver, ItemPosted {
 
@@ -39,13 +41,18 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
     public static final String CURRENT_PAGE_SAVE = "current_page";
     public static final String MAX_SAVE = "max";
     public static final String TITLE_SAVE = "title";
+    public static final String POST_URL_SAVE = "post_url";
+    public static final String POST_CONTENT_SAVE = "post_content";
 
-    private ViewPager mPager;
+    public enum TopicType { Title, Core;}
+
     private Topic mTopic;
+    private ViewPager mPager;
     private PagerAdapter mAdapter;
     private PostNewFragment mPost;
     private int mMax;
     private int mCurrentPage;
+    private String mPostUrl;
     private String mTitle;
 
     public static TopicFragment newInstance(Topic topic) {
@@ -70,12 +77,14 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
             mMax = savedInstanceState.getInt(MAX_SAVE);
             mCurrentPage = savedInstanceState.getInt(CURRENT_PAGE_SAVE);
             mTitle = savedInstanceState.getString(TITLE_SAVE);
-            mPost = (PostNewFragment) getChildFragmentManager().findFragmentByTag(PostNewFragment.TAG);
+            mPostUrl = savedInstanceState.getString(POST_URL_SAVE);
+            mPost = PostNewFragment.createInstance(savedInstanceState.getString(POST_CONTENT_SAVE));
+            mPost.setPostUrl(mPostUrl);
         } else {
-            mPost = PostNewFragment.createInstance();
-            getChildFragmentManager().beginTransaction().add(R.id.pager_post_new_layout, mPost, PostNewFragment.TAG)
-                    .commit();
+            mPost = PostNewFragment.createInstance("");
         }
+        getChildFragmentManager().beginTransaction().replace(R.id.pager_post_new_layout, mPost, PostNewFragment.TAG)
+                .commit();
         mAdapter = new PagerAdapter(getChildFragmentManager());
         setHasOptionsMenu(true);
     }
@@ -99,26 +108,6 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
         if (!Auth.getInstance().isConnected()) {
             getChildFragmentManager().beginTransaction().hide(mPost).commit();
         }
-        if (mTitle != null) {
-            ((TitleObserver) getActivity()).updateTitle((mCurrentPage + 1) + " | " + mTitle);
-        }
-        mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int i, float v, int i1) {
-
-            }
-
-            @Override
-            public void onPageSelected(int i) {
-                mCurrentPage = i;
-                ((TitleObserver) getActivity()).updateTitle((mCurrentPage + 1) + " | " + mTitle);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int i) {
-
-            }
-        });
     }
 
     @Override
@@ -127,6 +116,13 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
         outState.putInt(CURRENT_PAGE_SAVE, mPager.getCurrentItem());
         outState.putInt(MAX_SAVE, mMax);
         outState.putString(TITLE_SAVE, mTitle);
+        outState.putString(POST_URL_SAVE, mPostUrl);
+        outState.putString(POST_CONTENT_SAVE, mPost.getContent());
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
     }
 
     @Override
@@ -254,7 +250,8 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
 
     @Override
     public void updatePostUrl(String postUrl) {
-        if (mPost != null) mPost.setPostUrl(postUrl);
+        mPostUrl = postUrl;
+        if (mPost != null) mPost.setPostUrl(mPostUrl);
     }
 
     @Override
@@ -270,14 +267,6 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
     @Override
     public void quote(Topic topic) {
         if (mPost != null) mPost.append(topic.getContent());
-    }
-
-    @Override
-    public void updateTitle(String title) {
-        if (mTitle == null) {
-            mTitle = title;
-            ((TitleObserver) getActivity()).updateTitle(title);
-        }
     }
 
     @Override

@@ -23,9 +23,10 @@ public class EditActivity extends AppCompatActivity implements ItemPosted {
         setSupportActionBar(toolbar);
         if (savedInstanceState == null) {
             Topic topic = getIntent().getParcelableExtra(EditFragment.EDIT_TOPIC_ARG);
+            int postId = getIntent().getIntExtra(EditFragment.POST_ID_ARG, 0);
 
             FragmentManager manager = getSupportFragmentManager();
-            manager.beginTransaction().replace(R.id.frame_main, EditFragment.newInstance(topic), EditFragment.TAG)
+            manager.beginTransaction().replace(R.id.frame_main, EditFragment.newInstance(topic, postId), EditFragment.TAG)
                     .commit();
         }
     }

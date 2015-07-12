@@ -34,11 +34,11 @@ public class Parser {
     public static String captcha(Document doc, String classCaptcha) {
         Elements content = doc.getElementsByClass(classCaptcha);
 
-        if (content.isEmpty()) {
-            return null;
-        }
+        if (content.isEmpty()) return null;
+        Elements imgs = content.get(0).getElementsByTag("img");
+        if (imgs.isEmpty()) return null;
 
-        return App.HOST_MOBILE + content.get(0).getElementsByTag("img").get(0).attr("src");
+        return App.HOST_MOBILE + imgs.get(0).attr("src");
     }
 
     public static String error(Document doc, String classError) {
