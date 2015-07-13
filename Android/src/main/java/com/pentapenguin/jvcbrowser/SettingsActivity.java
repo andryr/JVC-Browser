@@ -3,28 +3,40 @@ package com.pentapenguin.jvcbrowser;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.util.Log;
+import com.pentapenguin.jvcbrowser.app.Settings;
 import com.pentapenguin.jvcbrowser.util.persistence.Storage;
 
 public class SettingsActivity extends PreferenceActivity {
 
-    public static final String AUTOREFRESH = "autorefresh";
-    private Boolean mAutorefresh;
+
+    private Boolean mTopicAuto;
+    private Boolean mMpAuto;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
 
-        final Preference autorefreshPreference = findPreference(AUTOREFRESH);
-        mAutorefresh = Storage.getInstance().get(AUTOREFRESH, false);
+        final Preference topicAutoPreference = findPreference(Settings.TOPIC_AUTOREFRESH);
+        final Preference mpAutoPreference = findPreference(Settings.TOPIC_AUTOREFRESH);
+        mTopicAuto = Storage.getInstance().get(Settings.TOPIC_AUTOREFRESH, false);
+        mMpAuto = Storage.getInstance().get(Settings.TOPIC_AUTOREFRESH, false);
 
-        autorefreshPreference.setDefaultValue(mAutorefresh);
-        autorefreshPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        topicAutoPreference.setDefaultValue(mTopicAuto);
+        topicAutoPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                mAutorefresh = !mAutorefresh;
-                Storage.getInstance().put(AUTOREFRESH, mAutorefresh);
+                mTopicAuto = !mTopicAuto;
+                Storage.getInstance().put(Settings.TOPIC_AUTOREFRESH, mTopicAuto);
+                return false;
+            }
+        });
+        mpAutoPreference.setDefaultValue(mTopicAuto);
+        mpAutoPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                mMpAuto = !mMpAuto;
+                Storage.getInstance().put(Settings.MP_AUTOREFRESH, mMpAuto);
                 return false;
             }
         });

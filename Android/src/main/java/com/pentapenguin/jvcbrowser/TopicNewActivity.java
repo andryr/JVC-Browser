@@ -1,5 +1,7 @@
 package com.pentapenguin.jvcbrowser;
 
+import android.app.AlarmManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -32,6 +34,8 @@ public class TopicNewActivity extends AppCompatActivity implements ItemPosted {
             transaction.replace(R.id.frame_main, TopicNewFragment.newInstance(forum), TopicNewFragment.TAG);
             transaction.commit();
         }
+
+        AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
     }
 
     @Override

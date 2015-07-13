@@ -2,7 +2,10 @@
 <resources>
     <string name="settings_name">Préférences</string>
     <string name="category_forum">Forum</string>
-    <string name="autorefresh">Autorefresh</string>
-    <string name="autorefresh_summary">Actualisation automatique des messages</string>
+    <string name="category_inbox">Message privé</string>
+    <string name="topic_autorefresh">Topic Autorefresh</string>
+    <string name="topic_autorefresh_summary">Actualisation automatique des messages du topic</string>
+    <string name="mp_autorefresh">MP Autorefresh</string>
+    <string name="mp_autorefresh_summary">Actualisation automatique des messages du MP</string>
 
 </resources>

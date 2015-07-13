@@ -18,10 +18,7 @@ import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.pentapenguin.jvcbrowser.*;
-import com.pentapenguin.jvcbrowser.app.App;
-import com.pentapenguin.jvcbrowser.app.Auth;
-import com.pentapenguin.jvcbrowser.app.Bans;
-import com.pentapenguin.jvcbrowser.app.History;
+import com.pentapenguin.jvcbrowser.app.*;
 import com.pentapenguin.jvcbrowser.entities.Forum;
 import com.pentapenguin.jvcbrowser.entities.Item;
 import com.pentapenguin.jvcbrowser.entities.Post;
@@ -30,6 +27,7 @@ import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
 import com.pentapenguin.jvcbrowser.util.*;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
 import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
+import com.pentapenguin.jvcbrowser.util.persistence.Storage;
 import com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2;
 import com.squareup.picasso.Picasso;
 import org.json.JSONArray;
@@ -54,11 +52,15 @@ public class TopicPageFragment extends Fragment implements Reloadable {
     public static final int WAIT_BEFORE_SCROLL = 1000;
     public static final String DATA_SAVE = "data";
     public static final String LOADED_SAVE = "loaded";
+    private static final long REFRESH_TIME = 10000;
+
 
     private RecyclerView2 mRecycler;
     private TopicAdapter mAdapter;
+    private LinearLayoutManager mLayout;
     private Topic mTopic;
     private boolean mLoaded;
+    private boolean refreshing;
 
     public static TopicPageFragment newInstance(Topic topic) {
         TopicPageFragment fragment = new TopicPageFragment();
@@ -75,13 +77,14 @@ public class TopicPageFragment extends Fragment implements Reloadable {
         super.onCreate(savedInstanceState);
         mTopic = getArguments().getParcelable(TOPIC_ARG);
         mLoaded = false;
+        refreshing = Storage.getInstance().get(Settings.TOPIC_AUTOREFRESH, false);
 
         if (savedInstanceState != null) {
             mLoaded = savedInstanceState.getBoolean(LOADED_SAVE);
             ArrayList<Post> data = savedInstanceState.getParcelableArrayList(DATA_SAVE);
-            mAdapter = new TopicAdapter(data);
+            mAdapter = refreshing ? new TopicAutoAdapter(data) : new TopicAdapter(data);
         } else {
-            mAdapter = new TopicAdapter();
+            mAdapter = refreshing ? new TopicAutoAdapter() : new TopicAdapter();
         }
         setHasOptionsMenu(true);
     }
@@ -92,16 +95,17 @@ public class TopicPageFragment extends Fragment implements Reloadable {
         View layout = inflater.inflate(R.layout.fragment_topic_page, container, false);
         mRecycler = (RecyclerView2) layout.findViewById(R.id.topic_post_list);
         mRecycler.setAdapter(mAdapter);
-        mRecycler.setEmptyView(layout.findViewById(R.id.topic_empty_text));
-        mRecycler.setLoadingView(layout.findViewById(R.id.topic_loading_bar));
-        mRecycler.setItemViewCacheSize(ITEM_CACHED_VIEW);
-        mRecycler.setItemAnimator(new DefaultItemAnimator());
-        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()) {
+        mLayout = new LinearLayoutManager(getActivity()) {
             @Override
             protected int getExtraLayoutSpace(android.support.v7.widget.RecyclerView.State state) {
                 return EXTRA_LAYOUT_SPACE;
             }
-        });
+        };
+        mRecycler.setEmptyView(layout.findViewById(R.id.topic_empty_text));
+        mRecycler.setLoadingView(layout.findViewById(R.id.topic_loading_bar));
+        mRecycler.setItemViewCacheSize(ITEM_CACHED_VIEW);
+        mRecycler.setItemAnimator(new DefaultItemAnimator());
+        mRecycler.setLayoutManager(mLayout);
 
         return layout;
     }
@@ -109,6 +113,11 @@ public class TopicPageFragment extends Fragment implements Reloadable {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
+        refreshing = isVisibleToUser ? Storage.getInstance().get(Settings.TOPIC_AUTOREFRESH, false) : false;
+        if (refreshing && mAdapter != null) {
+            mAdapter.load();
+            return;
+        }
         if (isVisibleToUser && !mLoaded && mAdapter != null) {
             mAdapter.load();
         }
@@ -124,7 +133,7 @@ public class TopicPageFragment extends Fragment implements Reloadable {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_topic_page, menu);
-//        menu.findItem(R.id.menu_topic_page_refresh).setVisible(isVisible());
+        menu.findItem(R.id.menu_topic_page_refresh).setVisible(!refreshing);
     }
 
     @Override
@@ -138,12 +147,12 @@ public class TopicPageFragment extends Fragment implements Reloadable {
 
     @Override
     public void reload() {
-        mAdapter.load();
+        if (!refreshing) mAdapter.load();
     }
 
     private class TopicAdapter extends RecyclerView2.Adapter<RecyclerView.ViewHolder> {
 
-        private ArrayList<Post> mValues;
+        protected ArrayList<Post> mValues;
 //        private ArrayList<Post> mCache;
 
         public TopicAdapter() {
@@ -186,14 +195,7 @@ public class TopicPageFragment extends Fragment implements Reloadable {
                                     ((TopicObserver) getParentFragment()).updatePages(pages);
                                     mValues.add(0, new Post(pages, Parser.getTitleTopic(doc)));
                                     notifyDataSetChanged();
-                                    if (mLoaded) {
-                                        new Handler().postDelayed(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                mRecycler.smoothScrollToPosition(mAdapter.getItemCount());
-                                            }
-                                        }, WAIT_BEFORE_SCROLL);
-                                    }
+                                    scrollToBottom();
                                     mLoaded = true;
 
                                     return;
@@ -208,6 +210,17 @@ public class TopicPageFragment extends Fragment implements Reloadable {
                             mRecycler.showNoResults();
                         }
                     }).execute();
+        }
+
+        public void scrollToBottom() {
+            if (mLoaded && mLayout.findLastVisibleItemPosition() >= mAdapter.getItemCount() - 3) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mRecycler.smoothScrollToPosition(mAdapter.getItemCount());
+                    }
+                }, WAIT_BEFORE_SCROLL);
+            }
         }
 
         public void removeItem(int position) {
@@ -244,6 +257,66 @@ public class TopicPageFragment extends Fragment implements Reloadable {
         @Override
         public int getItemViewType(int position) {
             return position == 0 ? TopicFragment.TopicType.Title.ordinal() : TopicFragment.TopicType.Core.ordinal();
+        }
+    }
+
+    private class TopicAutoAdapter extends TopicAdapter {
+
+        public TopicAutoAdapter() {
+            super();
+        }
+
+        public TopicAutoAdapter(ArrayList<Post> values) {
+            super(values);
+        }
+
+        @Override
+        public void load() {
+            if (!refreshing) return;
+            Log.d("topic page"+mTopic.getPage(), "autoloaded");
+            Ajax.url(Helper.topicToMobileUrl(mTopic) + "?bide=" + System.currentTimeMillis()).post()
+                    .callback(new AjaxCallback() {
+                        @Override
+                        public void onComplete(Connection.Response response) {
+                            if (response != null) {
+                                try {
+                                    Document doc = response.parse();
+                                    ArrayList<Post> values = Parser.topic(doc);
+
+                                    mValues = new ArrayList<Post>(values);
+                                    Iterator<Post> it = mValues.iterator();
+                                    while (it.hasNext()) {
+                                        Post post = it.next();
+                                        if (Bans.isBanned(post.getAuthor())) it.remove();
+                                    }
+                                    int length = mValues.size();
+                                    if (length == 0) throw new NoContentFoundException();
+                                    ((TopicObserver) getParentFragment()).updatePostUrl(Parser.newPostUrl(doc));
+                                    int pages = Parser.page(doc);
+                                    ((TopicObserver) getParentFragment()).updatePages(pages);
+                                    mValues.add(0, new Post(pages, Parser.getTitleTopic(doc)));
+                                    notifyDataSetChanged();
+                                    scrollToBottom();
+                                    mLoaded = true;
+                                    new Handler().postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (refreshing) load();
+                                        }
+                                    }, REFRESH_TIME);
+
+                                    return;
+                                } catch (IOException e) {
+//                                    App.alert(getActivity(), e.getMessage());
+                                } catch (NoContentFoundException e) {
+//                                    App.alert(getActivity(), e.getMessage());
+                                }
+                            } else {
+//                                App.alert(getActivity(), R.string.no_response);
+                            }
+//                            mRecycler.showNoResults();
+                        }
+                    }).execute();
         }
     }
 

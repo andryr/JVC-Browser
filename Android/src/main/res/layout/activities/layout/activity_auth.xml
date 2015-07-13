@@ -19,7 +19,6 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/text_pseudo"
                 android:maxLines="1"
-                android:inputType="textCapSentences"
                 android:hint="Pseudo"/>
         <EditText
                 android:layout_width="match_parent"

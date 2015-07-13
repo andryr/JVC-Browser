@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
     private Toolbar mToolbar;
     private DrawerLayout mDrawerLayout;
     private boolean mDoubleTap;
+    private NavigationFragment mNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +31,9 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        NavigationFragment navigation = (NavigationFragment) getSupportFragmentManager()
+        mNavigation = (NavigationFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.navigation_drawer);
-        mDrawerLayout = navigation.setUp((DrawerLayout) findViewById(R.id.drawer_layout), mToolbar);
+        mDrawerLayout = mNavigation.setUp((DrawerLayout) findViewById(R.id.drawer_layout), mToolbar);
         mToolbar.setSubtitle(Auth.getInstance().isConnected() ?
                 R.string.subtitle_favoris_forums : R.string.subtitle_all_forum);
         mDoubleTap = false;
@@ -44,6 +45,12 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
             transaction.replace(R.id.frame_main, fragment, FavoriteFragment.TAG);
             transaction.commit();
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == AuthActivity.RESULT_CODE) mNavigation.reload();
     }
 
     @Override

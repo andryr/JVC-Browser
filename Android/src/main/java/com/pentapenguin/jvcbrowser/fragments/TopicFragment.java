@@ -104,6 +104,7 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
 
         mPager.setAdapter(mAdapter);
         mPager.setOffscreenPageLimit(1);
+        ((TitleObserver) getActivity()).updateTitle("");
         if (mCurrentPage != 0) mPager.setCurrentItem(mCurrentPage);
         if (!Auth.getInstance().isConnected()) {
             getChildFragmentManager().beginTransaction().hide(mPost).commit();

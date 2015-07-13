@@ -4,9 +4,20 @@
             android:title="@string/category_forum">
 
         <CheckBoxPreference
-                android:key="autorefresh"
-                android:title="@string/autorefresh"
-                android:summary="@string/autorefresh_summary" />
+                android:key="topic_autorefresh"
+                android:defaultValue="false"
+                android:title="@string/topic_autorefresh"
+                android:summary="@string/topic_autorefresh_summary" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+            android:title="@string/category_inbox">
+
+        <CheckBoxPreference
+                android:key="mp_autorefresh"
+                android:defaultValue="false"
+                android:title="@string/mp_autorefresh"
+                android:summary="@string/mp_autorefresh_summary" />
     </PreferenceCategory>
 
 </PreferenceScreen>

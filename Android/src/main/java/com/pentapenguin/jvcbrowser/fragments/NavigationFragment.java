@@ -1,5 +1,6 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -9,6 +10,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,7 +70,7 @@ public class NavigationFragment extends Fragment {
                     public void onClick(Object item, int position) {
                         Navigation navigation = (Navigation) item;
                         if (navigation.getType() == NavigationType.Item) {
-                            if (position == 2 && Auth.getInstance().isConnected()) {
+                            if (position == 1 && Auth.getInstance().isConnected()) {
                                 Auth.getInstance().disconnect();
                                 getActivity().getSupportFragmentManager().popBackStack(null,
                                         FragmentManager.POP_BACK_STACK_INCLUSIVE);
