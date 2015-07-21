@@ -13,7 +13,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.*;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -48,7 +47,8 @@ public class MpFragment extends Fragment implements ItemPosted {
     public static final String DATA_SAVE = "data";
     public static final String TITLE_SAVE = "title";
     private static final long WAIT_BEFORE_SCROLL = 1000;
-    private static final long REFRESH_TIME = 3000;
+    private static final long REFRESH_TIME = 10000;
+    private static final int EXTRA_LAYOUT_SPACE = 10000;
 
     private RecyclerView2 mRecycler;
     private MpAdapter mAdapter;
@@ -59,7 +59,9 @@ public class MpFragment extends Fragment implements ItemPosted {
     private MpNewFragment mPost;
     private String mTitle;
     private LinearLayoutManager mLayout;
-    private boolean refreshing;
+    private boolean mRefreshing;
+    private boolean mSwiped;
+    private boolean mReload;
 
     public static MpFragment newInstance(Mp mp) {
         MpFragment fragment = new MpFragment();
@@ -77,8 +79,9 @@ public class MpFragment extends Fragment implements ItemPosted {
         mLocked = true;
         mOffset = 0;
         mTitle = null;
+        mSwiped = true;
         mMp = getArguments().getParcelable(MP_ARG);
-        refreshing = Storage.getInstance().get(Settings.MP_AUTOREFRESH, false);
+        mRefreshing = Storage.getInstance().get(Settings.MP_AUTOREFRESH, false);
 
         if (savedInstanceState != null) {
             mLocked = savedInstanceState.getBoolean(LOCKED_SAVE);
@@ -86,9 +89,9 @@ public class MpFragment extends Fragment implements ItemPosted {
             mTitle = savedInstanceState.getString(TITLE_SAVE);
             ArrayList<Post> data = savedInstanceState.getParcelableArrayList(DATA_SAVE);
             mPost = (MpNewFragment) getChildFragmentManager().findFragmentByTag(MpNewFragment.TAG);
-            mAdapter = refreshing ? new MpAutoAdapter(data) : new MpAdapter(data);
+            mAdapter = mRefreshing ? new MpAutoAdapter(data) : new MpAdapter(data);
         } else {
-            mAdapter = refreshing ? new MpAutoAdapter() : new MpAdapter();
+            mAdapter = mRefreshing ? new MpAutoAdapter() : new MpAdapter();
             mPost = MpNewFragment.createInstance();
             getChildFragmentManager().beginTransaction().add(R.id.mp_new_frame, mPost, MpNewFragment.TAG)
                     .commit();
@@ -104,7 +107,12 @@ public class MpFragment extends Fragment implements ItemPosted {
 
         mSwipeLayout = (SwipeRefreshLayout) layout.findViewById(R.id.mp_refresh_layout);
         mRecycler = (RecyclerView2) layout.findViewById(R.id.mp_post_list);
-        mLayout = new LinearLayoutManager(getActivity());
+        mLayout = new LinearLayoutManager(getActivity()) {
+            @Override
+            protected int getExtraLayoutSpace(android.support.v7.widget.RecyclerView.State state) {
+                return EXTRA_LAYOUT_SPACE;
+            }
+        };
         mRecycler.setAdapter(mAdapter);
         mRecycler.setLayoutManager(mLayout);
         mRecycler.setEmptyView(layout.findViewById(R.id.mp_empty_text));
@@ -123,6 +131,7 @@ public class MpFragment extends Fragment implements ItemPosted {
         mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                mSwiped = true;
                 mAdapter.load();
             }
         });
@@ -131,13 +140,13 @@ public class MpFragment extends Fragment implements ItemPosted {
     @Override
     public void onPause() {
         super.onPause();
-        refreshing = false;
+        mRefreshing = false;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        refreshing = Storage.getInstance().get(Settings.MP_AUTOREFRESH, false);
+        mRefreshing = Storage.getInstance().get(Settings.MP_AUTOREFRESH, false);
         mAdapter.load();
     }
 
@@ -154,6 +163,7 @@ public class MpFragment extends Fragment implements ItemPosted {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_mp, menu);
         menu.findItem(R.id.menu_mp_lock).setVisible(!mLocked);
+        menu.findItem(R.id.menu_mp_refresh).setVisible(!mRefreshing);
     }
 
     @Override
@@ -179,7 +189,6 @@ public class MpFragment extends Fragment implements ItemPosted {
     }
 
     public void reload() {
-        mOffset = 0;
         mAdapter.load();
     }
 
@@ -223,7 +232,7 @@ public class MpFragment extends Fragment implements ItemPosted {
 
     @Override
     public void onPost(Item item) {
-        if (!refreshing) reload();
+        if (!mRefreshing) reload();
         mRecycler.scrollToPosition(mAdapter.getItemCount());
     }
 
@@ -241,10 +250,14 @@ public class MpFragment extends Fragment implements ItemPosted {
 
         public void load() {
             String url = Helper.mpToUrl(mMp, mOffset);
+            final boolean shouldScrollDown = mLayout != null &&
+                    mLayout.findLastVisibleItemPosition() >= mAdapter.getItemCount() - 3;
+            mReload = true;
 
-            if (mSwipeLayout != null && !mSwipeLayout.isRefreshing()) {
+            if (mSwiped) {
                 mValues.clear();
                 notifyDataSetChanged();
+                mReload = false;
             }
             Ajax.url(url).cookie(Auth.COOKIE_NAME, Auth.getInstance().getCookieValue()).callback(new AjaxCallback() {
                 @Override
@@ -253,22 +266,39 @@ public class MpFragment extends Fragment implements ItemPosted {
                     if (response != null) {
                         try {
                             Document doc = response.parse();
-                            mValues = Parser.mp(doc);
-                            Iterator<Post> it = mValues.iterator();
+                            if (mSwiped) {
+                                mOffset = Parser.mpOffset(doc);
+                                mSwiped = false;
+                                reload();
+                                return;
+                            }
+                            ArrayList<Post> values = Parser.mp(doc);
+                            Iterator<Post> it = values.iterator();
 
                             while (it.hasNext()) {
                                 Post post = it.next();
                                 if (Bans.isBanned(post.getAuthor())) it.remove();
                             }
-                            if (mValues.size() == 0) throw new NoContentFoundException();
-                            mOffset = Parser.mpOffset(doc);
+                            if (values.size() == 0) throw new NoContentFoundException();
                             mLocked = Parser.hidden(doc, "form-post-topic").size() == 0;
                             if (mLocked) getChildFragmentManager().beginTransaction().hide(mPost).commit();
                             mTitle = Parser.getTitleMp(doc);
                             ((TitleObserver) getActivity()).updateTitle(mTitle);
+                            ((ServiceUpdate) getActivity()).mpUpdate(Parser.mpUnread(doc));
                             if (getActivity() != null) getActivity().supportInvalidateOptionsMenu();
-                            notifyDataSetChanged();
-                            if (mOffset == 0) scrollToBottom();
+                            if (mReload) {
+                                int max = values.size();
+                                if (mValues.size() >= max) return;
+                                for (int i = mValues.size(); i < max; i++) {
+                                    mValues.add(values.get(i));
+                                    notifyItemInserted(i);
+                                }
+                                mRecycler.hideEmpties();
+                            } else {
+                                mValues = new ArrayList<Post>(values);
+                                notifyDataSetChanged();
+                            }
+                            if (shouldScrollDown) scrollToBottom();
 
                             return;
                         } catch (IOException e) {
@@ -286,14 +316,12 @@ public class MpFragment extends Fragment implements ItemPosted {
         }
 
         public void scrollToBottom() {
-            if (mLayout.findLastVisibleItemPosition() >= mAdapter.getItemCount() - 3) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mRecycler.smoothScrollToPosition(mAdapter.getItemCount());
-                    }
-                }, WAIT_BEFORE_SCROLL);
-            }
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mRecycler.smoothScrollToPosition(mAdapter.getItemCount());
+                }
+            }, WAIT_BEFORE_SCROLL);
         }
 
         @Override
@@ -314,6 +342,7 @@ public class MpFragment extends Fragment implements ItemPosted {
     }
 
     private class MpAutoAdapter extends MpAdapter {
+
         public MpAutoAdapter() {
             super();
         }
@@ -324,54 +353,75 @@ public class MpFragment extends Fragment implements ItemPosted {
 
         @Override
         public void load() {
-            if (!refreshing) return;
+            if (!mRefreshing) return;
             String url = Helper.mpToUrl(mMp, mOffset);
-            Log.d("refresh", "ok");
-//            if (mSwipeLayout != null && !mSwipeLayout.isRefreshing()) {
-//                mValues.clear();
-//                notifyDataSetChanged();
-//            }
+            final boolean shouldScrollDown = mLayout != null &&
+                    mLayout.findLastVisibleItemPosition() >= mAdapter.getItemCount() - 3;
+            mReload = true;
+
+            if (mSwiped) {
+                mValues.clear();
+                notifyDataSetChanged();
+                mReload = false;
+            }
             Ajax.url(url).cookie(Auth.COOKIE_NAME, Auth.getInstance().getCookieValue()).callback(new AjaxCallback() {
                 @Override
                 public void onComplete(Connection.Response response) {
                     if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            load();
+                        }
+                    }, REFRESH_TIME);
                     if (response != null) {
                         try {
                             Document doc = response.parse();
-                            mValues = Parser.mp(doc);
-                            Iterator<Post> it = mValues.iterator();
+                            if (mSwiped) {
+                                mOffset = Parser.mpOffset(doc);
+                                mSwiped = false;
+                                reload();
+                                return;
+                            }
+                            ArrayList<Post> values = Parser.mp(doc);
+                            Iterator<Post> it = values.iterator();
 
                             while (it.hasNext()) {
                                 Post post = it.next();
                                 if (Bans.isBanned(post.getAuthor())) it.remove();
                             }
-                            if (mValues.size() == 0) throw new NoContentFoundException();
-                            mOffset = Parser.mpOffset(doc);
+                            if (values.size() == 0) throw new NoContentFoundException();
                             mLocked = Parser.hidden(doc, "form-post-topic").size() == 0;
                             if (mLocked) getChildFragmentManager().beginTransaction().hide(mPost).commit();
                             mTitle = Parser.getTitleMp(doc);
                             ((TitleObserver) getActivity()).updateTitle(mTitle);
+                            ((ServiceUpdate) getActivity()).mpUpdate(Parser.mpUnread(doc));
                             if (getActivity() != null) getActivity().supportInvalidateOptionsMenu();
-                            notifyDataSetChanged();
-                            if (mOffset == 0) scrollToBottom();
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (refreshing) load();
+                            if (mReload) {
+                                int max = values.size();
+                                if (mValues.size() >= max) return;
+                                for (int i = mValues.size(); i < max; i++) {
+                                    mValues.add(values.get(i));
+                                    notifyItemInserted(i);
                                 }
-                            }, REFRESH_TIME);
+                                mRecycler.hideEmpties();
+                            } else {
+                                mValues = new ArrayList<Post>(values);
+                                notifyDataSetChanged();
+                            }
+                            if (shouldScrollDown) scrollToBottom();
 
                             return;
                         } catch (IOException e) {
-                            App.alert(getActivity(), e.getMessage());
+//                            App.alert(getActivity(), e.getMessage());
                         } catch (NoContentFoundException e) {
-                            App.alert(getActivity(), e.getMessage());
+//                            App.alert(getActivity(), e.getMessage());
                         }
-                        mRecycler.showNoResults();
+//                        mRecycler.showNoResults();
 
                         return;
                     }
-                    App.alert(getActivity(), R.string.no_response);
+//                    App.alert(getActivity(), R.string.no_response);
                 }
             }).execute();
         }

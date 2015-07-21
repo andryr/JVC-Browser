@@ -63,4 +63,9 @@ public class RecyclerView2 extends RecyclerView {
         }
     }
 
+    public void hideEmpties() {
+        if (mEmptyView != null) mEmptyView.setVisibility(View.GONE);
+        if (mLoadingView != null) mLoadingView.setVisibility(View.GONE);
+    }
+
 }

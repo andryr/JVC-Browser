@@ -4,4 +4,6 @@ public abstract class RecyclerViewAdapter<VH extends android.support.v7.widget.R
         extends RecyclerView2.Adapter<VH> {
 
     public abstract Object itemAt(int position);
+
+
 }

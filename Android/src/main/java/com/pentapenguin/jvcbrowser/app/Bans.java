@@ -1,12 +1,9 @@
 package com.pentapenguin.jvcbrowser.app;
 
-import android.util.Log;
 import com.pentapenguin.jvcbrowser.util.persistence.Storage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Bans {
 

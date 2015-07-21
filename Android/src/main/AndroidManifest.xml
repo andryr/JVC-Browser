@@ -3,6 +3,8 @@
           package="com.pentapenguin.jvcbrowser" >
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
             android:name=".app.App"
@@ -15,7 +17,8 @@
         <activity
                 android:name=".MainActivity"
                 android:label="@string/app_name"
-                android:launchMode="singleTask">
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,7 +30,6 @@
                 android:label="@string/app_name"
                 android:parentActivityName=".MainActivity">
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".MainActivity" />
-
         </activity>
         <activity
                 android:name=".TopicNewActivity"
@@ -60,6 +62,12 @@
                 android:parentActivityName=".MainActivity">
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".MainActivity" />
         </activity>
+        <service android:name=".services.UpdateService" />
+        <receiver android:name=".services.BootReceiver" android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -8,6 +8,8 @@
     <string name="subtitle_favoris_forums">Forums favoris</string>
     <string name="subtitle_favoris_topic">Topics favoris</string>
     <string name="subtitle_history">Historique des sujets</string>
+    <string name="subtitle_subscribe">Abonnements</string>
+    <string name="subtitle_notifications">Notifications</string>
     <string name="subtitle_banned">Liste des indésirables</string>
     <string name="subtitle_edit">Edition du post</string>
     <string name="subtitle_search_forum">Recherche forum</string>

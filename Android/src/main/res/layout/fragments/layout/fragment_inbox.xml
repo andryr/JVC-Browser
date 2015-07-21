@@ -1,8 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clickable="true"
-                android:background="?attr/selectableItemBackground">
+                android:layout_height="match_parent">
+
+    <!-- Same as fragment_link-->
 
     <com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2
             android:layout_width="match_parent"

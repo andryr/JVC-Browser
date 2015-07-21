@@ -92,7 +92,7 @@ public class Parser {
             String url = App.HOST_MOBILE + li.getElementsByTag("a").get(0).attr("href");
             String title = li.getElementsByClass("titre-topic").get(0).text();
             String name = "";
-            int posts = 0, id = 0, idForum = 0, code = 0;
+            int posts = 0, id = 0, idForum = 0, code = 0, page = 0;
             String author = li.getElementsByClass("auteur").get(0).text();
             String thumbUrl = App.HOST_MOBILE + li.getElementsByTag("img").get(0).attr("src");
             String date = li.getElementsByClass("date-post-topic").get(0).text();
@@ -101,16 +101,10 @@ public class Parser {
             if (matcher.find()) {
                 name = matcher.group(1);
                 posts = Integer.parseInt(matcher.group(2));
-
             }
-            matcher = Pattern.compile("forums/([0-9]+)-([0-9]+)-([0-9]+)-").matcher(url);
-            if(matcher.find()) {
-                code = Integer.parseInt(matcher.group(1));
-                idForum = Integer.parseInt(matcher.group(2));
-                id = Integer.parseInt(matcher.group(3));
-
-            }
-            topics.add(new Topic(id, code, idForum, name, author, date, thumbUrl, posts));
+            Topic topic = (Topic) Helper.urlResolve(url);
+            topics.add(new Topic(topic.getId(), topic.getCode(), topic.getIdForum(), name, topic.getPage(), author,
+                    date, thumbUrl, posts));
         }
         return topics;
     }
@@ -368,9 +362,7 @@ public class Parser {
         Elements nb = doc.getElementsByClass("nb-pages");
 
         if (!nb.isEmpty()) {
-            String number = nb.get(0).text();
             Matcher matcher = Pattern.compile("Messages [0-9-]*? sur ([0-9]*)").matcher(nb.get(0).text());
-
             if (matcher.find()) return Integer.parseInt(matcher.group(1));
         }
 
@@ -441,5 +433,70 @@ public class Parser {
 
         return "<html><head><link href=\"css/forum-mobile.css\" rel=\"stylesheet\">" +
                 "</head><body>" + content.html() + "</body></html>";
+    }
+
+    public static int mpUnread(Document doc) {
+        Elements sups = doc.select("#header-user .bloc-nb-mp .sup");
+
+        if (!sups.isEmpty()) return Integer.parseInt(sups.get(0).text());
+
+        return 0;
+    }
+
+    public static int notificationUnread(Document doc) {
+        Elements sups = doc.select("#show-notif .sup");
+
+        if (!sups.isEmpty() && !sups.get(0).text().trim().equals("")) return Integer.parseInt(sups.get(0).text());
+
+        return 0;
+    }
+
+    public static String subscribeData(Document doc) {
+        String timestamp = doc.getElementById("ajax_timestamp_gestion_abo").val();
+        String hash = doc.getElementById("ajax_hash_gestion_abo").val();
+        return timestamp + "#" + hash;
+    }
+
+    public static ArrayList<Topic> subscribes(Document doc) {
+        ArrayList<Topic> subcribes = new ArrayList<Topic>();
+        Elements subs = doc.select(".liste-abonnement li");
+
+        if (!subs.isEmpty()) {
+            for (Element sub : subs) {
+                Element a = sub.getElementsByTag("a").get(0);
+                int deleteId = Integer.parseInt(sub.attr("data-id"));
+                Item item = Helper.urlResolve(a.attr("href"));
+                if (item != null && item instanceof Topic) {
+                    Topic topic = (Topic) item;
+                    subcribes.add(new Topic(topic.getId(), topic.getCode(), topic.getIdForum(), a.text(), deleteId,
+                            null, null, null, 0));
+                }
+            }
+        }
+        return subcribes;
+    }
+
+    public static ArrayList<Topic> subscribeNotifications(Document doc) {
+        ArrayList<Topic> notifications = new ArrayList<Topic>();
+        Elements lis = doc.getElementsByTag("li");
+
+        if (!lis.isEmpty()) {
+            for (Element li : lis) {
+                if (li.getElementsByClass("new-item-pnotif").isEmpty()) continue;
+                String url = li.attr("data-href");
+                Item item = Helper.urlResolve(url);
+                if (item != null && item instanceof Topic) {
+                    Topic topic = (Topic) item;
+                    int notifId = Integer.parseInt(li.attr("data-id"));
+                    String nb = li.getElementsByClass("sous-lib-notif").get(0).text();
+                    String content = li.getElementsByClass("titre-pnotif").get(0).text();
+                    String date = li.getElementsByClass("temps-pnotif").get(0).text();
+                    notifications.add(new Topic(topic.getId(), topic.getCode(), topic.getIdForum(),
+                            content, topic.getPage(), nb, date, null, notifId));
+                }
+            }
+        }
+
+        return notifications;
     }
 }

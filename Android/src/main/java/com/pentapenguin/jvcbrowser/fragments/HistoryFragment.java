@@ -1,6 +1,5 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -41,13 +40,13 @@ public class HistoryFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_history, container, false);
-        RecyclerView2 recycler = (RecyclerView2) layout.findViewById(R.id.history_list);
+        View layout = inflater.inflate(R.layout.fragment_link, container, false);
+        RecyclerView2 recycler = (RecyclerView2) layout.findViewById(R.id.links_list);
 
         recycler.setAdapter(mAdapter);
         ((TitleObserver) getActivity()).updateTitle(getActivity().getResources().getString(R.string.subtitle_history));
         recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
-        TextView empty = (TextView) layout.findViewById(R.id.history_empty_text);
+        TextView empty = (TextView) layout.findViewById(R.id.link_empty_text);
         empty.setText(R.string.no_history);
         recycler.setLoadingView(empty);
         recycler.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
@@ -86,11 +85,9 @@ public class HistoryFragment extends Fragment {
     private class HistoryAdapter extends RecyclerViewAdapter<HistoryHolder> {
 
         private ArrayList<Topic> mValues;
-        private LayoutInflater mInflater;
 
         public HistoryAdapter() {
             mValues = new ArrayList<Topic>();
-            mInflater = getActivity().getLayoutInflater();
             load();
         }
 
@@ -101,7 +98,7 @@ public class HistoryFragment extends Fragment {
 
         @Override
         public HistoryHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = mInflater.inflate(R.layout.item_link, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(R.layout.item_link, parent, false);
             return new HistoryHolder(view);
         }
 

@@ -42,8 +42,7 @@ public class PostNewFragment extends Fragment {
     private Button mPost;
     private HashMap<String, String> mData;
     private ProgressDialog mDialog;
-    private String mPostUrl;
-    private String mPostContent;
+    private String mPostUrl = null;
 
     public static PostNewFragment createInstance(String content) {
         PostNewFragment fragment = new PostNewFragment();
@@ -75,6 +74,7 @@ public class PostNewFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mPost.setEnabled(mPostUrl != null);
         mContent.setText(getArguments().getString(POST_NEW_ARG));
         mDialog.setCancelable(false);
         mPost.setOnClickListener(new View.OnClickListener() {
@@ -196,6 +196,8 @@ public class PostNewFragment extends Fragment {
 
     public void setPostUrl(String postUrl) {
         mPostUrl = postUrl;
+        if (mPost != null) mPost.setEnabled(true);
+
     }
 
     public void append(String content) {

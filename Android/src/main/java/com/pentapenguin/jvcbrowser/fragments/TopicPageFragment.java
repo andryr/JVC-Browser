@@ -11,7 +11,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.*;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -43,24 +42,23 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TopicPageFragment extends Fragment implements Reloadable {
+public class TopicPageFragment extends Fragment {
 
     public static final String TAG = "topic";
     public static final String TOPIC_ARG = "topic_arg";
-    public static final int ITEM_CACHED_VIEW = 20;
-    public static final int EXTRA_LAYOUT_SPACE = 10000;
-    public static final int WAIT_BEFORE_SCROLL = 1000;
-    public static final String DATA_SAVE = "data";
-    public static final String LOADED_SAVE = "loaded";
+    private static final int ITEM_CACHED_VIEW = 20;
+    private static final int EXTRA_LAYOUT_SPACE = 10000;
+    private static final int WAIT_BEFORE_SCROLL = 1000;
+    private static final String DATA_SAVE = "data";
+    private static final String LOADED_SAVE = "loaded";
     private static final long REFRESH_TIME = 10000;
-
 
     private RecyclerView2 mRecycler;
     private TopicAdapter mAdapter;
     private LinearLayoutManager mLayout;
     private Topic mTopic;
     private boolean mLoaded;
-    private boolean refreshing;
+    private boolean mRefreshing;
 
     public static TopicPageFragment newInstance(Topic topic) {
         TopicPageFragment fragment = new TopicPageFragment();
@@ -77,14 +75,14 @@ public class TopicPageFragment extends Fragment implements Reloadable {
         super.onCreate(savedInstanceState);
         mTopic = getArguments().getParcelable(TOPIC_ARG);
         mLoaded = false;
-        refreshing = Storage.getInstance().get(Settings.TOPIC_AUTOREFRESH, false);
+        mRefreshing = Storage.getInstance().get(Settings.TOPIC_AUTOREFRESH, false);
 
         if (savedInstanceState != null) {
             mLoaded = savedInstanceState.getBoolean(LOADED_SAVE);
             ArrayList<Post> data = savedInstanceState.getParcelableArrayList(DATA_SAVE);
-            mAdapter = refreshing ? new TopicAutoAdapter(data) : new TopicAdapter(data);
+            mAdapter = mRefreshing ? new TopicAutoAdapter(data) : new TopicAdapter(data);
         } else {
-            mAdapter = refreshing ? new TopicAutoAdapter() : new TopicAdapter();
+            mAdapter = mRefreshing ? new TopicAutoAdapter() : new TopicAdapter();
         }
         setHasOptionsMenu(true);
     }
@@ -113,14 +111,27 @@ public class TopicPageFragment extends Fragment implements Reloadable {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        refreshing = isVisibleToUser ? Storage.getInstance().get(Settings.TOPIC_AUTOREFRESH, false) : false;
-        if (refreshing && mAdapter != null) {
+        mRefreshing = isVisibleToUser ? Storage.getInstance().get(Settings.TOPIC_AUTOREFRESH, false) : false;
+        if (mRefreshing && mAdapter != null) {
             mAdapter.load();
             return;
         }
         if (isVisibleToUser && !mLoaded && mAdapter != null) {
             mAdapter.load();
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mRefreshing = false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mRefreshing = Storage.getInstance().get(Settings.TOPIC_AUTOREFRESH, false);
+        if (mRefreshing) mAdapter.load();
     }
 
     @Override
@@ -133,7 +144,7 @@ public class TopicPageFragment extends Fragment implements Reloadable {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_topic_page, menu);
-        menu.findItem(R.id.menu_topic_page_refresh).setVisible(!refreshing);
+        menu.findItem(R.id.menu_topic_page_refresh).setVisible(!mRefreshing);
     }
 
     @Override
@@ -145,29 +156,26 @@ public class TopicPageFragment extends Fragment implements Reloadable {
         return false;
     }
 
-    @Override
     public void reload() {
-        if (!refreshing) mAdapter.load();
+        if (!mRefreshing) mAdapter.load();
     }
 
     private class TopicAdapter extends RecyclerView2.Adapter<RecyclerView.ViewHolder> {
 
         protected ArrayList<Post> mValues;
-//        private ArrayList<Post> mCache;
 
         public TopicAdapter() {
             mValues = new ArrayList<Post>();
-//            mCache = new ArrayList<Post>();
         }
 
         public TopicAdapter(ArrayList<Post> values) {
             mValues = new ArrayList<Post>(values);
-//            mCache = new ArrayList<Post>(values);
         }
 
         public void load() {
-            mValues.clear();
-            notifyDataSetChanged();
+            final boolean shouldScrollDown = mLoaded &&
+                    mLayout.findLastVisibleItemPosition() >= mAdapter.getItemCount() - 3;
+
             Ajax.url(Helper.topicToMobileUrl(mTopic) + "?bide=" + System.currentTimeMillis()).post()
                     .callback(new AjaxCallback() {
                         @Override
@@ -176,27 +184,26 @@ public class TopicPageFragment extends Fragment implements Reloadable {
                                 try {
                                     Document doc = response.parse();
                                     ArrayList<Post> values = Parser.topic(doc);
+                                    Iterator<Post> it = values.iterator();
 
-//                                    if (mCache.size() >= values.size()) {
-//                                        mValues = new ArrayList<Post>(mCache);
-//                                    } else {
-//                                        mCache = new ArrayList<Post>(values);
-//                                    }
-                                    mValues = new ArrayList<Post>(values);
-                                    Iterator<Post> it = mValues.iterator();
                                     while (it.hasNext()) {
                                         Post post = it.next();
                                         if (Bans.isBanned(post.getAuthor())) it.remove();
                                     }
-                                    int length = mValues.size();
-                                    if (length == 0) throw new NoContentFoundException();
-                                    ((TopicObserver) getParentFragment()).updatePostUrl(Parser.newPostUrl(doc));
+                                    int max = values.size();
+                                    if (max == 0) throw new NoContentFoundException();
                                     int pages = Parser.page(doc);
                                     ((TopicObserver) getParentFragment()).updatePages(pages);
-                                    mValues.add(0, new Post(pages, Parser.getTitleTopic(doc)));
-                                    notifyDataSetChanged();
-                                    scrollToBottom();
+                                    if (mValues.size() >= max + 1) return;
+                                    if (mValues.isEmpty()) mValues.add(0, new Post(pages, Parser.getTitleTopic(doc)));
+                                    for (int i = mValues.size(); i < max + 1; i++) {
+                                        mValues.add(values.get(i - 1));
+                                        notifyItemInserted(i);
+                                    }
+                                    ((TopicObserver) getParentFragment()).updatePostUrl(Parser.newPostUrl(doc));
+                                    if (shouldScrollDown) scrollToBottom();
                                     mLoaded = true;
+                                    mRecycler.hideEmpties();
 
                                     return;
                                 } catch (IOException e) {
@@ -213,14 +220,12 @@ public class TopicPageFragment extends Fragment implements Reloadable {
         }
 
         public void scrollToBottom() {
-            if (mLoaded && mLayout.findLastVisibleItemPosition() >= mAdapter.getItemCount() - 3) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mRecycler.smoothScrollToPosition(mAdapter.getItemCount());
-                    }
-                }, WAIT_BEFORE_SCROLL);
-            }
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mRecycler.smoothScrollToPosition(mAdapter.getItemCount());
+                }
+            }, WAIT_BEFORE_SCROLL);
         }
 
         public void removeItem(int position) {
@@ -272,38 +277,45 @@ public class TopicPageFragment extends Fragment implements Reloadable {
 
         @Override
         public void load() {
-            if (!refreshing) return;
-            Log.d("topic page"+mTopic.getPage(), "autoloaded");
+            if (!mRefreshing) return;
+            final boolean shouldScrollDown = mLoaded &&
+                    mLayout.findLastVisibleItemPosition() >= mAdapter.getItemCount() - 3;
+
             Ajax.url(Helper.topicToMobileUrl(mTopic) + "?bide=" + System.currentTimeMillis()).post()
                     .callback(new AjaxCallback() {
                         @Override
                         public void onComplete(Connection.Response response) {
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    load();
+                                }
+                            }, REFRESH_TIME);
+
                             if (response != null) {
                                 try {
                                     Document doc = response.parse();
                                     ArrayList<Post> values = Parser.topic(doc);
+                                    Iterator<Post> it = values.iterator();
 
-                                    mValues = new ArrayList<Post>(values);
-                                    Iterator<Post> it = mValues.iterator();
                                     while (it.hasNext()) {
                                         Post post = it.next();
                                         if (Bans.isBanned(post.getAuthor())) it.remove();
                                     }
-                                    int length = mValues.size();
-                                    if (length == 0) throw new NoContentFoundException();
-                                    ((TopicObserver) getParentFragment()).updatePostUrl(Parser.newPostUrl(doc));
+                                    int max = values.size();
+                                    if (max == 0) throw new NoContentFoundException();
                                     int pages = Parser.page(doc);
                                     ((TopicObserver) getParentFragment()).updatePages(pages);
-                                    mValues.add(0, new Post(pages, Parser.getTitleTopic(doc)));
-                                    notifyDataSetChanged();
-                                    scrollToBottom();
+                                    if (mValues.size() >= max + 1) return;
+                                    if (mValues.isEmpty()) mValues.add(0, new Post(pages, Parser.getTitleTopic(doc)));
+                                    for (int i = mValues.size(); i < max + 1; i++) {
+                                        mValues.add(values.get(i - 1));
+                                        notifyItemInserted(i);
+                                    }
+                                    ((TopicObserver) getParentFragment()).updatePostUrl(Parser.newPostUrl(doc));
+                                    if (shouldScrollDown) scrollToBottom();
                                     mLoaded = true;
-                                    new Handler().postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if (refreshing) load();
-                                        }
-                                    }, REFRESH_TIME);
+                                    mRecycler.hideEmpties();
 
                                     return;
                                 } catch (IOException e) {
@@ -314,7 +326,7 @@ public class TopicPageFragment extends Fragment implements Reloadable {
                             } else {
 //                                App.alert(getActivity(), R.string.no_response);
                             }
-//                            mRecycler.showNoResults();
+                            mRecycler.showNoResults();
                         }
                     }).execute();
         }

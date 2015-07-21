@@ -116,6 +116,14 @@ public class ForumFragment extends Fragment {
                         ((FragmentLauncher) getActivity()).launch(TopicFragment.newInstance((Topic) item), true);
                         History.add((Topic) item);
                     }
+
+                    @Override
+                    public void onLongClick(Object item, int position) {
+                        Topic topic = (Topic) item;
+                        ((FragmentLauncher) getActivity()).launch(TopicFragment
+                                .newInstance(topic.page(topic.getPostsNumber()/20 + 1)), true);
+                        History.add((Topic) item);
+                    }
                 }));
 
         return layout;

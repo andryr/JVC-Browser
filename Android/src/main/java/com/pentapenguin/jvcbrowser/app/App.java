@@ -4,10 +4,14 @@ import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.IBinder;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 import com.pentapenguin.jvcbrowser.R;
@@ -105,5 +109,25 @@ public class App extends Application {
 
     public static void toast(int message) {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+    }
+
+    public static void snack(String message, String text, View.OnClickListener onClick) {
+        Snackbar.make(null, message, Snackbar.LENGTH_LONG)
+                .setAction(text, onClick)
+                .show();
+    }
+
+    public static void snack(String message) {
+        Snackbar.make(null, message, Snackbar.LENGTH_LONG).show();
+    }
+
+    public static String getFileName(Uri uri) {
+        String filePath;
+        Cursor cursor = context.getContentResolver()
+                .query(uri, new String[]{android.provider.MediaStore.Images.ImageColumns.DATA}, null, null, null);
+        cursor.moveToFirst();
+        filePath = cursor.getString(0);
+        cursor.close();
+        return filePath;
     }
 }

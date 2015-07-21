@@ -80,7 +80,7 @@ public class NormalizePost {
     }
 
     private String minifyLink(String url) {
-        int max = 50;
+        int max = 40;
 
         if (url.length() > max) {
             url = url.substring(0, max / 2) + "[...]" + url.substring(url.length() - max/2, url.length());

@@ -47,4 +47,8 @@ public class Navigation {
     public Intent getIntent() {
         return intent;
     }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
 }

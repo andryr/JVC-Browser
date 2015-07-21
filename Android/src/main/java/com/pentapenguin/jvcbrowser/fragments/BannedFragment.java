@@ -39,8 +39,8 @@ public class BannedFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_history, container, false);
-        RecyclerView2 recycler = (RecyclerView2) layout.findViewById(R.id.history_list);
+        View layout = inflater.inflate(R.layout.fragment_link, container, false);
+        RecyclerView2 recycler = (RecyclerView2) layout.findViewById(R.id.links_list);
 
         recycler.setAdapter(mAdapter);
         recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -52,7 +52,7 @@ public class BannedFragment extends Fragment {
                         mAdapter.removeItem(position);
                     }
                 }));
-        TextView empty = (TextView) layout.findViewById(R.id.history_empty_text);
+        TextView empty = (TextView) layout.findViewById(R.id.link_empty_text);
         empty.setText(R.string.no_banned);
         recycler.setLoadingView(empty);
 
@@ -78,11 +78,9 @@ public class BannedFragment extends Fragment {
     private class BannedAdapter extends RecyclerViewAdapter<BannedHolder> {
 
         private ArrayList<String> mValues;
-        private LayoutInflater mInflater;
 
         public BannedAdapter() {
             mValues = new ArrayList<String>();
-            mInflater = getActivity().getLayoutInflater();
             load();
         }
 
@@ -93,7 +91,7 @@ public class BannedFragment extends Fragment {
 
         @Override
         public BannedHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = mInflater.inflate(R.layout.item_link, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(R.layout.item_link, parent, false);
             return new BannedHolder(view);
         }
 

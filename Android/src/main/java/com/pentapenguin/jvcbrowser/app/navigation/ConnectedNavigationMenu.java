@@ -10,7 +10,7 @@ import com.pentapenguin.jvcbrowser.fragments.*;
 
 public class ConnectedNavigationMenu {
 
-    public static final int LENGTH = 15;
+    public static final int LENGTH = 17;
 
     public static final NavigationFragment.NavigationType[] types = new NavigationFragment.NavigationType[] {
             NavigationFragment.NavigationType.Header,          //header
@@ -20,6 +20,8 @@ public class ConnectedNavigationMenu {
             NavigationFragment.NavigationType.Item,            // recherche forums
             NavigationFragment.NavigationType.Item,            // forums favoris
             NavigationFragment.NavigationType.Item,            // topic favoris
+            NavigationFragment.NavigationType.Item,            // abonnements
+            NavigationFragment.NavigationType.Item,            // notifications
             NavigationFragment.NavigationType.Item,            // historique
             NavigationFragment.NavigationType.Category,        // message privé
             NavigationFragment.NavigationType.Item,            // boite de réception
@@ -40,6 +42,8 @@ public class ConnectedNavigationMenu {
             0,
             R.drawable.menu_fovoris_forums,
             R.drawable.menu_favoris_topics,
+            0,
+            0,
             R.drawable.menu_history,
             0,
             R.drawable.menu_inbox,
@@ -57,6 +61,8 @@ public class ConnectedNavigationMenu {
             ForumSearchFragment.newInstance(),
             FavoriteFragment.newInstance(FavoriteFragment.ListType.Forum),
             FavoriteFragment.newInstance(FavoriteFragment.ListType.Topic),
+            SubscribeFragment.newInstance(),
+            NotificationFragment.newInstance(),
             HistoryFragment.newInstance(),
             null,
             InboxFragment.newInstance(),
@@ -70,6 +76,8 @@ public class ConnectedNavigationMenu {
     public static final Intent[] intents = new Intent[] {
             null,
             new Intent(App.getContext(), AuthActivity.class),
+            null,
+            null,
             null,
             null,
             null,

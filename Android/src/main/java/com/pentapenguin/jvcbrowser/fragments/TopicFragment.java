@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,7 +12,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.InputType;
-import android.util.Log;
 import android.view.*;
 import android.widget.EditText;
 import com.pentapenguin.jvcbrowser.EditActivity;
@@ -26,13 +26,16 @@ import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.TitleObserver;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
 import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
+import com.pentapenguin.jvcbrowser.util.network.FileUploader;
+import com.pentapenguin.jvcbrowser.util.network.FileUploaderListener;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Connection;
+import org.jsoup.nodes.Document;
 
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 
 public class TopicFragment extends Fragment implements TopicPageFragment.TopicObserver, ItemPosted {
 
@@ -43,6 +46,9 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
     public static final String TITLE_SAVE = "title";
     public static final String POST_URL_SAVE = "post_url";
     public static final String POST_CONTENT_SAVE = "post_content";
+    public static final String LOADED_SAVE = "loaded";
+    public static final String NOELSHACK_URL = "http://www.noelshack.com/api.php";
+    public static final int REQUEST_CODE = 747;
 
     public enum TopicType { Title, Core;}
 
@@ -54,6 +60,7 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
     private int mCurrentPage;
     private String mPostUrl;
     private String mTitle;
+    private boolean mLoaded;
 
     public static TopicFragment newInstance(Topic topic) {
         TopicFragment fragment = new TopicFragment();
@@ -70,7 +77,8 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
         super.onCreate(savedInstanceState);
         mTopic = getArguments().getParcelable(PAGER_ARG);
         mMax = 1;
-        mCurrentPage = 0;
+        mLoaded = false;
+        mCurrentPage = mTopic.getPage() - 1;
         mTitle = null;
 
         if (savedInstanceState != null) {
@@ -78,6 +86,7 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
             mCurrentPage = savedInstanceState.getInt(CURRENT_PAGE_SAVE);
             mTitle = savedInstanceState.getString(TITLE_SAVE);
             mPostUrl = savedInstanceState.getString(POST_URL_SAVE);
+            mLoaded = savedInstanceState.getBoolean(LOADED_SAVE);
             mPost = PostNewFragment.createInstance(savedInstanceState.getString(POST_CONTENT_SAVE));
             mPost.setPostUrl(mPostUrl);
         } else {
@@ -117,6 +126,7 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
         outState.putInt(CURRENT_PAGE_SAVE, mPager.getCurrentItem());
         outState.putInt(MAX_SAVE, mMax);
         outState.putString(TITLE_SAVE, mTitle);
+        outState.putBoolean(LOADED_SAVE, mLoaded);
         outState.putString(POST_URL_SAVE, mPostUrl);
         outState.putString(POST_CONTENT_SAVE, mPost.getContent());
     }
@@ -131,6 +141,20 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == EditActivity.RESULT_CODE) {
             reloadCurrentPage();
+        } else if(requestCode == REQUEST_CODE && data != null) {
+            final ProgressDialog dialog = App.progress(getActivity(), R.string.in_progress, true);
+            dialog.show();
+            Uri uri = data.getData();
+            String file = App.getFileName(uri);
+            FileUploader uploader = new FileUploader(new FileUploaderListener() {
+                @Override
+                public void onComplete(String result) {
+                    dialog.dismiss();
+                    if (result != null) mPost.append(result);
+                }
+            }, NOELSHACK_URL);
+            uploader.setFileData("fichier", file);
+            uploader.execute();
         }
     }
 
@@ -152,8 +176,81 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
             case R.id.menu_topic_favorite:
                 addFavorite();
                 return true;
+            case R.id.menu_topic_noelshack:
+                noelshack();
+                return true;
+            case R.id.menu_topic_subscribe:
+                subscribe();
+                return true;
         }
         return false;
+    }
+
+    private void subscribe() {
+        String url = Helper.topicToUrl(mTopic);
+        final ProgressDialog dialog = App.progress(getActivity(), R.string.in_progress, true);
+
+        dialog.show();
+        Ajax.url(url).cookie(Auth.COOKIE_NAME, Auth.getInstance().getCookieValue()).callback(new AjaxCallback() {
+            @Override
+            public void onComplete(Connection.Response response) {
+                if (response != null) {
+                    try {
+                        Document doc = response.parse();
+                        String url = "http://www.jeuxvideo.com/abonnements/ajax/ajax_abo_insert.php";
+                        String[] infos = Parser.subscribeData(doc).split("#");
+                        HashMap<String, String> data = new HashMap<String, String>();
+                        data.put("ajax_timestamp", infos[0]);
+                        data.put("ajax_hash", infos[1]);
+                        data.put("ids_liste", Integer.toString(mTopic.getId()));
+                        data.put("type", "topic");
+
+                        Ajax.url(url).data(data).post().cookie(Auth.COOKIE_NAME, Auth.getInstance().getCookieValue())
+                                .ignoreContentType(true).callback(new AjaxCallback() {
+                            @Override
+                            public void onComplete(Connection.Response response) {
+                                dialog.dismiss();
+                                if (response != null) {
+                                    String result = json(response.body());
+                                    if (result == null) {
+                                        App.toast(R.string.subscribe_added);
+                                        return;
+                                    }
+                                    App.alert(getActivity(), result);
+                                } else {
+                                    App.alert(getActivity(), R.string.no_response);
+                                }
+                            }
+
+                            private String json(String message) {
+                                try {
+                                    JSONObject json = new JSONObject(message);
+                                    String error = json.getString("error");
+                                    if (!error.equals("")) return error;
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                return null;
+                            }
+                        }).execute();
+                    } catch (IOException e) {
+                        App.alert(getActivity(), e.getMessage());
+                    }
+                } else {
+                    dialog.dismiss();
+                    App.alert(getActivity(), R.string.no_response);
+                }
+            }
+        }).execute();
+
+    }
+
+    private void noelshack() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        startActivityForResult(
+                Intent.createChooser(intent, "Select audio"), REQUEST_CODE);
     }
 
     private void addFavorite() {
@@ -182,12 +279,12 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
                         public void onComplete(Connection.Response response) {
                             dialog.dismiss();
                             if (response != null) {
-                                String a = json(response.body());
-                                if (a == null) {
+                                String result = json(response.body());
+                                if (result == null) {
                                     App.toast(R.string.favorite_added);
                                     return;
                                 }
-                                App.alert(getActivity(), a);
+                                App.alert(getActivity(), result);
                             } else {
                                 App.alert(getActivity(), R.string.no_response);
                             }
@@ -263,6 +360,11 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
     @Override
     public void updatePages(int max) {
         mAdapter.update(max);
+        if (!mLoaded && mCurrentPage != 0) {
+            mLoaded = true;
+            mPager.setCurrentItem(mCurrentPage);
+        }
+
     }
 
     @Override

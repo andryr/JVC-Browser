@@ -9,8 +9,12 @@
     <string name="last_page">Derniere page</string>
     <string name="goto_page">Aller a la page</string>
     <string name="add_favorite">Ajouter aux favoris</string>
+    <string name="add_subscribe">S\'abonner</string>
+    <string name="noelshack">Noelshack</string>
     <string name="favorite_added">Ajouté aux favoris</string>
+    <string name="subscribe_added">Ajouté aux abonnements</string>
     <string name="favorite_deleted">Supprimé des favoris</string>
+    <string name="subscribe_deleted">Supprimé des abonnements</string>
     <string name="search">Recherche</string>
     <string name="could_not_swipe">Pas d\'anciens posts</string>
     <string name="new_mp">Nouveau MP</string>
@@ -26,6 +30,8 @@
     <string name="no_banned">Pas d\'indésirables</string>
     <string name="no_history">Pas d\'historique</string>
     <string name="no_result">Pas de résultats</string>
+    <string name="no_subscribes">Pas d\'abonnements</string>
+    <string name="no_notifications">Pas de notifications</string>
     <string name="forum_search">Chercher un forum</string>
     <string name="post">Poster</string>
     <string name="message">Message</string>

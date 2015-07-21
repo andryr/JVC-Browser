@@ -1,5 +1,8 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,7 +13,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,11 +26,13 @@ import com.pentapenguin.jvcbrowser.app.Auth;
 import com.pentapenguin.jvcbrowser.app.navigation.NavigationMenu;
 import com.pentapenguin.jvcbrowser.entities.Navigation;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
+import com.pentapenguin.jvcbrowser.services.UpdateService;
 import com.pentapenguin.jvcbrowser.util.ActivityLauncher;
 import com.pentapenguin.jvcbrowser.util.FragmentLauncher;
 import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
 import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
+import com.pentapenguin.jvcbrowser.util.persistence.Storage;
 import com.pentapenguin.jvcbrowser.util.widgets.CircularImageView;
 import com.pentapenguin.jvcbrowser.util.widgets.RecyclerItemListener;
 import com.pentapenguin.jvcbrowser.util.widgets.RecyclerViewAdapter;
@@ -40,6 +44,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class NavigationFragment extends Fragment {
+
+    private static final int MP_POSITION = 11;
+    private static final int NOTIFICATION_POSITION = 8;
 
     public enum NavigationType { Header, Category, Item }
 
@@ -71,17 +78,11 @@ public class NavigationFragment extends Fragment {
                         Navigation navigation = (Navigation) item;
                         if (navigation.getType() == NavigationType.Item) {
                             if (position == 1 && Auth.getInstance().isConnected()) {
-                                Auth.getInstance().disconnect();
-                                getActivity().getSupportFragmentManager().popBackStack(null,
-                                        FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                                ((FragmentLauncher) getActivity()).launch(ForumListFragment.newInstance(), false);
-                                mAdapter.load();
-                                App.toast(R.string.disconnected);
+                                disconnect();
                             } else if (navigation.getFragment() != null) {
                                 getActivity().getSupportFragmentManager().popBackStack(null,
                                         FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                 ((FragmentLauncher) getActivity()).launch(navigation.getFragment(), false);
-
                             } else if (navigation.getIntent() != null) {
                                 ((ActivityLauncher) getActivity()).launch(navigation.getIntent());
                             }
@@ -91,6 +92,34 @@ public class NavigationFragment extends Fragment {
                 }));
 
         return layout;
+    }
+
+    private void disconnect() {
+        Auth.getInstance().disconnect();
+        getActivity().getSupportFragmentManager().popBackStack(null,
+                FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        ((FragmentLauncher) getActivity()).launch(ForumListFragment.newInstance(), false);
+        mAdapter.load();
+        AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(PendingIntent.getService(getActivity(), 0, new Intent(getActivity(), UpdateService.class),
+                PendingIntent.FLAG_NO_CREATE));
+        App.toast(R.string.disconnected);
+    }
+
+    public void updateMp(int mpCount) {
+        if (Auth.getInstance().isConnected()) {
+            mAdapter.mValues.get(MP_POSITION).setDetails(Integer.toString(mpCount));
+            Storage.getInstance().put(UpdateService.MP_STORAGE, mpCount);
+            mAdapter.notifyItemChanged(MP_POSITION);
+        }
+    }
+
+    public void updateNotifications(int notificationCount) {
+        if (Auth.getInstance().isConnected()) {
+            mAdapter.mValues.get(NOTIFICATION_POSITION).setDetails(Integer.toString(notificationCount));
+            Storage.getInstance().put(UpdateService.NOTIFICATION_STORAGE, notificationCount);
+            mAdapter.notifyItemChanged(NOTIFICATION_POSITION);
+        }
     }
 
     public DrawerLayout setUp(DrawerLayout layout, Toolbar toolbar) {
@@ -221,12 +250,17 @@ public class NavigationFragment extends Fragment {
                 mPseudo.setText(Auth.getInstance().getPseudo());
                 String url = "http://www.jeuxvideo.com/profil/" + Auth.getInstance().getPseudo().toLowerCase().trim();
                 url = url.replaceAll("\\[", "%5B").replaceAll("\\]", "%5D");
-                Ajax.url(url).callback(new AjaxCallback() {
+                Ajax.url(url).cookie(Auth.COOKIE_NAME, Auth.getInstance().getCookieValue())
+                        .callback(new AjaxCallback() {
                     @Override
                     public void onComplete(Connection.Response response) {
                         if (response != null) {
                             try {
                                 Document doc = response.parse();
+                                int mps = Parser.mpUnread(doc);
+                                int notifs = Parser.notificationUnread(doc);
+                                updateMp(mps);
+                                updateNotifications(notifs);
                                 String background = Parser.profilBackground(doc);
                                 if (background != null) {
                                     try {
@@ -287,6 +321,9 @@ public class NavigationFragment extends Fragment {
             mContent.setText(navigation.getContent());
             mDetails.setText(navigation.getDetails());
             mThumb.setImageResource(navigation.getThumb());
+            if (!navigation.getDetails().equals("")) {
+                mDetails.setVisibility(View.VISIBLE);
+            }
         }
     }
 }

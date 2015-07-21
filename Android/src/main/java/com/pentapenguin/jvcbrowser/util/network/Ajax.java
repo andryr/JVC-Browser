@@ -60,11 +60,6 @@ public class Ajax extends AsyncTask<Void, Void, Connection.Response> {
         return this;
     }
 
-    public Ajax Cookie(String name, String value) {
-        connection.cookie(name, value);
-        return this;
-    }
-
     public Ajax ignoreContentType(boolean shouldIgnore) {
         connection.ignoreContentType(shouldIgnore);
         return this;
