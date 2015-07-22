@@ -14,6 +14,7 @@ import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
 import com.pentapenguin.jvcbrowser.entities.Topic;
+import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
 import com.pentapenguin.jvcbrowser.util.FragmentLauncher;
 import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.ServiceUpdate;
@@ -45,6 +46,7 @@ public class NotificationFragment extends Fragment{
     private NotificationAdapter mAdapter;
     private String mTimestamp;
     private String mHash;
+    private RecyclerView2 mRecycler;
 
     public static NotificationFragment newInstance() {
         return new NotificationFragment();
@@ -54,19 +56,19 @@ public class NotificationFragment extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_link, container, false);
-        RecyclerView2 recycler = (RecyclerView2) layout.findViewById(R.id.links_list);
+        mRecycler = (RecyclerView2) layout.findViewById(R.id.links_list);
 
         mAdapter = new NotificationAdapter();
-        recycler.setAdapter(mAdapter);
+        mRecycler.setAdapter(mAdapter);
         ((TitleObserver) getActivity()).updateTitle(getActivity().getResources()
                 .getString(R.string.subtitle_notifications));
-        recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         TextView empty = (TextView) layout.findViewById(R.id.link_empty_text);
         empty.setText(R.string.no_notifications);
-        recycler.setLoadingView(layout.findViewById(R.id.link_loading_bar));
-        recycler.setEmptyView(empty);
-        recycler.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-        recycler.addOnItemTouchListener(new RecyclerItemListener(mAdapter,
+        mRecycler.setLoadingView(layout.findViewById(R.id.link_loading_bar));
+        mRecycler.setEmptyView(empty);
+        mRecycler.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
+        mRecycler.addOnItemTouchListener(new RecyclerItemListener(mAdapter,
                 new RecyclerItemListener.RecyclerItemGestureListener() {
                     @Override
                     public void onClick(Object item, int position) {
@@ -96,7 +98,7 @@ public class NotificationFragment extends Fragment{
                     String result = json(response.body());
                     if (result == null) {
                         ((FragmentLauncher) getActivity()).launch(TopicFragment.newInstance(topic), true);
-                        ((ServiceUpdate) getActivity()).notificationUpdate(mAdapter.getItemCount() - 1);
+                        ((ServiceUpdate) getActivity()).notificationUpdate(mAdapter.getItemCount());
                         return;
                     }
                     App.alert(getActivity(), result);
@@ -132,10 +134,6 @@ public class NotificationFragment extends Fragment{
             mValues = new ArrayList<Topic>();
         }
 
-        public NotificationAdapter(ArrayList<Topic> values) {
-            mValues = new ArrayList<Topic>(values);
-        }
-
         private void load() {
             String url = "http://www.jeuxvideo.com/profil/{?}?mode=notifications";
             url = url.replace("{?}", Auth.getInstance().getPseudo().toLowerCase()).trim()
@@ -165,7 +163,12 @@ public class NotificationFragment extends Fragment{
                                         if (html != null) {
                                             Document doc = Jsoup.parse(html);
                                             mValues = Parser.subscribeNotifications(doc);
-                                            notifyDataSetChanged();
+                                            ((ServiceUpdate) getActivity()).notificationUpdate(mAdapter.getItemCount());
+                                            if (!mValues.isEmpty()) {
+                                                notifyDataSetChanged();
+                                            } else {
+                                                mRecycler.showNoResults();
+                                            }
                                         }
                                     } else {
                                         App.alert(getActivity(), R.string.no_response);
@@ -183,12 +186,15 @@ public class NotificationFragment extends Fragment{
                                     return null;
                                 }
                             }).execute();
+
+                            return;
                         } catch (IOException e) {
                             App.alert(getActivity(), e.getMessage());
                         }
                     } else {
                         App.alert(getActivity(), R.string.no_response);
                     }
+                    mRecycler.showNoResults();
                 }
             }).execute();
         }

@@ -104,6 +104,7 @@ public class TopicPageFragment extends Fragment {
         mRecycler.setItemViewCacheSize(ITEM_CACHED_VIEW);
         mRecycler.setItemAnimator(new DefaultItemAnimator());
         mRecycler.setLayoutManager(mLayout);
+        mRecycler.setHasFixedSize(true);
 
         return layout;
     }

@@ -13,6 +13,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -104,6 +105,7 @@ public class NavigationFragment extends Fragment {
         alarmManager.cancel(PendingIntent.getService(getActivity(), 0, new Intent(getActivity(), UpdateService.class),
                 PendingIntent.FLAG_NO_CREATE));
         App.toast(R.string.disconnected);
+        Log.d("Alarm", "unset");
     }
 
     public void updateMp(int mpCount) {
@@ -252,34 +254,34 @@ public class NavigationFragment extends Fragment {
                 url = url.replaceAll("\\[", "%5B").replaceAll("\\]", "%5D");
                 Ajax.url(url).cookie(Auth.COOKIE_NAME, Auth.getInstance().getCookieValue())
                         .callback(new AjaxCallback() {
-                    @Override
-                    public void onComplete(Connection.Response response) {
-                        if (response != null) {
-                            try {
-                                Document doc = response.parse();
-                                int mps = Parser.mpUnread(doc);
-                                int notifs = Parser.notificationUnread(doc);
-                                updateMp(mps);
-                                updateNotifications(notifs);
-                                String background = Parser.profilBackground(doc);
-                                if (background != null) {
+                            @Override
+                            public void onComplete(Connection.Response response) {
+                                if (response != null) {
                                     try {
-                                        int width = (int) getActivity().getResources().getDisplayMetrics().density*320;
-                                        int height = (int) getActivity().getResources().getDisplayMetrics().density*180;
+                                        Document doc = response.parse();
+                                        int mps = Parser.mpUnread(doc);
+                                        int notifs = Parser.notificationUnread(doc);
+                                        updateMp(mps);
+                                        updateNotifications(notifs);
+                                        String background = Parser.profilBackground(doc);
+                                        if (background != null) {
+                                            try {
+                                                int width = (int) getActivity().getResources().getDisplayMetrics().density * 320;
+                                                int height = (int) getActivity().getResources().getDisplayMetrics().density * 180;
 
-                                        Picasso.with(getActivity()).load(background).centerCrop().
-                                                resize(width, height).into(mBackground);
-                                    } catch (Exception ignored) {
+                                                Picasso.with(getActivity()).load(background).centerCrop().
+                                                        resize(width, height).into(mBackground);
+                                            } catch (Exception ignored) {
 
+                                            }
+                                        }
+                                        Picasso.with(getActivity()).load(Parser.profilThumb(doc)).into(mProfil);
+                                    } catch (NoContentFoundException ignored) {
+                                    } catch (IOException ignored) {
                                     }
                                 }
-                                Picasso.with(getActivity()).load(Parser.profilThumb(doc)).into(mProfil);
-                            } catch (NoContentFoundException ignored) {
-                            } catch (IOException ignored) {
                             }
-                        }
-                    }
-                }).execute();
+                        }).execute();
             } else {
                 mBackground.setImageResource(R.drawable.drawer_image);
                 mPseudo.setText("");

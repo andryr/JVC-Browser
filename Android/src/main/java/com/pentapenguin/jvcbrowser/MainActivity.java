@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
             PendingIntent pendingIntent = PendingIntent.getService(this, 0, new Intent(this, UpdateService.class), 0);
             alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(),
                     ALARM_INTERVAL, pendingIntent);
+            Log.d("alarm", "set");
         }
     }
 

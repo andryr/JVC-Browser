@@ -40,6 +40,7 @@ public class UpdateService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (!Auth.getInstance().isConnected()) return;
 
+        Log.d("service", "start");
         updateMp();
     }
 
@@ -155,5 +156,4 @@ public class UpdateService extends IntentService {
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(1, notification);
     }
-
 }
