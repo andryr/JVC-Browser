@@ -303,7 +303,7 @@ public class FavoriteFragment extends Fragment {
                             } else {
                                 App.alert(getActivity(), R.string.no_response);
                             }
-                            mRecycler.showNoResults();
+                            if (mRecycler != null) mRecycler.showNoResults();
                         }
                     }).execute();
         }

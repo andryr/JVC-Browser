@@ -161,6 +161,15 @@ public class TopicPageFragment extends Fragment {
         if (!mRefreshing) mAdapter.load();
     }
 
+    public void scrollToBottom() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mRecycler.smoothScrollToPosition(mAdapter.getItemCount());
+            }
+        }, WAIT_BEFORE_SCROLL);
+    }
+
     private class TopicAdapter extends RecyclerView2.Adapter<RecyclerView.ViewHolder> {
 
         protected ArrayList<Post> mValues;
@@ -218,15 +227,6 @@ public class TopicPageFragment extends Fragment {
                             mRecycler.showNoResults();
                         }
                     }).execute();
-        }
-
-        public void scrollToBottom() {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mRecycler.smoothScrollToPosition(mAdapter.getItemCount());
-                }
-            }, WAIT_BEFORE_SCROLL);
         }
 
         public void removeItem(int position) {
@@ -402,11 +402,6 @@ public class TopicPageFragment extends Fragment {
             mDate.setText(post.getDate());
             Picasso.with(getActivity()).load(post.getProfilThumb()).into(mThumb);
             String content = post.getContent();
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-//                if (content.length() < 2000) {
-//                    mContent.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-//                }
-//            }
             mContent.loadDataWithBaseURL("file:///android_asset/", content, "text/html", "utf-8", null);
             mControl.setOnClickListener(new View.OnClickListener() {
                 @Override

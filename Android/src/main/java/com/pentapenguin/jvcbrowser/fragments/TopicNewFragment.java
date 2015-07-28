@@ -205,7 +205,7 @@ public class TopicNewFragment extends Fragment {
 
     private void onPost(final Topic topic) {
         mPost.setEnabled(false);
-        mListener.onPost(topic);
+        if (mListener != null) mListener.onPost(topic);
     }
 
     private String checkField(EditText edit) {

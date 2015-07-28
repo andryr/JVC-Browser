@@ -26,8 +26,8 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
         ServiceUpdate {
 
     private static final int REQUEST_CODE = 666;
-//    public static final long ALARM_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
-    public static final long ALARM_INTERVAL = 1000*10;
+    public static final long ALARM_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
+//    public static final long ALARM_INTERVAL = 1000*10;
 
     private Toolbar mToolbar;
     private DrawerLayout mDrawerLayout;

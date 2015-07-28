@@ -113,16 +113,20 @@ public class ForumFragment extends Fragment {
                 new RecyclerItemListener.RecyclerItemGestureListener() {
                     @Override
                     public void onClick(Object item, int position) {
-                        ((FragmentLauncher) getActivity()).launch(TopicFragment.newInstance((Topic) item), true);
-                        History.add((Topic) item);
+                        if (item != null) {
+                            ((FragmentLauncher) getActivity()).launch(TopicFragment.newInstance((Topic) item), true);
+                            History.add((Topic) item);
+                        }
                     }
 
                     @Override
                     public void onLongClick(Object item, int position) {
-                        Topic topic = (Topic) item;
-                        ((FragmentLauncher) getActivity()).launch(TopicFragment
-                                .newInstance(topic.page(topic.getPostsNumber()/20 + 1)), true);
-                        History.add((Topic) item);
+                        if (item != null) {
+                            Topic topic = (Topic) item;
+                            ((FragmentLauncher) getActivity()).launch(TopicFragment
+                                    .newInstance(topic.page(topic.getPostsNumber()/20 + 1)), true);
+                            History.add((Topic) item);
+                        }
                     }
                 }));
 
@@ -356,7 +360,9 @@ public class ForumFragment extends Fragment {
         }
 
         public Topic itemAt(int position) {
-            if (position < mValues.size()) return mValues.get(position);
+            try {
+                return mValues.get(position);
+            } catch (ArrayIndexOutOfBoundsException ignored) { }
 
             return null;
         }

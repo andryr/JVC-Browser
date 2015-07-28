@@ -23,20 +23,20 @@ public class App extends Application {
     public static final String HOST_API = "http://api.jeuxvideo.com";
     public static final String APP_NAME = "JVC Browser";
 
-    private static Context context;
+    private static Context sContext;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        context = getApplicationContext();
+        sContext = getApplicationContext();
     }
 
     public static Context getContext() {
-        return context;
+        return sContext;
     }
 
     public static boolean isOnline() {
-        ConnectivityManager cm = (ConnectivityManager) App.context
+        ConnectivityManager cm = (ConnectivityManager) App.sContext
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
@@ -44,7 +44,7 @@ public class App extends Application {
     }
 
     public static void hideKeyboard(IBinder binder) {
-        InputMethodManager imm = (InputMethodManager) App.context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) App.sContext.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(binder, InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
@@ -108,7 +108,7 @@ public class App extends Application {
     }
 
     public static void toast(int message) {
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+        Toast.makeText(sContext, message, Toast.LENGTH_LONG).show();
     }
 
     public static void snack(String message, String text, View.OnClickListener onClick) {
@@ -123,7 +123,7 @@ public class App extends Application {
 
     public static String getFileName(Uri uri) {
         String filePath;
-        Cursor cursor = context.getContentResolver()
+        Cursor cursor = sContext.getContentResolver()
                 .query(uri, new String[]{android.provider.MediaStore.Images.ImageColumns.DATA}, null, null, null);
         cursor.moveToFirst();
         filePath = cursor.getString(0);

@@ -259,11 +259,13 @@ public class Parser {
     }
 
     public static ArrayList<Mp> inbox(Document doc) throws NoContentFoundException {
-        Elements trs = doc.getElementsByClass("list-msg").get(0).getElementsByTag("tr");
+        Elements lists = doc.getElementsByClass("list-msg");
 
-        if (trs.isEmpty()) {
-            throw new NoContentFoundException();
-        }
+        if (lists.isEmpty()) throw new NoContentFoundException();
+
+        Elements trs = lists.get(0).getElementsByTag("tr");
+
+        if (trs.isEmpty()) throw new NoContentFoundException();
         ArrayList<Mp> mps = new ArrayList<Mp>();
         for (int i = 1; i < trs.size(); i++) {
             Element tr = trs.get(i);
@@ -382,7 +384,7 @@ public class Parser {
     public static String profilBackground(Document doc) {
         Element content = doc.getElementById("content");
 
-        if (content.hasAttr("style")) {
+        if (content != null && content.hasAttr("style")) {
             String style = content.attr("style");
 
             Matcher matcher = Pattern.compile("background: url\\('(.*)'\\) center top no-repeat;").matcher(style);

@@ -4,8 +4,10 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -143,9 +145,11 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
             reloadCurrentPage();
         } else if(requestCode == REQUEST_CODE && data != null) {
             final ProgressDialog dialog = App.progress(getActivity(), R.string.in_progress, true);
+            dialog.setCancelable(false);
             dialog.show();
             Uri uri = data.getData();
             String file = App.getFileName(uri);
+            if (file == null) file = getFileName(uri);
             FileUploader uploader = new FileUploader(new FileUploaderListener() {
                 @Override
                 public void onComplete(String result) {
@@ -156,6 +160,21 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
             uploader.setFileData("fichier", file);
             uploader.execute();
         }
+    }
+
+    private String getFileName(Uri uri) {
+        String id =  uri.getPath().split(":")[1];
+        String[] column = { MediaStore.Images.Media.DATA };
+        String sel = MediaStore.Images.Media._ID + "=?";
+        Cursor cursor = getActivity().getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                column, sel, new String[]{id}, null);
+        String filePath = null;
+        int columnIndex = cursor.getColumnIndex(column[0]);
+
+        if (cursor.moveToFirst()) filePath = cursor.getString(columnIndex);
+        cursor.close();
+
+        return filePath;
     }
 
     @Override
@@ -342,6 +361,7 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
         for (Fragment fragment : getChildFragmentManager().getFragments()) {
             if (fragment != null && fragment instanceof TopicPageFragment && fragment.isVisible()) {
                 ((TopicPageFragment) fragment).reload();
+                ((TopicPageFragment) fragment).scrollToBottom();
             }
         }
     }

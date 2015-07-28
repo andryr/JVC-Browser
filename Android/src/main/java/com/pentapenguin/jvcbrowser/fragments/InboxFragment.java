@@ -85,8 +85,9 @@ public class InboxFragment extends Fragment{
                 new RecyclerItemListener.RecyclerItemGestureListener() {
                     @Override
                     public void onClick(Object item, int position) {
-
-                        ((FragmentLauncher) getActivity()).launch(MpFragment.newInstance((Mp) item), true);
+                        if (item != null) {
+                            ((FragmentLauncher) getActivity()).launch(MpFragment.newInstance((Mp) item), true);
+                        }
                     }
 
                     @Override
@@ -242,7 +243,9 @@ public class InboxFragment extends Fragment{
 
         @Override
         public Object itemAt(int position) {
-            if (position < mValues.size()) return mValues.get(position);
+            try {
+                return mValues.get(position);
+            } catch (ArrayIndexOutOfBoundsException ignored) { }
 
             return null;
         }

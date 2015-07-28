@@ -72,8 +72,10 @@ public class NotificationFragment extends Fragment{
                 new RecyclerItemListener.RecyclerItemGestureListener() {
                     @Override
                     public void onClick(Object item, int position) {
-                        openNotification((Topic) item);
-                        mAdapter.remove(position);
+                        if (item != null) {
+                            openNotification((Topic) item);
+                            mAdapter.remove(position);
+                        }
                     }
                 }));
 
@@ -201,7 +203,11 @@ public class NotificationFragment extends Fragment{
 
         @Override
         public Object itemAt(int position) {
-            return mValues.get(position);
+            try {
+                return mValues.get(position);
+            } catch (ArrayIndexOutOfBoundsException ignored) { }
+
+            return null;
         }
 
         @Override
