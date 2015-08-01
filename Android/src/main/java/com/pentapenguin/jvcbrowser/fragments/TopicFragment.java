@@ -114,7 +114,6 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
         super.onViewCreated(view, savedInstanceState);
 
         mPager.setAdapter(mAdapter);
-        mPager.setOffscreenPageLimit(1);
         ((TitleObserver) getActivity()).updateTitle("");
         if (mCurrentPage != 0) mPager.setCurrentItem(mCurrentPage);
         if (!Auth.getInstance().isConnected()) {
@@ -261,7 +260,6 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
                 }
             }
         }).execute();
-
     }
 
     private void noelshack() {
@@ -361,7 +359,6 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
         for (Fragment fragment : getChildFragmentManager().getFragments()) {
             if (fragment != null && fragment instanceof TopicPageFragment && fragment.isVisible()) {
                 ((TopicPageFragment) fragment).reload();
-                ((TopicPageFragment) fragment).scrollToBottom();
             }
         }
     }

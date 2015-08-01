@@ -8,7 +8,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class AjaxRaw extends AsyncTask<Void, Void, String>{
+public class AjaxRaw extends AsyncTask<Void, Void, String> {
 
     private String mUrl;
     private AjaxRawCallback mListener;

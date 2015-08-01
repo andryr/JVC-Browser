@@ -109,7 +109,7 @@ public class ForumFragment extends Fragment {
         mRecycler.setLoadingView(layout.findViewById(R.id.forum_loading_bar));
         mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecycler.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
-        mRecycler.addOnItemTouchListener(new RecyclerItemListener(mAdapter,
+        mRecycler.addOnItemTouchListener(new RecyclerItemListener(getActivity(), mAdapter,
                 new RecyclerItemListener.RecyclerItemGestureListener() {
                     @Override
                     public void onClick(Object item, int position) {
@@ -395,15 +395,14 @@ public class ForumFragment extends Fragment {
 
                             return;
                         } catch (NoContentFoundException e) {
-                            App.alert(getActivity(), e.getMessage());
+                            App.snack(getView(), e.getMessage());
                         } catch (IOException e) {
                             App.alert(getActivity(), e.getMessage());
                         }
+                    } else {
+                        App.snack(getView(), R.string.no_response);
                     }
-                    else {
-                        App.alert(getActivity(), R.string.no_response);
-                    }
-                    if (!mLoaded) mRecycler.showNoResults();
+                    mRecycler.showNoResults();
                 }
             }).execute();
         }

@@ -70,7 +70,8 @@ public class AuthActivity extends Activity {
                         App.alert(AuthActivity.this, e.getMessage());
                     }
                 }
-                App.alert(AuthActivity.this, R.string.no_response);
+//                App.alert(AuthActivity.this, R.string.no_response);
+                App.snack(getWindow().getDecorView().getRootView(), R.string.no_response);
             }
         }).execute();
 
@@ -110,7 +111,8 @@ public class AuthActivity extends Activity {
                                 App.alert(AuthActivity.this, e.getMessage());
                             }
                         }
-                        App.alert(AuthActivity.this, R.string.no_response);
+//                        App.alert(AuthActivity.this, R.string.no_response);
+                        App.snack(getWindow().getDecorView().getRootView(), R.string.no_response);
                     }
                 }).execute();
             }

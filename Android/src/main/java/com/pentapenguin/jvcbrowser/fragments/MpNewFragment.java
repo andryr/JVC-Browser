@@ -148,7 +148,7 @@ public class MpNewFragment extends Fragment {
 
                         mData = Parser.hidden(doc, CLASS_FORM);
                         if (captcha != null) onCaptcha(captcha);
-                        if (error != null) {
+                        if (error != null || captcha != null) {
                             onError(error);
 
                             return;
@@ -191,6 +191,7 @@ public class MpNewFragment extends Fragment {
     private void initWidget() {
         mCaptcha.setVisibility(View.GONE);
         mCode.setVisibility(View.GONE);
+        mCode.setText("");
         mError.setVisibility(View.GONE);
     }
 

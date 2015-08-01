@@ -45,7 +45,7 @@ public class BannedFragment extends Fragment {
         recycler.setAdapter(mAdapter);
         recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         recycler.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-        recycler.addOnItemTouchListener(new RecyclerItemListener(mAdapter,
+        recycler.addOnItemTouchListener(new RecyclerItemListener(getActivity(), mAdapter,
                 new RecyclerItemListener.RecyclerItemGestureListener() {
                     @Override
                     public void onLongClick(Object item, int position) {

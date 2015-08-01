@@ -73,7 +73,7 @@ public class NormalizePost {
         Elements spoils = content.getElementsByClass("bloc-spoil-jv");
 
         for (Element spoil : spoils) {
-            spoil.append("<span class=\"barre-head\">\n" +
+            spoil.append("<span class=\"barre-head\"><br />\n" +
                     "<span class=\"txt-spoil\">Spoil</span>\n" +
                     "</span>");
         }

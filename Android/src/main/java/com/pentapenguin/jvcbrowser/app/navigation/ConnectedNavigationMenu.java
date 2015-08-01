@@ -14,7 +14,7 @@ public class ConnectedNavigationMenu {
 
     public static final NavigationFragment.NavigationType[] types = new NavigationFragment.NavigationType[] {
             NavigationFragment.NavigationType.Header,          //header
-            NavigationFragment.NavigationType.Item,            //se déconnecter
+            NavigationFragment.NavigationType.Item,            //se deconnecter
             NavigationFragment.NavigationType.Category,        // forum
             NavigationFragment.NavigationType.Item,            // tous les forums
             NavigationFragment.NavigationType.Item,            // recherche forums
@@ -23,9 +23,9 @@ public class ConnectedNavigationMenu {
             NavigationFragment.NavigationType.Item,            // abonnements
             NavigationFragment.NavigationType.Item,            // notifications
             NavigationFragment.NavigationType.Item,            // historique
-            NavigationFragment.NavigationType.Category,        // message privé
-            NavigationFragment.NavigationType.Item,            // boite de réception
-            NavigationFragment.NavigationType.Category,        // paramètres
+            NavigationFragment.NavigationType.Category,        // message prive
+            NavigationFragment.NavigationType.Item,            // boite de reception
+            NavigationFragment.NavigationType.Category,        // parametres
             NavigationFragment.NavigationType.Item,            // options
             NavigationFragment.NavigationType.Item,            // bannis
             NavigationFragment.NavigationType.Category,        // about

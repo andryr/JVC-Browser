@@ -13,14 +13,11 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.*;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
-import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.*;
 import com.pentapenguin.jvcbrowser.entities.*;
@@ -28,6 +25,7 @@ import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
 import com.pentapenguin.jvcbrowser.util.*;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
 import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
+import com.pentapenguin.jvcbrowser.util.persistence.Storage;
 import com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2;
 import com.squareup.picasso.Picasso;
 import org.jsoup.Connection;
@@ -40,7 +38,7 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MpFragment extends Fragment implements ItemPosted {
+public class MpAutoFragment extends Fragment implements ItemPosted {
 
     public static final String TAG = "mp";
     public static final String MP_ARG = "arg_mp";
@@ -48,21 +46,25 @@ public class MpFragment extends Fragment implements ItemPosted {
     public static final String OFFSET_SAVE = "offset";
     public static final String DATA_SAVE = "data";
     public static final String TITLE_SAVE = "title";
-    private static final long WAIT_BEFORE_SCROLL = 1500;
+    private static final long WAIT_BEFORE_SCROLL = 1000;
+    private static final long REFRESH_TIME = 10000;
+    private static final int EXTRA_LAYOUT_SPACE = 10000;
 
     private RecyclerView2 mRecycler;
     private MpAdapter mAdapter;
-    private SwipyRefreshLayout mSwipeLayout;
+    private SwipeRefreshLayout mSwipeLayout;
     private Mp mMp;
     private int mOffset;
     private boolean mLocked;
     private MpNewFragment mPost;
     private String mTitle;
     private LinearLayoutManager mLayout;
-    private boolean mLoaded;
+    private boolean mRefreshing;
+    private boolean mSwiped;
+    private boolean mReload;
 
-    public static MpFragment newInstance(Mp mp) {
-        MpFragment fragment = new MpFragment();
+    public static MpAutoFragment newInstance(Mp mp) {
+        MpAutoFragment fragment = new MpAutoFragment();
         Bundle args = new Bundle();
 
         args.putParcelable(MP_ARG, mp);
@@ -77,22 +79,24 @@ public class MpFragment extends Fragment implements ItemPosted {
         mLocked = true;
         mOffset = 0;
         mTitle = null;
-        mLoaded = false;
+        mSwiped = true;
         mMp = getArguments().getParcelable(MP_ARG);
+        mRefreshing = Storage.getInstance().get(Settings.MP_AUTOREFRESH, false);
+
         if (savedInstanceState != null) {
-            mLoaded = true;
             mLocked = savedInstanceState.getBoolean(LOCKED_SAVE);
             mOffset = savedInstanceState.getInt(OFFSET_SAVE);
             mTitle = savedInstanceState.getString(TITLE_SAVE);
             ArrayList<Post> data = savedInstanceState.getParcelableArrayList(DATA_SAVE);
             mPost = (MpNewFragment) getChildFragmentManager().findFragmentByTag(MpNewFragment.TAG);
-            mAdapter = new MpAdapter(data);
+            mAdapter = mRefreshing ? new MpAutoAdapter(data) : new MpAdapter(data);
         } else {
-            mAdapter = new MpAdapter();
+            mAdapter = mRefreshing ? new MpAutoAdapter() : new MpAdapter();
             mPost = MpNewFragment.createInstance();
             getChildFragmentManager().beginTransaction().add(R.id.mp_new_frame, mPost, MpNewFragment.TAG)
                     .commit();
         }
+
         setHasOptionsMenu(true);
     }
 
@@ -101,9 +105,14 @@ public class MpFragment extends Fragment implements ItemPosted {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_mp, container, false);
 
-        mSwipeLayout = (SwipyRefreshLayout) layout.findViewById(R.id.mp_refresh_layout);
+        mSwipeLayout = (SwipeRefreshLayout) layout.findViewById(R.id.mp_refresh_layout);
         mRecycler = (RecyclerView2) layout.findViewById(R.id.mp_post_list);
-        mLayout = new LinearLayoutManager(getActivity());
+        mLayout = new LinearLayoutManager(getActivity()) {
+            @Override
+            protected int getExtraLayoutSpace(RecyclerView.State state) {
+                return EXTRA_LAYOUT_SPACE;
+            }
+        };
         mRecycler.setAdapter(mAdapter);
         mRecycler.setLayoutManager(mLayout);
         mRecycler.setEmptyView(layout.findViewById(R.id.mp_empty_text));
@@ -119,12 +128,26 @@ public class MpFragment extends Fragment implements ItemPosted {
         if (mPost!= null) mPost.setTopic(mMp);
         if (mTitle != null) ((TitleObserver) getActivity()).updateTitle(mTitle);
         mSwipeLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN);
-        mSwipeLayout.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
+        mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void onRefresh(SwipyRefreshLayoutDirection swipyRefreshLayoutDirection) {
-                mAdapter.load(swipyRefreshLayoutDirection);
+            public void onRefresh() {
+                mSwiped = true;
+                mAdapter.load();
             }
         });
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mRefreshing = false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mRefreshing = Storage.getInstance().get(Settings.MP_AUTOREFRESH, false);
+        mAdapter.load();
     }
 
     @Override
@@ -157,8 +180,13 @@ public class MpFragment extends Fragment implements ItemPosted {
                             });
                 }
                 return true;
+
         }
         return false;
+    }
+
+    public void reload() {
+        mAdapter.load();
     }
 
     private void lock() {
@@ -180,7 +208,7 @@ public class MpFragment extends Fragment implements ItemPosted {
                                     public void onComplete(Connection.Response response) {
                                         dialog.dismiss();
                                         if (response != null) {
-                                            mAdapter.load(SwipyRefreshLayoutDirection.BOTTOM);
+                                            mAdapter.load();
 
                                             return;
                                         }
@@ -201,8 +229,8 @@ public class MpFragment extends Fragment implements ItemPosted {
 
     @Override
     public void onPost(Item item) {
-        mAdapter.load(SwipyRefreshLayoutDirection.BOTTOM);
-        mAdapter.scrollToBottom();
+        if (!mRefreshing) reload();
+        mRecycler.scrollToPosition(mAdapter.getItemCount());
     }
 
     private class MpAdapter extends RecyclerView.Adapter<MpHolder> {
@@ -211,17 +239,23 @@ public class MpFragment extends Fragment implements ItemPosted {
 
         public MpAdapter() {
             mValues = new ArrayList<Post>();
-            load(SwipyRefreshLayoutDirection.BOTTOM);
         }
 
         public MpAdapter(ArrayList<Post> values) {
             mValues = new ArrayList<Post>(values);
         }
 
-        public void load(final SwipyRefreshLayoutDirection direction) {
+        public void load() {
             String url = Helper.mpToUrl(mMp, mOffset);
-            if (direction == SwipyRefreshLayoutDirection.TOP) mValues.clear();
+            final boolean shouldScrollDown = mLayout != null &&
+                    mLayout.findLastVisibleItemPosition() >= mAdapter.getItemCount() - 3;
+            mReload = true;
 
+            if (mSwiped) {
+                mValues.clear();
+                notifyDataSetChanged();
+                mReload = false;
+            }
             Ajax.url(url).cookie(Auth.COOKIE_NAME, Auth.getInstance().getCookieValue()).callback(new AjaxCallback() {
                 @Override
                 public void onComplete(Connection.Response response) {
@@ -229,10 +263,10 @@ public class MpFragment extends Fragment implements ItemPosted {
                     if (response != null) {
                         try {
                             Document doc = response.parse();
-                            mOffset = Parser.mpOffset(doc);
-                            if (!mLoaded) {
-                                mLoaded = true;
-                                load(SwipyRefreshLayoutDirection.BOTTOM);
+                            if (mSwiped) {
+                                mOffset = Parser.mpOffset(doc);
+                                mSwiped = false;
+                                reload();
                                 return;
                             }
                             ArrayList<Post> values = Parser.mp(doc);
@@ -249,14 +283,19 @@ public class MpFragment extends Fragment implements ItemPosted {
                             ((TitleObserver) getActivity()).updateTitle(mTitle);
                             ((ServiceUpdate) getActivity()).mpUpdate(Parser.mpUnread(doc));
                             if (getActivity() != null) getActivity().supportInvalidateOptionsMenu();
-                            int max = values.size();
-                            if (mValues.size() >= max) return;
-                            for (int i = mValues.size(); i < max; i++) {
-                                mValues.add(values.get(i));
-                                notifyItemInserted(i);
+                            if (mReload) {
+                                int max = values.size();
+                                if (mValues.size() >= max) return;
+                                for (int i = mValues.size(); i < max; i++) {
+                                    mValues.add(values.get(i));
+                                    notifyItemInserted(i);
+                                }
+                                mRecycler.hideEmpties();
+                            } else {
+                                mValues = new ArrayList<Post>(values);
+                                notifyDataSetChanged();
                             }
-                            mRecycler.hideEmpties();
-                            if (direction == SwipyRefreshLayoutDirection.BOTTOM) scrollToBottom();
+                            if (shouldScrollDown) scrollToBottom();
 
                             return;
                         } catch (IOException e) {
@@ -295,6 +334,92 @@ public class MpFragment extends Fragment implements ItemPosted {
         @Override
         public int getItemCount() {
             return mValues.size();
+        }
+    }
+
+    private class MpAutoAdapter extends MpAdapter {
+
+        public MpAutoAdapter() {
+            super();
+        }
+
+        public MpAutoAdapter(ArrayList<Post> values) {
+            super(values);
+        }
+
+        @Override
+        public void load() {
+            if (!mRefreshing) return;
+            String url = Helper.mpToUrl(mMp, mOffset);
+            final boolean shouldScrollDown = mLayout != null &&
+                    mLayout.findLastVisibleItemPosition() >= mAdapter.getItemCount() - 3;
+            mReload = true;
+
+            if (mSwiped) {
+                mValues.clear();
+                notifyDataSetChanged();
+                mReload = false;
+            }
+            Ajax.url(url).cookie(Auth.COOKIE_NAME, Auth.getInstance().getCookieValue()).callback(new AjaxCallback() {
+                @Override
+                public void onComplete(Connection.Response response) {
+                    if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            load();
+                        }
+                    }, REFRESH_TIME);
+                    if (response != null) {
+                        try {
+                            Document doc = response.parse();
+                            if (mSwiped) {
+                                mOffset = Parser.mpOffset(doc);
+                                mSwiped = false;
+                                reload();
+                                return;
+                            }
+                            ArrayList<Post> values = Parser.mp(doc);
+                            Iterator<Post> it = values.iterator();
+
+                            while (it.hasNext()) {
+                                Post post = it.next();
+                                if (Bans.isBanned(post.getAuthor())) it.remove();
+                            }
+                            if (values.size() == 0) throw new NoContentFoundException();
+                            mLocked = Parser.hidden(doc, "form-post-topic").size() == 0;
+                            if (mLocked) getChildFragmentManager().beginTransaction().hide(mPost).commit();
+                            mTitle = Parser.getTitleMp(doc);
+                            ((TitleObserver) getActivity()).updateTitle(mTitle);
+                            ((ServiceUpdate) getActivity()).mpUpdate(Parser.mpUnread(doc));
+                            if (getActivity() != null) getActivity().supportInvalidateOptionsMenu();
+                            if (mReload) {
+                                int max = values.size();
+                                if (mValues.size() >= max) return;
+                                for (int i = mValues.size(); i < max; i++) {
+                                    mValues.add(values.get(i));
+                                    notifyItemInserted(i);
+                                }
+                                mRecycler.hideEmpties();
+                            } else {
+                                mValues = new ArrayList<Post>(values);
+                                notifyDataSetChanged();
+                            }
+                            if (shouldScrollDown) scrollToBottom();
+
+                            return;
+                        } catch (IOException e) {
+//                            App.alert(getActivity(), e.getMessage());
+                        } catch (NoContentFoundException e) {
+//                            App.alert(getActivity(), e.getMessage());
+                        }
+//                        mRecycler.showNoResults();
+
+                        return;
+                    }
+//                    App.alert(getActivity(), R.string.no_response);
+                }
+            }).execute();
         }
     }
 
@@ -389,7 +514,7 @@ public class MpFragment extends Fragment implements ItemPosted {
 
         private void ignore(Post post) {
             Bans.add(post.getAuthor());
-            mAdapter.load(SwipyRefreshLayoutDirection.BOTTOM);
+            mAdapter.load();
         }
     }
 }

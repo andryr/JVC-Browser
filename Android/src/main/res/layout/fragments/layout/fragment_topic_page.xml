@@ -1,12 +1,20 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/topic_post_list"/>
+    <com.pentapenguin.jvcbrowser.util.widgets.SwipeRefreshLayoutBottom
+            android:id="@+id/topic_page_swipe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+        <com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/topic_post_list"/>
+
+    </com.pentapenguin.jvcbrowser.util.widgets.SwipeRefreshLayoutBottom>
 
     <ProgressBar
             android:layout_width="wrap_content"

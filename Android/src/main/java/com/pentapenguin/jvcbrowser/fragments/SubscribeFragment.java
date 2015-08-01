@@ -41,6 +41,7 @@ public class SubscribeFragment extends Fragment {
     private SubscribeAdapter mAdapter;
     private String mTimestamp;
     private String mHash;
+    private RecyclerView2 mRecycler;
 
     public static SubscribeFragment newInstance() {
         return new SubscribeFragment();
@@ -50,7 +51,7 @@ public class SubscribeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_link, container, false);
-        RecyclerView2 recycler = (RecyclerView2) layout.findViewById(R.id.links_list);
+        mRecycler = (RecyclerView2) layout.findViewById(R.id.links_list);
 
         if (savedInstanceState != null) {
             ArrayList<Topic> data = savedInstanceState.getParcelableArrayList(DATA_SAVE);
@@ -59,16 +60,16 @@ public class SubscribeFragment extends Fragment {
             mAdapter = new SubscribeAdapter();
         }
 
-        recycler.setAdapter(mAdapter);
+        mRecycler.setAdapter(mAdapter);
         ((TitleObserver) getActivity()).updateTitle(getActivity().getResources()
                 .getString(R.string.subtitle_subscribe));
-        recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         TextView empty = (TextView) layout.findViewById(R.id.link_empty_text);
         empty.setText(R.string.no_subscribes);
-        recycler.setLoadingView(layout.findViewById(R.id.link_loading_bar));
-        recycler.setEmptyView(empty);
-        recycler.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-        recycler.addOnItemTouchListener(new RecyclerItemListener(mAdapter,
+        mRecycler.setLoadingView(layout.findViewById(R.id.link_loading_bar));
+        mRecycler.setEmptyView(empty);
+        mRecycler.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
+        mRecycler.addOnItemTouchListener(new RecyclerItemListener(getActivity(), mAdapter,
                 new RecyclerItemListener.RecyclerItemGestureListener() {
                     @Override
                     public void onClick(Object item, int position) {
@@ -80,11 +81,11 @@ public class SubscribeFragment extends Fragment {
 
                         App.alertOkCancel(getActivity(), "Supprimer cet abonnement ?",
                                 new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                unsubscribe((Topic) item, position);
-                            }
-                        });
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        unsubscribe((Topic) item, position);
+                                    }
+                                });
                     }
                 }));
 
@@ -161,12 +162,16 @@ public class SubscribeFragment extends Fragment {
                             mTimestamp = infos[0];
                             mHash = infos[1];
                             mValues = Parser.subscribes(doc);
-                            notifyDataSetChanged();
+                            if (!mValues.isEmpty()) {
+                                notifyDataSetChanged();
+                            } else {
+                                mRecycler.showNoResults();
+                            }
                         } catch (IOException e) {
                             App.alert(getActivity(), e.getMessage());
                         }
                     } else {
-                        App.alert(getActivity(), R.string.no_response);
+                        App.snack(getView(), R.string.no_response);
                     }
                 }
             }).execute();

@@ -49,6 +49,7 @@ public class App extends Application {
     }
 
     public static AlertDialog alert(Context context, int message) {
+        if (message == R.string.no_response) return null;
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle(APP_NAME)
                 .setIcon(R.mipmap.logo)
@@ -111,14 +112,18 @@ public class App extends Application {
         Toast.makeText(sContext, message, Toast.LENGTH_LONG).show();
     }
 
-    public static void snack(String message, String text, View.OnClickListener onClick) {
+    public static void snack(View view, String message, String text, View.OnClickListener onClick) {
         Snackbar.make(null, message, Snackbar.LENGTH_LONG)
                 .setAction(text, onClick)
                 .show();
     }
 
-    public static void snack(String message) {
-        Snackbar.make(null, message, Snackbar.LENGTH_LONG).show();
+    public static void snack(View view, String message) {
+        Snackbar.make(view, message, Snackbar.LENGTH_LONG).show();
+    }
+
+    public static void snack(View view, int message) {
+        Snackbar.make(view, sContext.getString(message), Snackbar.LENGTH_LONG).show();
     }
 
     public static String getFileName(Uri uri) {

@@ -1,23 +1,17 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-    <android.support.v4.widget.SwipeRefreshLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/inbox_refresh_layout">
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
 
     <com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/inbox_mp_list"/>
-
-    </android.support.v4.widget.SwipeRefreshLayout>
+            android:id="@+id/topic_post_list"/>
 
     <ProgressBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/inbox_loading_bar"
+            android:id="@+id/topic_loading_bar"
             android:indeterminate="true"
             android:visibility="gone"
             android:layout_centerVertical="true"
@@ -27,8 +21,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:visibility="gone"
             android:layout_centerHorizontal="true"
-            android:id="@+id/inbox_empty_text"
+            android:visibility="gone"
+            android:id="@+id/topic_empty_text"
             android:text="@string/no_result"/>
+
 </RelativeLayout>

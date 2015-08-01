@@ -52,7 +52,7 @@ public class ForumSearchFragment extends Fragment {
         recycler.setAdapter(adapter);
         recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         recycler.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-        recycler.addOnItemTouchListener(new RecyclerItemListener(adapter,
+        recycler.addOnItemTouchListener(new RecyclerItemListener(getActivity(), adapter,
                 new RecyclerItemListener.RecyclerItemGestureListener() {
                     @Override
                     public void onClick(Object item, int position) {

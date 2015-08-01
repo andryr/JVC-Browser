@@ -71,7 +71,7 @@ public class NavigationFragment extends Fragment {
         mRecycler = (RecyclerView) layout.findViewById(R.id.navigation_list);
         mRecycler.setAdapter(mAdapter);
         mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecycler.addOnItemTouchListener(new RecyclerItemListener(mAdapter,
+        mRecycler.addOnItemTouchListener(new RecyclerItemListener(getActivity(), mAdapter,
                 new RecyclerItemListener.RecyclerItemGestureListener() {
 
                     @Override

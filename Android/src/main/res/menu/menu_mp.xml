@@ -9,9 +9,4 @@
             app:showAsAction="ifRoom"
               android:icon="@drawable/action_lock"/>
 
-      <item android:id="@+id/menu_mp_refresh"
-            android:title="@string/refresh"
-            android:orderInCategory="2"
-            app:showAsAction="always"
-              android:icon="@drawable/action_reload"/>
 </menu>

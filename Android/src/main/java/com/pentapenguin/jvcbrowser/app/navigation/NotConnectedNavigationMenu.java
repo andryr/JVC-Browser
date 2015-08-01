@@ -19,7 +19,7 @@ public class NotConnectedNavigationMenu {
             NavigationFragment.NavigationType.Item,            // tous les forums
             NavigationFragment.NavigationType.Item,            // recherche les forums
             NavigationFragment.NavigationType.Item,            // historique
-            NavigationFragment.NavigationType.Category,        // paramètres
+            NavigationFragment.NavigationType.Category,        // parametres
             NavigationFragment.NavigationType.Item,            // options
             NavigationFragment.NavigationType.Item,            // bannis
             NavigationFragment.NavigationType.Category,        // about

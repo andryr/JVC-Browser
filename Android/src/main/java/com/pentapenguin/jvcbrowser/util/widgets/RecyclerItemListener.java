@@ -1,5 +1,6 @@
 package com.pentapenguin.jvcbrowser.util.widgets;
 
+import android.content.Context;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
@@ -14,10 +15,10 @@ public class RecyclerItemListener implements RecyclerView.OnItemTouchListener {
     private GestureDetectorCompat mGestureDetector;
     private int mPosition;
 
-    public RecyclerItemListener(RecyclerViewAdapter adapter, RecyclerItemGestureListener listener) {
+    public RecyclerItemListener(Context context, RecyclerViewAdapter adapter, RecyclerItemGestureListener listener) {
         mListener = listener;
         mAdapter = adapter;
-        mGestureDetector = new GestureDetectorCompat(App.getContext(), new GestureDetector.OnGestureListener() {
+        mGestureDetector = new GestureDetectorCompat(context, new GestureDetector.OnGestureListener() {
 
             @Override
             public boolean onDown(MotionEvent motionEvent) {

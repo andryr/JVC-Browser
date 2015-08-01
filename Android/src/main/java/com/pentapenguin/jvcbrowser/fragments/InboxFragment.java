@@ -3,9 +3,11 @@ package com.pentapenguin.jvcbrowser.fragments;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -45,6 +47,7 @@ public class InboxFragment extends Fragment{
     private RecyclerView2 mRecycler;
     private InboxAdapter mAdapter;
     private int mCurrentPage;
+    private SwipeRefreshLayout mSwipeLayout;
     private int mMpNumber;
     private HashMap<String, String> mData;
 
@@ -76,12 +79,13 @@ public class InboxFragment extends Fragment{
         View layout = inflater.inflate(R.layout.fragment_inbox, container, false);
 
         mRecycler = (RecyclerView2) layout.findViewById(R.id.inbox_mp_list);
+        mSwipeLayout = (SwipeRefreshLayout) layout.findViewById(R.id.inbox_refresh_layout);
         mRecycler.setAdapter(mAdapter);
         mRecycler.setEmptyView(layout.findViewById(R.id.inbox_empty_text));
         mRecycler.setLoadingView(layout.findViewById(R.id.inbox_loading_bar));
         mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecycler.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-        mRecycler.addOnItemTouchListener(new RecyclerItemListener(mAdapter,
+        mRecycler.addOnItemTouchListener(new RecyclerItemListener(getActivity(), mAdapter,
                 new RecyclerItemListener.RecyclerItemGestureListener() {
                     @Override
                     public void onClick(Object item, int position) {
@@ -112,6 +116,13 @@ public class InboxFragment extends Fragment{
                     }
                 }));
         ((TitleObserver) getActivity()).updateTitle(getActivity().getResources().getString(R.string.subtitle_inbox));
+        mSwipeLayout.setColorSchemeColors(Color.GREEN, Color.YELLOW, Color.BLUE, Color.RED);
+        mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mAdapter.load();
+            }
+        });
 
         return layout;
     }
@@ -142,9 +153,6 @@ public class InboxFragment extends Fragment{
                 return true;
             case R.id.menu_inbox_previous:
                 prevPage();
-                return true;
-            case R.id.menu_inbox_refresh:
-                mAdapter.load();
                 return true;
         }
         return false;
@@ -188,12 +196,11 @@ public class InboxFragment extends Fragment{
         }
 
         public void load() {
-            mValues.clear();
-            notifyDataSetChanged();
             Ajax.url(Helper.inboxToUrl(mCurrentPage)).cookie(Auth.COOKIE_NAME, Auth.getInstance().getCookieValue())
                     .callback(new AjaxCallback() {
                         @Override
                         public void onComplete(Connection.Response response) {
+                            if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
                             if (response != null) {
                                 try {
                                     Document doc = response.parse();
@@ -212,13 +219,12 @@ public class InboxFragment extends Fragment{
 
                                     return;
                                 } catch (NoContentFoundException e) {
-                                    App.alert(getActivity(), e.getMessage());
+                                    App.snack(getView(), e.getMessage());
                                 } catch (IOException e) {
                                     App.alert(getActivity(), e.getMessage());
                                 }
-
                             } else {
-                                App.alert(getActivity(), R.string.no_response);
+                                App.snack(getView(), R.string.no_response);
                             }
                             mRecycler.showNoResults();
                         }

@@ -50,7 +50,7 @@ public class HistoryFragment extends Fragment {
         empty.setText(R.string.no_history);
         recycler.setLoadingView(empty);
         recycler.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-        recycler.addOnItemTouchListener(new RecyclerItemListener(mAdapter,
+        recycler.addOnItemTouchListener(new RecyclerItemListener(getActivity(), mAdapter,
                 new RecyclerItemListener.RecyclerItemGestureListener() {
                     @Override
                     public void onClick(Object item, int position) {

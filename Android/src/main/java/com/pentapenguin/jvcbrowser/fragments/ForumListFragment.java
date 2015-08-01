@@ -85,12 +85,12 @@ public class ForumListFragment extends Fragment {
                             }
                             notifyDataSetChanged();
                         } catch (NoContentFoundException e) {
-                            App.alert(getActivity(), e.getMessage());
+                            App.snack(getView(), e.getMessage());
                         } catch (IOException e) {
                             App.alert(getActivity(), e.getMessage());
                         }
                     } else {
-                        App.alert(getActivity(), R.string.no_response);
+                        App.snack(getView(), R.string.no_response);
                     }
                 }
             }).execute();

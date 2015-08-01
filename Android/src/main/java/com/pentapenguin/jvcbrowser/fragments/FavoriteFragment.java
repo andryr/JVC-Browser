@@ -85,7 +85,7 @@ public class FavoriteFragment extends Fragment {
         mRecycler.setEmptyView(layout.findViewById(R.id.link_empty_text));
         mRecycler.setLoadingView(layout.findViewById(R.id.link_loading_bar));
         mRecycler.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-        mRecycler.addOnItemTouchListener(new RecyclerItemListener(mAdapter,
+        mRecycler.addOnItemTouchListener(new RecyclerItemListener(getActivity(), mAdapter,
                 new RecyclerItemListener.RecyclerItemGestureListener() {
                     @Override
                     public void onClick(Object item, int position) {
@@ -97,8 +97,6 @@ public class FavoriteFragment extends Fragment {
                         } else if (itemm instanceof Topic) {
                             ((FragmentLauncher) getActivity()).launch(TopicFragment.newInstance((Topic) itemm), true);
                         }
-
-
                     }
 
                     @Override
@@ -296,12 +294,12 @@ public class FavoriteFragment extends Fragment {
 
                                     return;
                                 } catch (NoContentFoundException e) {
-                                    App.alert(getActivity(), e.getMessage());
+                                    App.snack(getView(), e.getMessage());
                                 } catch (IOException e) {
                                     App.alert(getActivity(), e.getMessage());
                                 }
                             } else {
-                                App.alert(getActivity(), R.string.no_response);
+                                App.snack(getView(), R.string.no_response);
                             }
                             if (mRecycler != null) mRecycler.showNoResults();
                         }

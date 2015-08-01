@@ -68,7 +68,7 @@ public class NotificationFragment extends Fragment{
         mRecycler.setLoadingView(layout.findViewById(R.id.link_loading_bar));
         mRecycler.setEmptyView(empty);
         mRecycler.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-        mRecycler.addOnItemTouchListener(new RecyclerItemListener(mAdapter,
+        mRecycler.addOnItemTouchListener(new RecyclerItemListener(getActivity(), mAdapter,
                 new RecyclerItemListener.RecyclerItemGestureListener() {
                     @Override
                     public void onClick(Object item, int position) {
@@ -166,15 +166,14 @@ public class NotificationFragment extends Fragment{
                                             Document doc = Jsoup.parse(html);
                                             mValues = Parser.subscribeNotifications(doc);
                                             ((ServiceUpdate) getActivity()).notificationUpdate(mAdapter.getItemCount());
-                                            if (!mValues.isEmpty()) {
-                                                notifyDataSetChanged();
-                                            } else {
-                                                mRecycler.showNoResults();
-                                            }
+                                            if (!mValues.isEmpty()) notifyDataSetChanged();
+
+                                            return;
                                         }
                                     } else {
-                                        App.alert(getActivity(), R.string.no_response);
+                                        App.snack(getView(), R.string.no_response);
                                     }
+                                    mRecycler.showNoResults();
                                 }
 
                                 private String json(String message) {
@@ -194,7 +193,7 @@ public class NotificationFragment extends Fragment{
                             App.alert(getActivity(), e.getMessage());
                         }
                     } else {
-                        App.alert(getActivity(), R.string.no_response);
+                        App.snack(getView(), R.string.no_response);
                     }
                     mRecycler.showNoResults();
                 }
