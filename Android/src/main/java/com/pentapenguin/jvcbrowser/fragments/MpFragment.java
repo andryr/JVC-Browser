@@ -117,6 +117,7 @@ public class MpFragment extends Fragment implements ItemPosted {
         super.onViewCreated(view, savedInstanceState);
 
         if (mPost!= null) mPost.setTopic(mMp);
+        if (savedInstanceState == null) mAdapter.load(SwipyRefreshLayoutDirection.BOTTOM);
         if (mTitle != null) ((TitleObserver) getActivity()).updateTitle(mTitle);
         mSwipeLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN);
         mSwipeLayout.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
@@ -211,14 +212,13 @@ public class MpFragment extends Fragment implements ItemPosted {
 
         public MpAdapter() {
             mValues = new ArrayList<Post>();
-            load(SwipyRefreshLayoutDirection.BOTTOM);
         }
 
         public MpAdapter(ArrayList<Post> values) {
             mValues = new ArrayList<Post>(values);
         }
 
-        public void load(final SwipyRefreshLayoutDirection direction) {
+        public void load1(final SwipyRefreshLayoutDirection direction) {
             String url = Helper.mpToUrl(mMp, mOffset);
             if (direction == SwipyRefreshLayoutDirection.TOP) mValues.clear();
 
@@ -270,6 +270,56 @@ public class MpFragment extends Fragment implements ItemPosted {
                     mRecycler.showNoResults();
                 }
             }).execute();
+        }
+
+        public void load(final SwipyRefreshLayoutDirection direction) {
+            if (direction == SwipyRefreshLayoutDirection.BOTTOM) {
+                mOffset = 0;
+                mLayout.setStackFromEnd(true);
+            } else {
+                mLayout.setStackFromEnd(false);
+            }
+            String url = Helper.mpToUrl(mMp, mOffset);
+            mValues.clear();
+
+            Ajax.url(url).cookie(Auth.COOKIE_NAME, Auth.getInstance().getCookieValue()).callback(new AjaxCallback() {
+                @Override
+                public void onComplete(Connection.Response response) {
+                    if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
+                    if (response != null) {
+                        try {
+                            Document doc = response.parse();
+                            ArrayList<Post> values = Parser.mp(doc);
+                            Iterator<Post> it = values.iterator();
+
+                            while (it.hasNext()) {
+                                Post post = it.next();
+                                if (Bans.isBanned(post.getAuthor())) it.remove();
+                            }
+                            mOffset = Parser.mpOffset(doc);
+                            if (values.size() == 0) throw new NoContentFoundException();
+                            mLocked = Parser.hidden(doc, "form-post-topic").size() == 0;
+                            if (mLocked) getChildFragmentManager().beginTransaction().hide(mPost).commit();
+                            mTitle = Parser.getTitleMp(doc);
+                            ((TitleObserver) getActivity()).updateTitle(mTitle);
+                            ((ServiceUpdate) getActivity()).mpUpdate(Parser.mpUnread(doc));
+                            if (getActivity() != null) getActivity().supportInvalidateOptionsMenu();
+                            mValues.addAll(values);
+                            notifyDataSetChanged();
+
+                            return;
+                        } catch (IOException e) {
+                            App.alert(getActivity(), e.getMessage());
+                        } catch (NoContentFoundException e) {
+                            App.snack(getView(), e.getMessage());
+                        }
+                    } else {
+                        App.snack(getView(), R.string.no_response);
+                    }
+                    mRecycler.showNoResults();
+                }
+            }).execute();
+
         }
 
         public void scrollToBottom() {

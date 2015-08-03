@@ -73,14 +73,17 @@ public class NormalizePost {
         Elements spoils = content.getElementsByClass("bloc-spoil-jv");
 
         for (Element spoil : spoils) {
-            spoil.append("<span class=\"barre-head\"><br />\n" +
+            spoil.prepend("<br /><span class=\"barre-head\">\n" +
                     "<span class=\"txt-spoil\">Spoil</span>\n" +
-                    "</span>");
+                    "</span>")
+                    .append("<span class=\"barre-head\">\n" +
+                            "<span class=\"txt-spoil\">Spoil</span>\n" +
+                            "</span><br />");
         }
     }
 
     private String minifyLink(String url) {
-        int max = 40;
+        int max = 30;
 
         if (url.length() > max) {
             url = url.substring(0, max / 2) + "[...]" + url.substring(url.length() - max/2, url.length());

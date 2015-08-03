@@ -201,12 +201,14 @@ public class ForumFragment extends Fragment {
 
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
+                                App.hideKeyboard(mSearchView.getWindowToken());
                                 search();
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
+                                App.hideKeyboard(mSearchView.getWindowToken());
                                 dialogInterface.dismiss();
                             }
                         })
@@ -328,12 +330,13 @@ public class ForumFragment extends Fragment {
                         }
                         mCurrentPage = Math.abs(Integer.parseInt(pageNumber.getText().toString()));
                         mAdapter.load();
-                        App.hideKeyboard(mSearchView.getWindowToken());
+                        App.hideKeyboard(pageNumber.getWindowToken());
                     }
                 })
                 .setNegativeButton("Fermer", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        App.hideKeyboard(pageNumber.getWindowToken());
                         dialogInterface.dismiss();
                     }
                 })
@@ -343,7 +346,6 @@ public class ForumFragment extends Fragment {
     private void search() {
         mSwipeLayout.setRefreshing(true);
         mAdapter.load();
-        App.hideKeyboard(mSearchView.getWindowToken());
     }
 
     private class ForumAdapter extends RecyclerViewAdapter<ForumHolder> {

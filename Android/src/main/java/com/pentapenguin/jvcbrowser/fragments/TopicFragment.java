@@ -4,10 +4,8 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -28,14 +26,14 @@ import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.TitleObserver;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
 import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
-import com.pentapenguin.jvcbrowser.util.network.FileUploader;
-import com.pentapenguin.jvcbrowser.util.network.FileUploaderListener;
+import com.squareup.okhttp.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Connection;
 import org.jsoup.nodes.Document;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -143,37 +141,10 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
         if (resultCode == EditActivity.RESULT_CODE) {
             reloadCurrentPage();
         } else if(requestCode == REQUEST_CODE && data != null) {
-            final ProgressDialog dialog = App.progress(getActivity(), R.string.in_progress, true);
-            dialog.setCancelable(false);
-            dialog.show();
             Uri uri = data.getData();
-            String file = App.getFileName(uri);
-            if (file == null) file = getFileName(uri);
-            FileUploader uploader = new FileUploader(new FileUploaderListener() {
-                @Override
-                public void onComplete(String result) {
-                    dialog.dismiss();
-                    if (result != null) mPost.append(result);
-                }
-            }, NOELSHACK_URL);
-            uploader.setFileData("fichier", file);
-            uploader.execute();
+            String filePath = App.getFilePath(getActivity(), uri);
+            noelshackUpload(filePath);
         }
-    }
-
-    private String getFileName(Uri uri) {
-        String id =  uri.getPath().split(":")[1];
-        String[] column = { MediaStore.Images.Media.DATA };
-        String sel = MediaStore.Images.Media._ID + "=?";
-        Cursor cursor = getActivity().getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                column, sel, new String[]{id}, null);
-        String filePath = null;
-        int columnIndex = cursor.getColumnIndex(column[0]);
-
-        if (cursor.moveToFirst()) filePath = cursor.getString(columnIndex);
-        cursor.close();
-
-        return filePath;
     }
 
     @Override
@@ -267,7 +238,43 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
         intent.setAction(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         startActivityForResult(
-                Intent.createChooser(intent, "Select audio"), REQUEST_CODE);
+                Intent.createChooser(intent, "Selectionnez une image"), REQUEST_CODE);
+    }
+
+    private void noelshackUpload(String path) {
+        OkHttpClient client = new OkHttpClient();
+        App.snack(getView(), "Upload en cours...");
+        File file = new File(path);
+        RequestBody requestBody = new MultipartBuilder()
+                .type(MultipartBuilder.FORM)
+                .addFormDataPart("fichier", file.getName(), RequestBody.create(MediaType.parse("image/*"), file))
+                .build();
+
+        Request request = new Request.Builder()
+                .url("http://www.noelshack.com/api.php")
+                .post(requestBody)
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+            }
+
+            @Override
+            public void onResponse(final Response response) throws IOException {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                mPost.append(response.body().string());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
     private void addFavorite() {
@@ -344,11 +351,13 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
                         }
                         int page = Integer.parseInt(pageNumber.getText().toString());
                         mPager.setCurrentItem(page - 1);
+                        App.hideKeyboard(pageNumber.getWindowToken());
                     }
                 })
                 .setNegativeButton("Fermer", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        App.hideKeyboard(pageNumber.getWindowToken());
                         dialogInterface.dismiss();
                     }
                 })

@@ -9,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.IBinder;
+import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
@@ -126,13 +127,35 @@ public class App extends Application {
         Snackbar.make(view, sContext.getString(message), Snackbar.LENGTH_LONG).show();
     }
 
-    public static String getFileName(Uri uri) {
+    private static String getFilePathFromGalery(Context context, Uri uri) {
         String filePath;
-        Cursor cursor = sContext.getContentResolver()
+        Cursor cursor = context.getContentResolver()
                 .query(uri, new String[]{android.provider.MediaStore.Images.ImageColumns.DATA}, null, null, null);
         cursor.moveToFirst();
         filePath = cursor.getString(0);
         cursor.close();
         return filePath;
+    }
+
+    private static String getFilePathFromImage(Context context, Uri uri) {
+        String id =  uri.getPath().split(":")[1];
+        String[] column = { MediaStore.Images.Media.DATA };
+        String sel = MediaStore.Images.Media._ID + "=?";
+        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                column, sel, new String[]{id}, null);
+        String filePath = null;
+        int columnIndex = cursor.getColumnIndex(column[0]);
+
+        if (cursor.moveToFirst()) filePath = cursor.getString(columnIndex);
+        cursor.close();
+
+        return filePath;
+    }
+
+    public static String getFilePath(Context context, Uri uri) {
+        String fileName = getFilePathFromGalery(context, uri);
+        if (fileName == null) fileName = getFilePathFromImage(context, uri);
+
+        return fileName;
     }
 }
