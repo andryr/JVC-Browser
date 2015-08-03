@@ -13,6 +13,7 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.*;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
@@ -419,6 +420,8 @@ public class TopicPageFragment extends Fragment {
 
             mControl.setVisibility(Auth.getInstance().isConnected() ? View.VISIBLE : View.GONE);
             mContent.getSettings().setDefaultTextEncodingName("utf-8");
+            mContent.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+            mContent.getSettings().setAppCacheEnabled(false);
             mContent.setBackgroundColor(Color.TRANSPARENT);
             mContent.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override

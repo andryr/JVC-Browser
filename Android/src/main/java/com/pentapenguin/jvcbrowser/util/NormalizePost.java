@@ -1,6 +1,9 @@
 package com.pentapenguin.jvcbrowser.util;
 
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
@@ -36,13 +39,20 @@ public class NormalizePost {
 
     private void noelshack() {
         Elements noelshacks = content.getElementsByAttributeValue("data-def", "NOELSHACK");
+        int i = 0;
+        int max = 20;
 
         for (Element noelshack : noelshacks) {
+            i++;
             Element img = noelshack.child(0);
             String src = "http:" + img.attr("src");
 
             img.attr("src", src);
-
+            if (i > max) {
+                Attributes attrs = new Attributes();
+                attrs.put("href", src);
+                img.replaceWith(new Element(Tag.valueOf("a"), "", attrs).text(minifyLink(src)));
+            }
         }
     }
 
