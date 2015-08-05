@@ -3,6 +3,8 @@ package com.pentapenguin.jvcbrowser;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.widget.Toast;
+import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Settings;
 import com.pentapenguin.jvcbrowser.util.persistence.Storage;
 
@@ -16,6 +18,7 @@ public class SettingsActivity extends PreferenceActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
+        Toast.makeText(this, "L'autorefresh desactivay !", Toast.LENGTH_LONG).show();
 
         final Preference topicAutoPreference = findPreference(Settings.TOPIC_AUTOREFRESH);
         final Preference mpAutoPreference = findPreference(Settings.TOPIC_AUTOREFRESH);

@@ -55,7 +55,6 @@ public class TopicPageFragment extends Fragment {
     public static final String TOPIC_ARG = "topic_arg";
     private static final int ITEM_CACHED_VIEW = 20;
     private static final int EXTRA_LAYOUT_SPACE = 10000;
-    private static final int WAIT_BEFORE_SCROLL = 1000;
     private static final String DATA_SAVE = "data";
     private static final String LOADED_SAVE = "loaded";
 
@@ -110,9 +109,9 @@ public class TopicPageFragment extends Fragment {
         mRecycler.setEmptyView(layout.findViewById(R.id.topic_empty_text));
         mRecycler.setLoadingView(layout.findViewById(R.id.topic_loading_bar));
         mRecycler.setItemViewCacheSize(ITEM_CACHED_VIEW);
-//        mRecycler.setItemAnimator(new DefaultItemAnimator());
+        mRecycler.setItemAnimator(new DefaultItemAnimator());
         mRecycler.setLayoutManager(mLayout);
-//        mRecycler.setHasFixedSize(true);
+        mRecycler.setHasFixedSize(true);
         mSwipeLayout.setColorSchemeColors(Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW);
         mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayoutBottom.OnRefreshListener() {
             @Override
@@ -250,10 +249,12 @@ public class TopicPageFragment extends Fragment {
                         final int current = mValues.size();
                         String title = Parser.getTitleTopic(doc);
                         final int pages = Parser.page(doc);
-                        mValues.clear();
-                        mValues.add(new Post(pages, title));
-                        mValues.addAll(values);
-                        mValues.add(new Post(pages, title));
+                        if (current < max) {
+                            mValues.clear();
+                            mValues.add(new Post(pages, title));
+                            mValues.addAll(values);
+                            mValues.add(new Post(pages, title));
+                        }
                         if (getParentFragment().getActivity() != null) {
                             getParentFragment().getActivity().runOnUiThread(new Runnable() {
                                 @Override
@@ -261,13 +262,9 @@ public class TopicPageFragment extends Fragment {
                                     if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
                                     ((TopicObserver) getParentFragment()).updatePages(pages);
                                     ((TopicObserver) getParentFragment()).updatePostUrl(Parser.newPostUrl(doc));
-                                    if (max == current) return;
                                     if (mLoaded && mValues.size() > 1) scrollToBottom();
-                                    for (int i = current; i < max; i++) {
-                                        notifyItemInserted(i);
-                                    }
+                                    if (current < max) notifyDataSetChanged();
                                     mLoaded = true;
-                                    mRecycler.hideEmpties();
                                 }
                             });
                         }

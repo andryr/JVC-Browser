@@ -189,11 +189,11 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
                         String url = "http://www.jeuxvideo.com/abonnements/ajax/ajax_abo_insert.php";
                         String[] infos = Parser.subscribeData(doc).split("#");
                         HashMap<String, String> data = new HashMap<String, String>();
+
                         data.put("ajax_timestamp", infos[0]);
                         data.put("ajax_hash", infos[1]);
-                        data.put("ids_liste", Integer.toString(mTopic.getId()));
+                        data.put("ids_liste", Integer.toString(Parser.idTopic(response.body())));
                         data.put("type", "topic");
-
                         Ajax.url(url).data(data).post().cookie(Auth.COOKIE_NAME, Auth.getInstance().getCookieValue())
                                 .ignoreContentType(true).callback(new AjaxCallback() {
                             @Override

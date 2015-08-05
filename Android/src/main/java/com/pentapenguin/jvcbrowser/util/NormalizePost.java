@@ -48,11 +48,11 @@ public class NormalizePost {
             String src = "http:" + img.attr("src");
 
             img.attr("src", src);
-            if (i > max) {
-                Attributes attrs = new Attributes();
-                attrs.put("href", src);
-                img.replaceWith(new Element(Tag.valueOf("a"), "", attrs).text(minifyLink(src)));
-            }
+//            if (i > max) {
+//                Attributes attrs = new Attributes();
+//                attrs.put("href", src);
+//                img.replaceWith(new Element(Tag.valueOf("a"), "", attrs).text(minifyLink(src)));
+//            }
         }
     }
 

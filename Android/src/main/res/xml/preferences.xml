@@ -6,6 +6,7 @@
         <CheckBoxPreference
                 android:key="topic_autorefresh"
                 android:defaultValue="false"
+                android:enabled="false"
                 android:title="@string/topic_autorefresh"
                 android:summary="@string/topic_autorefresh_summary" />
     </PreferenceCategory>
@@ -16,6 +17,7 @@
         <CheckBoxPreference
                 android:key="mp_autorefresh"
                 android:defaultValue="false"
+                android:enabled="false"
                 android:title="@string/mp_autorefresh"
                 android:summary="@string/mp_autorefresh_summary" />
     </PreferenceCategory>
