@@ -26,8 +26,8 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
         ServiceUpdate {
 
     private static final int REQUEST_CODE = 666;
-    public static final long ALARM_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
-//    public static final long ALARM_INTERVAL = 1000*10;
+//    public static final long ALARM_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
+    public static final long ALARM_INTERVAL = 1000*10;
 
     private Toolbar mToolbar;
     private DrawerLayout mDrawerLayout;
@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        App.snack(getWindow().getDecorView().getRootView(), "intent appele");
         if (getIntent().getBooleanExtra(UpdateService.MP_ACTION, false)) {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, InboxFragment.newInstance())
                     .commit();
