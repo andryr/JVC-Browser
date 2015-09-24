@@ -24,6 +24,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.app.navigation.NavigationMenu;
 import com.pentapenguin.jvcbrowser.entities.Navigation;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
@@ -66,7 +67,7 @@ public class NavigationFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_navigation, container, false);
+        View layout = inflater.inflate(Theme.navigationFragment, container, false);
 
         mRecycler = (RecyclerView) layout.findViewById(R.id.navigation_list);
         mRecycler.setAdapter(mAdapter);
@@ -180,15 +181,15 @@ public class NavigationFragment extends Fragment {
 
             switch (type) {
                 case Header:
-                    view = mInfalter.inflate(R.layout.nav_header, parent, false);
+                    view = mInfalter.inflate(Theme.navigationHeader, parent, false);
                     holder = new HeaderHolder(view);
                     break;
                 case Category:
-                    view = mInfalter.inflate(R.layout.nav_category, parent, false);
+                    view = mInfalter.inflate(Theme.navigationCategory, parent, false);
                     holder = new CategoryHolder(view);
                     break;
                 case Item:
-                    view = mInfalter.inflate(R.layout.nav_item, parent, false);
+                    view = mInfalter.inflate(Theme.navigationItem, parent, false);
                     holder = new ItemHolder(view);
                     break;
             }
@@ -236,14 +237,14 @@ public class NavigationFragment extends Fragment {
     private class HeaderHolder extends RecyclerView.ViewHolder {
 
         private TextView mPseudo;
-        private CircularImageView mProfil;
+        private de.hdodenhof.circleimageview.CircleImageView mProfil;
         private ImageView mBackground;
 
         public HeaderHolder(View view) {
             super(view);
 
             mPseudo = (TextView) view.findViewById(R.id.navigation_header_pseudo);
-            mProfil = (CircularImageView) view.findViewById(R.id.navigation_header_profile);
+            mProfil = (de.hdodenhof.circleimageview.CircleImageView) view.findViewById(R.id.navigation_header_profile);
             mBackground = (ImageView) view.findViewById(R.id.navigation_header_background);
         }
 

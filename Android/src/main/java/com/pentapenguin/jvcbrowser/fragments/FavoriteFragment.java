@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.entities.*;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
 import com.pentapenguin.jvcbrowser.util.FragmentLauncher;
@@ -40,7 +41,7 @@ public class FavoriteFragment extends Fragment {
     public static final String TAG = "favorite";
     private static final String ARG_FAVORITE = "favorite_type";
     private static final String URL = "http://m.jeuxvideo.com/forums/favoris.php";
-    private static final String DATA_SAVE = "data";
+    private static final String DATA_SAVE = "themes";
 
     public enum ListType { Forum, Topic}
 
@@ -77,7 +78,7 @@ public class FavoriteFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_link, container, false);
+        View layout = inflater.inflate(Theme.favoriteFragment, container, false);
         mRecycler = (RecyclerView2) layout.findViewById(R.id.links_list);
 
         mRecycler.setAdapter(mAdapter);
@@ -267,7 +268,7 @@ public class FavoriteFragment extends Fragment {
 
         @Override
         public FavoriteHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.item_link, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(Theme.link, parent, false);
             return new FavoriteHolder(view);
         }
 

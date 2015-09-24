@@ -1,0 +1,63 @@
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/normal_margin"
+        tools:context="com.pentapenguin.jvcbrowser.TopicNewActivity">
+
+    <EditText android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:maxLines="1"
+              android:layout_alignParentTop="true"
+              android:id="@+id/new_topic_title_edit"
+              android:inputType="textCapSentences"
+              android:hint="@string/subject"/>
+
+    <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/new_topic_post_button"
+            android:text="@string/post"
+            android:layout_alignParentBottom="true"/>
+
+    <EditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/new_topic_content_edit"
+            android:inputType="textCapSentences|textMultiLine"
+            android:hint="@string/message"
+            android:layout_below="@id/new_topic_title_edit"
+            android:layout_above="@+id/new_topic_error_text"/>
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_above="@id/new_topic_post_button"
+                  android:id="@+id/new_topic_error_layout"
+                  android:orientation="horizontal">
+
+        <ImageView android:layout_width="0dp"
+                   android:layout_height="wrap_content"
+                   android:id="@+id/new_topic_captcha_image"
+                   android:contentDescription="@string/captcha"
+                   android:visibility="gone"
+                   android:layout_weight="1"/>
+
+        <EditText android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="1"
+                  android:visibility="gone"
+                  android:id="@+id/new_topic_code_edit"
+                  android:inputType="number"/>
+
+    </LinearLayout>
+
+    <TextView android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:id="@+id/new_topic_error_text"
+              android:visibility="gone"
+              android:layout_above="@id/new_topic_error_layout"
+              android:textColor="@color/red"/>
+
+
+</RelativeLayout>

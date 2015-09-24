@@ -54,7 +54,7 @@ public class TopicPageAutoFragment extends Fragment {
     private static final int ITEM_CACHED_VIEW = 20;
     private static final int EXTRA_LAYOUT_SPACE = 10000;
     private static final int WAIT_BEFORE_SCROLL = 1000;
-    private static final String DATA_SAVE = "data";
+    private static final String DATA_SAVE = "themes";
     private static final String LOADED_SAVE = "loaded";
     private static final long REFRESH_TIME = 10000;
 
@@ -96,7 +96,7 @@ public class TopicPageAutoFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_topic_page, container, false);
+        View layout = inflater.inflate(Theme.topicPageFragment, container, false);
         mRecycler = (RecyclerView2) layout.findViewById(R.id.topic_post_list);
         mRecycler.setAdapter(mAdapter);
         mLayout = new LinearLayoutManager(getActivity()) {
@@ -231,10 +231,10 @@ public class TopicPageAutoFragment extends Fragment {
             TopicFragment.TopicType type = TopicFragment.TopicType.values()[viewType];
 
             if (type == TopicFragment.TopicType.Title) {
-                View view = getActivity().getLayoutInflater().inflate(R.layout.item_topic_header, parent, false);
+                View view = getActivity().getLayoutInflater().inflate(Theme.topicHeader, parent, false);
                 return new TopicHeaderHolder(view);
             }
-            View view = getActivity().getLayoutInflater().inflate(R.layout.item_post, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(Theme.post, parent, false);
             return new TopicHolder(view);
         }
 

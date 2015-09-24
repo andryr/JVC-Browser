@@ -13,15 +13,11 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.*;
 import android.support.v7.widget.SearchView;
 import android.text.InputType;
-import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import com.pentapenguin.jvcbrowser.TopicNewActivity;
 import com.pentapenguin.jvcbrowser.R;
-import com.pentapenguin.jvcbrowser.app.App;
-import com.pentapenguin.jvcbrowser.app.Auth;
-import com.pentapenguin.jvcbrowser.app.Bans;
-import com.pentapenguin.jvcbrowser.app.History;
+import com.pentapenguin.jvcbrowser.app.*;
 import com.pentapenguin.jvcbrowser.entities.Forum;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
@@ -51,7 +47,7 @@ public class ForumFragment extends Fragment {
     public static final String SEARCH_CHOICE_SAVE = "search_choice";
     public static final String SEARCH_SAVE = "search";
     public static final String CURRENT_PAGE_SAVE = "current_page";
-    public static final String DATA_SAVE = "data";
+    public static final String DATA_SAVE = "themes";
     public static final String TITLE_SAVE = "title";
 
     private Button mNewTopic;
@@ -100,7 +96,7 @@ public class ForumFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_forum, container, false);
+        View layout = inflater.inflate(Theme.forumFragment, container, false);
         mNewTopic = (Button) layout.findViewById(R.id.forum_new_topic_button);
         mSwipeLayout = (SwipeRefreshLayout) layout.findViewById(R.id.forum_refresh_layout);
         mRecycler = (RecyclerView2) layout.findViewById(R.id.forum_topic_list);
@@ -411,7 +407,7 @@ public class ForumFragment extends Fragment {
 
         @Override
         public ForumHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.item_topic, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(Theme.topic, parent, false);
             return new ForumHolder(view);
         }
 

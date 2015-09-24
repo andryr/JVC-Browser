@@ -1,0 +1,20 @@
+<FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/single_line_list_height"
+        android:paddingLeft="32dp"
+        android:paddingStart="32dp"
+        android:paddingRight="@dimen/normal_margin"
+        android:paddingEnd="@dimen/normal_margin"
+        android:clickable="true"
+        android:id="@+id/item_child_frame"
+        android:background="?attr/selectableItemBackground">
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/item_forum_list_child_content"
+            android:layout_gravity="start|center_vertical"/>
+
+</FrameLayout>

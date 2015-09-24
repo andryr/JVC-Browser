@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.entities.Forum;
 import com.pentapenguin.jvcbrowser.util.FragmentLauncher;
 import com.pentapenguin.jvcbrowser.util.Parser;
@@ -41,7 +42,7 @@ public class ForumSearchFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_forum_search, container, false);
+        View layout = inflater.inflate(Theme.forumSearchFragment, container, false);
         final RecyclerView2 recycler = (RecyclerView2) layout.findViewById(R.id.forum_search_list);
         final EditText forumName = (EditText) layout.findViewById(R.id.forum_search_name);
         Button search = (Button) layout.findViewById(R.id.forum_search_button);
@@ -117,7 +118,7 @@ public class ForumSearchFragment extends Fragment {
 
         @Override
         public ForumSearchHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.item_link, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(Theme.link, parent, false);
             return new ForumSearchHolder(view);
         }
 

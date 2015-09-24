@@ -1,0 +1,48 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/forum_layout">
+
+    <android.support.v4.widget.SwipeRefreshLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/forum_refresh_layout">
+
+        <com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/forum_topic_list"/>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <Button
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:id="@+id/forum_new_topic_button"
+            android:background="@drawable/round_button"
+            android:text="@string/fap"
+            android:textColor="@color/white"
+            android:textSize="32sp"
+            android:visibility="gone"
+            android:layout_margin="16dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"/>
+    <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/forum_loading_bar"
+            android:indeterminate="true"
+            android:visibility="gone"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:visibility="gone"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/forum_empty_text"
+            android:text="@string/no_result"/>
+</RelativeLayout>

@@ -1,0 +1,51 @@
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/normal_margin"
+        android:paddingRight="@dimen/normal_margin"
+        android:paddingTop="@dimen/normal_margin"
+        android:paddingBottom="@dimen/normal_margin"
+        android:orientation="vertical"
+        tools:context="com.pentapenguin.jvcbrowser.TopicNewActivity">
+
+    <android.support.v7.widget.AppCompatMultiAutoCompleteTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/mp_dests"
+            android:id="@+id/new_inbox_destination_auto"
+            android:layout_alignParentTop="true"/>
+
+    <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/new_inbox_post_button"
+            android:layout_alignParentBottom="true"
+            android:text="@string/post"/>
+
+    <EditText android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:maxLines="1"
+              android:id="@+id/new_inbox_title_edit"
+              android:inputType="textCapSentences"
+              android:layout_below="@id/new_inbox_destination_auto"
+              android:hint="@string/subject"/>
+
+    <TextView android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:id="@+id/new_inbox_error_text"
+              android:visibility="gone"
+              android:layout_above="@id/new_inbox_post_button"
+              android:textColor="@color/red"/>
+
+    <EditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/new_inbox_content_edit"
+            android:inputType="textCapSentences|textMultiLine"
+            android:layout_below="@id/new_inbox_title_edit"
+            android:layout_above="@id/new_inbox_error_text"
+            android:hint="@string/message"/>
+
+</RelativeLayout>

@@ -17,6 +17,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 import com.pentapenguin.jvcbrowser.R;
 
+import java.io.*;
+import java.lang.reflect.Field;
+
 public class App extends Application {
 
     public static final String HOST_MOBILE = "http://m.jeuxvideo.com";
@@ -30,6 +33,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         sContext = getApplicationContext();
+//        Theme t = new Theme();
     }
 
     public static Context getContext() {
@@ -114,7 +118,7 @@ public class App extends Application {
     }
 
     public static void snack(View view, String message, String text, View.OnClickListener onClick) {
-        Snackbar.make(null, message, Snackbar.LENGTH_LONG)
+        Snackbar.make(view, message, Snackbar.LENGTH_LONG)
                 .setAction(text, onClick)
                 .show();
     }
@@ -138,8 +142,8 @@ public class App extends Application {
     }
 
     private static String getFilePathFromImage(Context context, Uri uri) {
-        String id =  uri.getPath().split(":")[1];
-        String[] column = { MediaStore.Images.Media.DATA };
+        String id = uri.getPath().split(":")[1];
+        String[] column = {MediaStore.Images.Media.DATA};
         String sel = MediaStore.Images.Media._ID + "=?";
         Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 column, sel, new String[]{id}, null);
@@ -158,4 +162,27 @@ public class App extends Application {
 
         return fileName;
     }
+
+    public static String getResourceAsset(String path) throws IOException {
+
+        InputStream is = sContext.getResources().getAssets().open(path);
+        Writer writer = new StringWriter();
+        char[] buffer = new char[1024];
+        Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+        int n;
+
+        while ((n = reader.read(buffer)) != -1) {
+            writer.write(buffer, 0, n);
+        }
+        is.close();
+
+        return writer.toString();
+    }
+
+    public static int getRessourceId(Class cls, String variableName) throws NoSuchFieldException, IllegalAccessException {
+        Field idField = cls.getDeclaredField(variableName);
+
+        return idField.getInt(idField);
+    }
 }
+

@@ -16,6 +16,7 @@ import android.widget.*;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.entities.Mp;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
@@ -78,7 +79,7 @@ public class InboxNewFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_inbox_new, container, false);
+        View layout = inflater.inflate(Theme.inboxNewFragment, container, false);
 
         mTitle = (EditText) layout.findViewById(R.id.new_inbox_title_edit);
         mContent = (EditText) layout.findViewById(R.id.new_inbox_content_edit);

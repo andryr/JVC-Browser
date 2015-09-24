@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
 import com.pentapenguin.jvcbrowser.util.FragmentLauncher;
@@ -55,7 +56,7 @@ public class NotificationFragment extends Fragment{
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_link, container, false);
+        View layout = inflater.inflate(Theme.notificationFragment, container, false);
         mRecycler = (RecyclerView2) layout.findViewById(R.id.links_list);
 
         mAdapter = new NotificationAdapter();
@@ -211,7 +212,7 @@ public class NotificationFragment extends Fragment{
 
         @Override
         public NotificationHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.item_mp, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(Theme.mp, parent, false);
             return new NotificationHolder(view);
         }
 

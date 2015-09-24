@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.util.FragmentLauncher;
 import com.pentapenguin.jvcbrowser.util.Parser;
@@ -36,7 +37,7 @@ public class SubscribeFragment extends Fragment {
 
     public static final String TAG = "subscribe";
     private static final String URL = "http://www.jeuxvideo.com/profil/{?}?mode=notifications";
-    private static final String DATA_SAVE = "data";
+    private static final String DATA_SAVE = "themes";
 
     private SubscribeAdapter mAdapter;
     private String mTimestamp;
@@ -50,7 +51,7 @@ public class SubscribeFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_link, container, false);
+        View layout = inflater.inflate(Theme.subscribeFragment, container, false);
         mRecycler = (RecyclerView2) layout.findViewById(R.id.links_list);
 
         if (savedInstanceState != null) {
@@ -184,7 +185,7 @@ public class SubscribeFragment extends Fragment {
 
         @Override
         public SubscribeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.item_link, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(Theme.link, parent, false);
             return new SubscribeHolder(view);
         }
 

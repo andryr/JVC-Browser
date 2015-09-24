@@ -19,6 +19,7 @@ import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
 import com.pentapenguin.jvcbrowser.app.Bans;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.entities.Mp;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
@@ -42,7 +43,7 @@ public class InboxFragment extends Fragment{
     public static final String TAG = "inbox";
     public static final String CURRENT_PAGE_SAVE = "current_page";
     public static final String MP_NUMBER_SAVE = "mp_number";
-    public static final String data_SAVE = "data";
+    public static final String data_SAVE = "themes";
 
     private RecyclerView2 mRecycler;
     private InboxAdapter mAdapter;
@@ -76,7 +77,7 @@ public class InboxFragment extends Fragment{
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_inbox, container, false);
+        View layout = inflater.inflate(Theme.inboxFragment, container, false);
 
         mRecycler = (RecyclerView2) layout.findViewById(R.id.inbox_mp_list);
         mSwipeLayout = (SwipeRefreshLayout) layout.findViewById(R.id.inbox_refresh_layout);
@@ -233,7 +234,7 @@ public class InboxFragment extends Fragment{
 
         @Override
         public InboxHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.item_mp, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(Theme.mp, parent, false);
             return new InboxHolder(view);
         }
 

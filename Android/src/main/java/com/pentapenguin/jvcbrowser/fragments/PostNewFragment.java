@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
 import com.pentapenguin.jvcbrowser.util.ItemPosted;
@@ -57,7 +58,7 @@ public class PostNewFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_post_new, container, false);
+        View layout = inflater.inflate(Theme.postNewFragment, container, false);
 
         mContent = (EditText) layout.findViewById(R.id.new_post_content);
         mCode = (EditText) layout.findViewById(R.id.new_post_code);

@@ -9,6 +9,7 @@ import android.view.*;
 import android.widget.TextView;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.History;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.util.FragmentLauncher;
 import com.pentapenguin.jvcbrowser.util.TitleObserver;
@@ -40,7 +41,7 @@ public class HistoryFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_link, container, false);
+        View layout = inflater.inflate(Theme.historyFragment, container, false);
         RecyclerView2 recycler = (RecyclerView2) layout.findViewById(R.id.links_list);
 
         recycler.setAdapter(mAdapter);
@@ -98,7 +99,7 @@ public class HistoryFragment extends Fragment {
 
         @Override
         public HistoryHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.item_link, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(Theme.link, parent, false);
             return new HistoryHolder(view);
         }
 

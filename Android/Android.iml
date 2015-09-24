@@ -17,8 +17,8 @@
         <option name="TEST_SOURCE_GEN_TASK_NAME" value="generateDebugAndroidTestSources" />
         <option name="ALLOW_USER_CONFIGURATION" value="false" />
         <option name="MANIFEST_FILE_RELATIVE_PATH" value="/src/main/AndroidManifest.xml" />
-        <option name="RES_FOLDER_RELATIVE_PATH" value="/src/main/res/layout/activities" />
-        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/src/main/res/layout;file://$MODULE_DIR$/src/main/res/layout/activities;file://$MODULE_DIR$/src/main/res/layout/fragments;file://$MODULE_DIR$/src/main/res/layout/items;file://$MODULE_DIR$/src/main/res/layout/toolbar;file://$MODULE_DIR$/src/main/res/layout/navigation;file://$MODULE_DIR$/src/main/res" />
+        <option name="RES_FOLDER_RELATIVE_PATH" value="/src/main/res/layout/default" />
+        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/src/main/res/layout/default;file://$MODULE_DIR$/src/main/res/layout/default/fragments;file://$MODULE_DIR$/src/main/res/layout/default/navigation;file://$MODULE_DIR$/src/main/res/layout/default/activities;file://$MODULE_DIR$/src/main/res/layout/default/toolbar;file://$MODULE_DIR$/src/main/res/layout/black/toolbar;file://$MODULE_DIR$/src/main/res/layout/black/navigation;file://$MODULE_DIR$/src/main/res/layout/default/items;file://$MODULE_DIR$/src/main/res/layout/black;file://$MODULE_DIR$/src/main/res/layout/black/items;file://$MODULE_DIR$/src/main/res/layout/black/activities;file://$MODULE_DIR$/src/main/res/layout/black/fragments;file://$MODULE_DIR$/src/main/res/layout;file://$MODULE_DIR$/src/main/res" />
         <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/src/main/assets" />
       </configuration>
     </facet>
@@ -47,11 +47,18 @@
       <sourceFolder url="file://$MODULE_DIR$/src/debug/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/jni" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/rs" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/activities" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/fragments" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/items" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/toolbar" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/navigation" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/default" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/default/activities" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/default/fragments" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/default/items" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/default/toolbar" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/default/navigation" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/black" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/black/activities" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/black/fragments" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/black/items" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/black/toolbar" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout/black/navigation" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/res/layout" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
@@ -89,19 +96,20 @@
       <excludeFolder url="file://$MODULE_DIR$/build/outputs" />
       <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
     </content>
-    <orderEntry type="jdk" jdkName="Android API 22 Platform" jdkType="Android SDK" />
+    <orderEntry type="jdk" jdkName="Android API 23 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="swipy-1.2.0" level="project" />
     <orderEntry type="library" exported="" name="jsoup-1.8.2" level="project" />
-    <orderEntry type="library" exported="" name="advrecyclerview-0.7.1" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-22.2.0" level="project" />
     <orderEntry type="library" exported="" name="picasso-2.5.2" level="project" />
     <orderEntry type="library" exported="" name="okhttp-2.4.0" level="project" />
-    <orderEntry type="library" exported="" name="support-annotations-22.2.0" level="project" />
-    <orderEntry type="library" exported="" name="support-v4-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="circleimageview-1.3.0" level="project" />
+    <orderEntry type="library" exported="" name="advrecyclerview-0.7.1" level="project" />
+    <orderEntry type="library" exported="" name="support-v4-23.0.1" level="project" />
     <orderEntry type="library" exported="" name="okio-1.4.0" level="project" />
-    <orderEntry type="library" exported="" name="appcompat-v7-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="appcompat-v7-23.0.1" level="project" />
     <orderEntry type="library" exported="" name="design-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="support-annotations-23.0.1" level="project" />
     <orderEntry type="library" exported="" name="cardview-v7-22.2.0" level="project" />
   </component>
 </module>

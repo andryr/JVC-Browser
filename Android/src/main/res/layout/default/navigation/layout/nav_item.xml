@@ -1,0 +1,48 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/single_line_list_height"
+                android:paddingLeft="@dimen/normal_margin"
+                android:paddingStart="@dimen/normal_margin"
+                android:paddingEnd="@dimen/normal_margin"
+                android:paddingRight="@dimen/normal_margin"
+                android:gravity="center_vertical"
+                android:id="@+id/navigation_item"
+                android:clickable="true"
+                android:background="?attr/selectableItemBackground">
+
+    <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:visibility="visible"
+            android:id="@+id/navigation_item_icon"
+            />
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/navigation_item_content"
+            android:text="content"
+            android:layout_marginStart="72dp"
+            android:layout_marginLeft="72dp"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/navigation_item_details"
+            android:layout_toStartOf="@+id/navigation_item_details"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/navigation_item_details"
+            android:text=" 10 "
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:visibility="gone"
+            />
+
+
+</RelativeLayout>

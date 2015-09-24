@@ -18,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.fragments.*;
 import com.pentapenguin.jvcbrowser.services.UpdateService;
 import com.pentapenguin.jvcbrowser.util.*;
@@ -26,8 +27,8 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
         ServiceUpdate {
 
     private static final int REQUEST_CODE = 666;
-//    public static final long ALARM_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
-    public static final long ALARM_INTERVAL = 1000*10;
+    public static final long ALARM_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
+//    public static final long ALARM_INTERVAL = 1000*10;
 
     private Toolbar mToolbar;
     private DrawerLayout mDrawerLayout;
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(Theme.mainActivity);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);

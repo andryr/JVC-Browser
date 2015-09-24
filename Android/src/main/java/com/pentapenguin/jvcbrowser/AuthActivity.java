@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.*;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
 import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
@@ -37,7 +38,7 @@ public class AuthActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_auth);
+        setContentView(Theme.authActivity);
 
         mData = new HashMap<String, String>();
         mCookies = new HashMap<String, String>();

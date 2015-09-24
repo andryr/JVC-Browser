@@ -81,7 +81,7 @@ public class CircularImageView extends ImageView {
      * Initializes paint objects and sets desired attributes.
      * @param context Context
      * @param attrs Attributes
-     * @param defStyle Default Style
+     * @param defStyle Default style
      */
     private void init(Context context, AttributeSet attrs, int defStyle) {
         // Initialize paint objects

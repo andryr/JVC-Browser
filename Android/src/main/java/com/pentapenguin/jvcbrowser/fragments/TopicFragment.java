@@ -18,6 +18,7 @@ import com.pentapenguin.jvcbrowser.EditActivity;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.entities.Item;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.util.Helper;
@@ -101,7 +102,7 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_topic, container, false);
+        View layout = inflater.inflate(Theme.topicFragment, container, false);
         mPager = (ViewPager) layout.findViewById(R.id.topic_pager);
 
         return layout;

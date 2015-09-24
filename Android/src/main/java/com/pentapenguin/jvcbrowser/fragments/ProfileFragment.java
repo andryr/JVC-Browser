@@ -11,6 +11,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
 import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
@@ -47,7 +48,7 @@ public class ProfileFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_profile, container, false);
+        View layout = inflater.inflate(Theme.profileFragment, container, false);
         mContent = (WebView) layout.findViewById(R.id.profile_content);
 
         mContent.setWebViewClient(new WebViewClient() {

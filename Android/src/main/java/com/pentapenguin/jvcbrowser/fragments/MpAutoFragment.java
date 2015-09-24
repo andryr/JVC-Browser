@@ -44,7 +44,7 @@ public class MpAutoFragment extends Fragment implements ItemPosted {
     public static final String MP_ARG = "arg_mp";
     public static final String LOCKED_SAVE = "locked";
     public static final String OFFSET_SAVE = "offset";
-    public static final String DATA_SAVE = "data";
+    public static final String DATA_SAVE = "themes";
     public static final String TITLE_SAVE = "title";
     private static final long WAIT_BEFORE_SCROLL = 1000;
     private static final long REFRESH_TIME = 10000;
@@ -103,7 +103,7 @@ public class MpAutoFragment extends Fragment implements ItemPosted {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_mp, container, false);
+        View layout = inflater.inflate(Theme.mpFragment, container, false);
 
         mSwipeLayout = (SwipeRefreshLayout) layout.findViewById(R.id.mp_refresh_layout);
         mRecycler = (RecyclerView2) layout.findViewById(R.id.mp_post_list);
@@ -322,7 +322,7 @@ public class MpAutoFragment extends Fragment implements ItemPosted {
 
         @Override
         public MpHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.item_post, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(Theme.post, parent, false);
             return new MpHolder(view);
         }
 

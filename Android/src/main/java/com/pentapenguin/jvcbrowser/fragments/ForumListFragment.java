@@ -13,6 +13,7 @@ import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractExpandableItemAda
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractExpandableItemViewHolder;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.entities.Forum;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
 import com.pentapenguin.jvcbrowser.util.FragmentLauncher;
@@ -39,7 +40,7 @@ public class ForumListFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_forum_list, container, false);
+        View layout = inflater.inflate(Theme.forumListFragment, container, false);
 
         RecyclerView mRecycler = (RecyclerView) layout.findViewById(R.id.list_forum_list);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
@@ -128,13 +129,13 @@ public class ForumListFragment extends Fragment {
 
         @Override
         public ListGroupHolder onCreateGroupViewHolder(ViewGroup viewGroup, int i) {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.item_forum_list_group, viewGroup, false);
+            View view = getActivity().getLayoutInflater().inflate(Theme.forumListGroup, viewGroup, false);
             return new ListGroupHolder(view);
         }
 
         @Override
         public ListChildHolder onCreateChildViewHolder(ViewGroup viewGroup, int i) {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.item_forum_list_child, viewGroup, false);
+            View view = getActivity().getLayoutInflater().inflate(Theme.forumListChild, viewGroup, false);
             return new ListChildHolder(view);
         }
 

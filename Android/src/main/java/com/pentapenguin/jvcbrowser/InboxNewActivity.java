@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.entities.Item;
 import com.pentapenguin.jvcbrowser.entities.Mp;
 import com.pentapenguin.jvcbrowser.entities.Topic;
@@ -22,7 +23,7 @@ public class InboxNewActivity extends AppCompatActivity implements ItemPosted {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fragment);
+        setContentView(Theme.fragmentActivity);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 

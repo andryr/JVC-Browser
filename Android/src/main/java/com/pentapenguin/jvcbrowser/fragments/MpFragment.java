@@ -9,11 +9,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.*;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -46,7 +44,7 @@ public class MpFragment extends Fragment implements ItemPosted {
     public static final String MP_ARG = "arg_mp";
     public static final String LOCKED_SAVE = "locked";
     public static final String OFFSET_SAVE = "offset";
-    public static final String DATA_SAVE = "data";
+    public static final String DATA_SAVE = "themes";
     public static final String TITLE_SAVE = "title";
     private static final long WAIT_BEFORE_SCROLL = 1500;
 
@@ -99,7 +97,7 @@ public class MpFragment extends Fragment implements ItemPosted {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_mp, container, false);
+        View layout = inflater.inflate(Theme.mpFragment, container, false);
 
         mSwipeLayout = (SwipyRefreshLayout) layout.findViewById(R.id.mp_refresh_layout);
         mRecycler = (RecyclerView2) layout.findViewById(R.id.mp_post_list);
@@ -333,7 +331,7 @@ public class MpFragment extends Fragment implements ItemPosted {
 
         @Override
         public MpHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.item_post, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(Theme.post, parent, false);
             return new MpHolder(view);
         }
 

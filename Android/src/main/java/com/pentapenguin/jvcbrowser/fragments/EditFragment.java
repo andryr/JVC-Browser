@@ -16,6 +16,7 @@ import com.pentapenguin.jvcbrowser.EditActivity;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.entities.Post;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.util.Helper;
@@ -74,7 +75,7 @@ public class EditFragment extends Fragment{
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_edit, container, false);
+        View layout = inflater.inflate(Theme.editFragment, container, false);
 
         mCaptcha = (ImageView) layout.findViewById(R.id.edit_captcha);
         mContent = (EditText) layout.findViewById(R.id.edit_content);

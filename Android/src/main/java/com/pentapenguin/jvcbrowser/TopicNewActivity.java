@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.entities.Forum;
 import com.pentapenguin.jvcbrowser.entities.Item;
 import com.pentapenguin.jvcbrowser.entities.Topic;
@@ -21,7 +22,7 @@ public class TopicNewActivity extends AppCompatActivity implements ItemPosted {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fragment);
+        setContentView(Theme.fragmentActivity);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 

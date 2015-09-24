@@ -9,6 +9,7 @@ import android.view.*;
 import android.widget.TextView;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.Bans;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.util.TitleObserver;
 import com.pentapenguin.jvcbrowser.util.widgets.DividerItemDecoration;
 import com.pentapenguin.jvcbrowser.util.widgets.RecyclerItemListener;
@@ -39,7 +40,7 @@ public class BannedFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_link, container, false);
+        View layout = inflater.inflate(Theme.bannedFragment, container, false);
         RecyclerView2 recycler = (RecyclerView2) layout.findViewById(R.id.links_list);
 
         recycler.setAdapter(mAdapter);
@@ -91,7 +92,7 @@ public class BannedFragment extends Fragment {
 
         @Override
         public BannedHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.item_link, parent, false);
+            View view = getActivity().getLayoutInflater().inflate(Theme.link, parent, false);
             return new BannedHolder(view);
         }
 

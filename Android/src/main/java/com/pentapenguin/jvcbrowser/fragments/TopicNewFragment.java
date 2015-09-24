@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
+import com.pentapenguin.jvcbrowser.app.Theme;
 import com.pentapenguin.jvcbrowser.entities.Forum;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
@@ -81,7 +82,7 @@ public class TopicNewFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_topic_new, container, false);
+        View layout = inflater.inflate(Theme.topicNewFragment, container, false);
 
         mTitle = (EditText) layout.findViewById(R.id.new_topic_title_edit);
         mCaptcha = (ImageView) layout.findViewById(R.id.new_topic_captcha_image);
