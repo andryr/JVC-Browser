@@ -303,7 +303,7 @@ public class Parser {
             String date = div.getElementsByClass("bloc-date-msg").get(0).text();
             Element content = div.getElementsByClass("bloc-contenu").get(0);
 
-            posts.add(new Post(-1, content.html(), content, author, date, thumb, profilUrl));
+            posts.add(new Post(-1, NormalizePost.parse(content).text(), content, author, date, thumb, profilUrl));
         }
 
         return posts;
@@ -433,7 +433,7 @@ public class Parser {
             if (!src.startsWith("http:")) image.attr("src", "http:" + src);
         }
 
-        return "<html><head><link href=\"css/forum-mobile.css\" rel=\"stylesheet\">" +
+        return "<html><head><link href=\"css/original.css\" rel=\"stylesheet\">" +
                 "</head><body>" + content.html() + "</body></html>";
     }
 

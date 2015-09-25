@@ -295,7 +295,7 @@ public class InboxFragment extends Fragment{
         }
 
         public void bind(final Mp mp) {
-            mLu.setText(mp.getCode() == 1 ? "(Lu)" : Html.fromHtml("<b><font color=\"#000\">(Non lu)</font></b>"));
+            mLu.setText(mp.getCode() == 1 ? "(Lu)" : Html.fromHtml("<b><font color=\"#006bd7\">(Non lu)</font></b>"));
             mContent.setText(mp.getContent());
             mDate.setText(mp.getIdForum() == 0 ? Html.fromHtml("<font color=\"#ff0000\">[Locked] </font>") : "");
             mDate.append(mp.getLastPostDate());

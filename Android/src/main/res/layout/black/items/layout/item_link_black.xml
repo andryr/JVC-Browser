@@ -1,4 +1,4 @@
-<FrameLayout
+<RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="@dimen/single_line_list_height"
@@ -6,6 +6,14 @@
         android:clickable="true"
         android:background="?attr/selectableItemBackground"
         >
+        <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/normal_margin"
+                android:paddingStart="@dimen/normal_margin"
+                android:paddingRight="@dimen/normal_margin"
+                android:paddingEnd="@dimen/normal_margin"
+                android:background="@color/background_black">
 
     <TextView
             android:layout_width="match_parent"
@@ -13,8 +21,8 @@
             android:id="@+id/text_link"
             android:maxLines="1"
             android:textSize="16sp"
-            android:layout_marginLeft="@dimen/normal_margin"
-            android:layout_marginStart="@dimen/normal_margin"
+            android:textColor="@color/soft_grey2"
             android:layout_gravity="center_vertical"/>
+        </FrameLayout>
 
-</FrameLayout>
+</RelativeLayout>

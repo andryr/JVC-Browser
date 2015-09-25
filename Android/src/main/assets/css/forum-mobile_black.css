@@ -9,11 +9,11 @@ blockquote.blockquote-jv {
     padding: 3px;
 }
 
-.message {
-    color: #000;
+.text-enrichi-forum, .message {
+    color: #bbb;
 }
 
 a {
-    color: #006bd7;
+    color: #f5e480;
     text-decoration: none;
 }

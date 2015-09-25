@@ -75,7 +75,7 @@
 
         <WebView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_below="@id/post_separator"
                 android:layout_marginTop="@dimen/small_margin"
                 android:id="@+id/post_content" />

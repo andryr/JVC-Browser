@@ -8,12 +8,14 @@
 
     <color name="soft_blue">#eef5fc</color>
     <color name="meduim_blue">#006bd7</color>
-    <color name="soft2_grey">#bbb</color>
+    <color name="soft_grey2">#bbb</color>
     <color name="soft_grey">#a8a8b7</color>
     <color name="dark_grey">#868695</color>
 
     <color name="primary">#03A9F4</color>
     <color name="primary_dark">#0288D1</color>
     <color name="accent">#FF4081</color>
+
+
 
 </resources>

@@ -3,9 +3,22 @@
     <string name="settings_name">Préférences</string>
     <string name="category_forum">Forum</string>
     <string name="category_inbox">Message privé</string>
+    <string name="category_theme">Theme</string>
     <string name="topic_autorefresh">Topic Autorefresh</string>
     <string name="topic_autorefresh_summary">Actualisation automatique des messages du topic</string>
     <string name="mp_autorefresh">MP Autorefresh</string>
+    <string name="choose_theme">Choisir un theme</string>
     <string name="mp_autorefresh_summary">Actualisation automatique des messages du MP</string>
+    <string name="theme_summary">Theme de l\'application</string>
 
+    <string-array name="theme_set">
+        <item>Par défaut</item>
+        <item>Black edition</item>
+    </string-array>
+
+    <string-array name="theme_value">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
 </resources>
+

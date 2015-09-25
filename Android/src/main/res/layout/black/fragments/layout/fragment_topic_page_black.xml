@@ -2,6 +2,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="match_parent"
+        android:background="@color/background_black"
         android:layout_height="match_parent">
 
     <com.pentapenguin.jvcbrowser.util.widgets.SwipeRefreshLayoutBottom
@@ -31,6 +32,7 @@
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
             android:visibility="gone"
+            android:textColor="@color/soft_grey2"
             android:id="@+id/topic_empty_text"
             android:text="@string/no_result"/>
 

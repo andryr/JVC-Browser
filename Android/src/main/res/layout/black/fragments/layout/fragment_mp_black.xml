@@ -1,13 +1,14 @@
 <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+        android:layout_width="match_parent"
+        android:background="@color/background_black"
+        android:layout_height="match_parent">
 
     <FrameLayout android:id="@+id/mp_new_frame"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_alignParentBottom="true"/>
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_alignParentBottom="true"/>
 
     <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
             android:layout_width="match_parent"
@@ -37,6 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:visibility="gone"
+            android:textColor="@color/soft_grey2"
             android:layout_centerHorizontal="true"
             android:id="@+id/mp_empty_text"
             android:text="@string/no_result"/>

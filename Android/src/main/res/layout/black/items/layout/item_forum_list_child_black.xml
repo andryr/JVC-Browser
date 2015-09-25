@@ -1,4 +1,4 @@
-<FrameLayout
+<RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -11,10 +11,22 @@
         android:id="@+id/item_child_frame"
         android:background="?attr/selectableItemBackground">
 
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/item_forum_list_child_content"
-            android:layout_gravity="start|center_vertical"/>
+        <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/normal_margin"
+                android:paddingStart="@dimen/normal_margin"
+                android:paddingRight="@dimen/normal_margin"
+                android:paddingEnd="@dimen/normal_margin"
+                android:background="@color/background_black">
 
-</FrameLayout>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/item_forum_list_child_content"
+                        android:textColor="@color/soft_grey2"
+                        android:layout_gravity="start|center_vertical"/>
+
+        </FrameLayout>
+
+</RelativeLayout>

@@ -26,7 +26,6 @@ public class Theme {
     public static int historyFragment;
     public static int inboxFragment;
     public static int inboxNewFragment;
-    public static int mpAutoFragment;
     public static int mpFragment;
     public static int mpNewFragment;
     public static int navigationFragment;
@@ -36,13 +35,11 @@ public class Theme {
     public static int subscribeFragment;
     public static int topicFragment;
     public static int topicNewFragment;
-    public static int topicPageAutoFragment;
     public static int topicPageFragment;
 
     public static int link;
     public static int mp;
     public static int post;
-    public static int post2;
     public static int topic;
     public static int topicHeader;
     public static int forumListChild;
@@ -55,7 +52,7 @@ public class Theme {
     static {
         Field[] fields = Theme.class.getDeclaredFields();
         try {
-            String theme = App.getResourceAsset(Assets.themes[Storage.getInstance().get(Settings.THEME, 0)]);
+            String theme = App.getResourceAsset(Assets.themes[Storage.getInstance().get(Settings.THEME, 1)]);
             JSONObject json = new JSONObject(theme);
             for (Field field : fields) {
                 field.setInt(field, App.getRessourceId(R.layout.class, json.getString(field.getName())));

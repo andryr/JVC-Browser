@@ -1,25 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory
-            android:title="@string/category_forum">
-
-        <CheckBoxPreference
-                android:key="topic_autorefresh"
-                android:defaultValue="false"
-                android:enabled="false"
-                android:title="@string/topic_autorefresh"
-                android:summary="@string/topic_autorefresh_summary" />
-    </PreferenceCategory>
 
     <PreferenceCategory
-            android:title="@string/category_inbox">
+            android:title="@string/category_theme">
 
-        <CheckBoxPreference
-                android:key="mp_autorefresh"
-                android:defaultValue="false"
-                android:enabled="false"
-                android:title="@string/mp_autorefresh"
-                android:summary="@string/mp_autorefresh_summary" />
+        <ListPreference
+                android:key="theme_settings"
+                android:title="@string/category_theme"
+                android:summary="@string/theme_summary"
+                android:entries="@array/theme_set"
+                android:entryValues="@array/theme_value"
+                android:dialogTitle="@string/choose_theme" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

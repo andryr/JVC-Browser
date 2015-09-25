@@ -8,6 +8,7 @@
         android:paddingTop="@dimen/normal_margin"
         android:paddingBottom="@dimen/normal_margin"
         android:orientation="vertical"
+        android:background="@color/background_black"
         tools:context="com.pentapenguin.jvcbrowser.TopicNewActivity">
 
     <android.support.v7.widget.AppCompatMultiAutoCompleteTextView
@@ -15,6 +16,8 @@
             android:layout_height="wrap_content"
             android:hint="@string/mp_dests"
             android:id="@+id/new_inbox_destination_auto"
+            android:textColorHint="@color/soft_grey2"
+            android:textColor="@color/white"
             android:layout_alignParentTop="true"/>
 
     <Button
@@ -27,6 +30,8 @@
     <EditText android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:maxLines="1"
+              android:textColorHint="@color/soft_grey2"
+              android:textColor="@color/white"
               android:id="@+id/new_inbox_title_edit"
               android:inputType="textCapSentences"
               android:layout_below="@id/new_inbox_destination_auto"
@@ -46,6 +51,8 @@
             android:inputType="textCapSentences|textMultiLine"
             android:layout_below="@id/new_inbox_title_edit"
             android:layout_above="@id/new_inbox_error_text"
+            android:textColorHint="@color/soft_grey2"
+            android:textColor="@color/white"
             android:hint="@string/message"/>
 
 </RelativeLayout>

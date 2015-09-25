@@ -2,6 +2,11 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:buttonStyle">@style/blackbutton</item>
+    </style>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme_black" parent="Theme.AppCompat.Light.NoActionBar">
 
     </style>
 
@@ -20,9 +25,25 @@
         <item name="android:textColorPrimary">@color/black</item>
     </style>
 
+    <style name="toolbar_style_black" parent="AppTheme">
+        <item name="android:background">@color/primary_black</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/white</item>
+    </style>
+
+    <style name="toolbar_popup_style_black" parent="AppTheme">
+        <item name="android:background">@color/background_black</item>
+        <item name="android:textColorPrimary">@color/white</item>
+    </style>
+
+
     <style name="subtitleStyle" parent="Theme.AppCompat.Light">
         <item name="android:textColor">#ffffff</item>
         <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="blackbutton">
+        <item name="android:background">@color/background_black</item>
     </style>
 
     <style name="viewpagertitlestrip">

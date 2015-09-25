@@ -183,14 +183,14 @@ public class EditFragment extends Fragment{
                                         init();
                                         return;
                                     }
-                                    mDialog.dismiss();
+                                    if (mDialog.isShowing()) mDialog.dismiss();
                                     if (mContent.getText().toString().equals("")) mContent.append(Parser.textArea(doc));
                                     setEnabledWidgets(true);
 
                                     return;
                                 }
                                 App.alert(getActivity(), R.string.edit_unavailable);
-                                mDialog.dismiss();
+                                if (mDialog.isShowing()) mDialog.dismiss();
                                 return;
                             }
                             App.alert(getActivity(), R.string.no_response);

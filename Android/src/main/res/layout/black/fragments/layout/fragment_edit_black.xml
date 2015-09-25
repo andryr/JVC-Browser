@@ -8,6 +8,7 @@
         android:paddingTop="@dimen/normal_margin"
         android:paddingBottom="@dimen/normal_margin"
         android:orientation="vertical"
+        android:background="@color/background_black"
         tools:context="com.pentapenguin.jvcbrowser.TopicNewActivity">
 
     <EditText
@@ -16,6 +17,8 @@
             android:id="@+id/edit_content"
             android:inputType="textCapSentences|textMultiLine"
             android:hint="@string/message"
+            android:textColor="@color/white"
+            android:textColorHint="@color/soft_grey2"
             android:layout_above="@+id/edit_error"
             android:layout_alignParentTop="true"/>
 
@@ -42,6 +45,7 @@
                   android:layout_height="wrap_content"
                   android:layout_weight="1"
                   android:visibility="gone"
+                  android:textColor="@color/white"
                   android:contentDescription="@string/captcha"
                   android:id="@+id/edit_code"
                   android:inputType="number"/>

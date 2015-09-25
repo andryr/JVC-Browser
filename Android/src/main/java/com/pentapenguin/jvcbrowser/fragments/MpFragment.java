@@ -106,6 +106,7 @@ public class MpFragment extends Fragment implements ItemPosted {
         mRecycler.setLayoutManager(mLayout);
         mRecycler.setEmptyView(layout.findViewById(R.id.mp_empty_text));
         mRecycler.setLoadingView(layout.findViewById(R.id.mp_loading_bar));
+        mRecycler.setHasFixedSize(true);
 
         return layout;
     }
@@ -115,7 +116,7 @@ public class MpFragment extends Fragment implements ItemPosted {
         super.onViewCreated(view, savedInstanceState);
 
         if (mPost!= null) mPost.setTopic(mMp);
-        if (savedInstanceState == null) mAdapter.load(SwipyRefreshLayoutDirection.BOTTOM);
+        if (savedInstanceState == null) mAdapter.load(SwipyRefreshLayoutDirection.TOP);
         if (mTitle != null) ((TitleObserver) getActivity()).updateTitle(mTitle);
         mSwipeLayout.setColorSchemeColors(Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN);
         mSwipeLayout.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
@@ -398,13 +399,15 @@ public class MpFragment extends Fragment implements ItemPosted {
                     startActivity(browserIntent);
                 }
             });
+            mContent.setBackgroundColor(Color.TRANSPARENT);
+
         }
 
         public void bind(final Post post) {
             mAuthor.setText(post.getAuthor());
             mDate.setText(post.getDate());
             Picasso.with(getActivity()).load(post.getProfilThumb()).into(mThumb);
-            String content = NormalizePost.parse(post.getHtml().clone()).text();
+            String content = post.getContent();
             mContent.loadDataWithBaseURL("file:///android_asset/", content, "text/html", "utf-8", null);
             if (Auth.getInstance().getPseudo().toLowerCase().equals(post.getAuthor().toLowerCase())) {
                 mControl.setVisibility(View.GONE);

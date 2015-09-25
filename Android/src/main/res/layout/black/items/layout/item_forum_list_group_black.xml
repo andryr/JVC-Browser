@@ -13,13 +13,14 @@
             android:paddingStart="@dimen/normal_margin"
             android:paddingRight="@dimen/normal_margin"
             android:paddingEnd="@dimen/normal_margin"
-            android:background="#fafafa">
+            android:background="@color/background_black">
 
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/item_forum_list_group_content"
             android:textSize="18sp"
+            android:textColor="@color/soft_grey2"
             android:layout_gravity="start|center_vertical"
             />
     </FrameLayout>

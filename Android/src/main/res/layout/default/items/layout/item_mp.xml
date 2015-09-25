@@ -56,7 +56,7 @@
                 android:id="@+id/mp_item_author"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="@color/soft2_grey"
+                android:textColor="@color/soft_grey2"
                 android:layout_toLeftOf="@+id/mp_item_date"
                 android:layout_toStartOf="@+id/mp_item_date"
                 android:layout_marginRight="@dimen/small_margin"

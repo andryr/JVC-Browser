@@ -136,7 +136,7 @@ public class PostNewFragment extends Fragment {
                 Auth.getInstance().getCookieValue()).post().callback(new AjaxCallback() {
             @Override
             public void onComplete(Connection.Response response) {
-                mDialog.dismiss();
+                if (mDialog.isShowing()) mDialog.dismiss();
                 if (response != null) {
                     try {
                         Document doc = response.parse();

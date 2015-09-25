@@ -2,6 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
+              android:background="@color/background_black"
+
               android:layout_height="match_parent">
 
     <LinearLayout
@@ -12,6 +14,7 @@
             android:layout_marginLeft="@dimen/normal_margin"
             android:layout_marginRight="@dimen/normal_margin"
             android:layout_marginEnd="@dimen/normal_margin"
+
             android:gravity="center_vertical">
 
         <EditText
@@ -19,6 +22,8 @@
                 android:layout_height="wrap_content"
                 android:hint="Nom du forum"
                 android:layout_weight="6"
+                android:textColorHint="@color/soft_grey2"
+                android:textColor="@color/white"
                 android:id="@+id/forum_search_name"/>
         <Button
                 android:layout_width="0dp"
@@ -31,6 +36,7 @@
 
     <com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2
             android:layout_width="match_parent"
+            android:background="@color/background_black"
             android:layout_height="match_parent"
             android:id="@+id/forum_search_list"/>
 </LinearLayout>

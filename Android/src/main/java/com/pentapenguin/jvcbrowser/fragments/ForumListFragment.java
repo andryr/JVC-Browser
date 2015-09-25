@@ -77,7 +77,7 @@ public class ForumListFragment extends Fragment {
             Ajax.url(URL).callback(new AjaxCallback() {
                 @Override
                 public void onComplete(Connection.Response response) {
-                    dialog.dismiss();
+                    if (dialog.isShowing()) dialog.dismiss();
                     if (response != null) {
                         try {
                             mValues = Parser.listForums(response.parse());

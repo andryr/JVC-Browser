@@ -3,8 +3,8 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:theme="@style/toolbar_style"
-        app:popupTheme="@style/toolbar_popup_style"
+        app:theme="@style/toolbar_style_black"
+        app:popupTheme="@style/toolbar_popup_style_black"
         app:subtitleTextAppearance="@style/subtitleStyle">
 
 </android.support.v7.widget.Toolbar>

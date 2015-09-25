@@ -1,9 +1,9 @@
 package com.pentapenguin.jvcbrowser.util;
 
-import org.jsoup.nodes.Attribute;
-import org.jsoup.nodes.Attributes;
+import com.pentapenguin.jvcbrowser.app.Assets;
+import com.pentapenguin.jvcbrowser.app.Settings;
+import com.pentapenguin.jvcbrowser.util.persistence.Storage;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
@@ -103,7 +103,8 @@ public class NormalizePost {
     }
 
     private static String html(String input) {
-        return "<html><head><link href=\"css/forum-mobile.css\" rel=\"stylesheet\">" +
+        String css = Assets.css[Storage.getInstance().get(Settings.THEME, 1)];
+        return "<html><head><link href=\"" + css + "\" rel=\"stylesheet\">" +
                 "</head><body><div class=\"contenu\">" + input + "</div></body></html>";
     }
 

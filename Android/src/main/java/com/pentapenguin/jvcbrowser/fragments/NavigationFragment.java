@@ -279,6 +279,8 @@ public class NavigationFragment extends Fragment {
                                         Picasso.with(getActivity()).load(Parser.profilThumb(doc)).into(mProfil);
                                     } catch (NoContentFoundException ignored) {
                                     } catch (IOException ignored) {
+                                    } catch (IllegalArgumentException ignored) {
+
                                     }
                                 }
                             }

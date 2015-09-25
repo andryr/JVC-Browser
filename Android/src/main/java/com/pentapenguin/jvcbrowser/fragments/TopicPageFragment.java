@@ -255,13 +255,14 @@ public class TopicPageFragment extends Fragment {
                             mValues.addAll(values);
                             mValues.add(new Post(pages, title));
                         }
+                        final String newPostUrl = Parser.newPostUrl(doc);
                         if (getParentFragment().getActivity() != null) {
                             getParentFragment().getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
                                     ((TopicObserver) getParentFragment()).updatePages(pages);
-                                    ((TopicObserver) getParentFragment()).updatePostUrl(Parser.newPostUrl(doc));
+                                    ((TopicObserver) getParentFragment()).updatePostUrl(newPostUrl);
                                     if (mLoaded && mValues.size() > 1) scrollToBottom();
                                     if (current < max) notifyDataSetChanged();
                                     mLoaded = true;
@@ -455,6 +456,9 @@ public class TopicPageFragment extends Fragment {
                     startActivity(browserIntent);
                 }
             });
+            mContent.getSettings().setLoadWithOverviewMode(true);
+            mContent.clearCache(true);
+            mContent.setDrawingCacheEnabled(false);
         }
 
         public void bind(final Post post, final int position) {

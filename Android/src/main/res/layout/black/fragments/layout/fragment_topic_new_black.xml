@@ -4,6 +4,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="@dimen/normal_margin"
+        android:background="@color/background_black"
         tools:context="com.pentapenguin.jvcbrowser.TopicNewActivity">
 
     <EditText android:layout_width="match_parent"
@@ -12,6 +13,8 @@
               android:layout_alignParentTop="true"
               android:id="@+id/new_topic_title_edit"
               android:inputType="textCapSentences"
+              android:textColorHint="@color/soft_grey2"
+              android:textColor="@color/white"
               android:hint="@string/subject"/>
 
     <Button
@@ -27,6 +30,8 @@
             android:id="@+id/new_topic_content_edit"
             android:inputType="textCapSentences|textMultiLine"
             android:hint="@string/message"
+            android:textColor="@color/white"
+            android:textColorHint="@color/soft_grey2"
             android:layout_below="@id/new_topic_title_edit"
             android:layout_above="@+id/new_topic_error_text"/>
 
@@ -46,6 +51,7 @@
         <EditText android:layout_width="0dp"
                   android:layout_height="wrap_content"
                   android:layout_weight="1"
+                  android:textColor="@color/white"
                   android:visibility="gone"
                   android:id="@+id/new_topic_code_edit"
                   android:inputType="number"/>

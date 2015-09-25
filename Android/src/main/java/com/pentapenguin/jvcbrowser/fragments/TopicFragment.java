@@ -330,7 +330,7 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
                     }).execute();
                 } else {
                     App.alert(getActivity(), R.string.no_response);
-                    dialog.dismiss();
+                    if (dialog.isShowing()) dialog.dismiss();
                 }
             }
         }).execute();

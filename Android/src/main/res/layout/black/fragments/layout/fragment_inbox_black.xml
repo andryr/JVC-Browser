@@ -1,6 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:background="@color/background_black"
+        >
 
     <android.support.v4.widget.SwipeRefreshLayout
             android:layout_width="match_parent"
@@ -28,6 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:visibility="gone"
+            android:textColor="@color/soft_grey2"
             android:layout_centerHorizontal="true"
             android:id="@+id/inbox_empty_text"
             android:text="@string/no_result"/>

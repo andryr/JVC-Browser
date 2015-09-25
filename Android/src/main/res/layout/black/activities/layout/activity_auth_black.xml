@@ -5,6 +5,7 @@
         android:layout_height="match_parent"
         android:padding="@dimen/normal_margin"
         tools:context=".MainActivity"
+        android:background="@color/background_black"
         >
 
     <LinearLayout android:layout_width="match_parent"
@@ -19,14 +20,19 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/text_pseudo"
                 android:maxLines="1"
-                android:hint="Pseudo"/>
+                android:hint="Pseudo"
+                android:textColor="@color/white"
+                android:textColorHint="@color/soft_grey2"
+                />
         <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/text_passwd"
                 android:inputType="textPassword"
                 android:hint="Mot de passe"
-                android:text=""/>
+                android:textColor="@color/white"
+                android:textColorHint="@color/soft_grey2"
+                />
         <LinearLayout android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:orientation="horizontal">
@@ -42,6 +48,7 @@
                     android:inputType="number"
                     android:ems="10"
                     android:visibility="gone"
+                    android:textColor="@color/white"
                     android:id="@+id/edit_connect_captcha"
                     android:layout_weight="1"/>
         </LinearLayout>
@@ -49,6 +56,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
+                android:textColor="@color/red"
                 android:id="@+id/text_connect_error"/>
         <Button
                 android:layout_width="wrap_content"

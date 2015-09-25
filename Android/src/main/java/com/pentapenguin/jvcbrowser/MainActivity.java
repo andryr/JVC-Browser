@@ -1,11 +1,13 @@
 package com.pentapenguin.jvcbrowser;
 
+import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -16,13 +18,21 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
+import com.pentapenguin.jvcbrowser.app.Settings;
 import com.pentapenguin.jvcbrowser.app.Theme;
+import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.fragments.*;
 import com.pentapenguin.jvcbrowser.services.UpdateService;
 import com.pentapenguin.jvcbrowser.util.*;
+import com.pentapenguin.jvcbrowser.util.persistence.Storage;
 
+/**
+ * NEW INTENT probleme lors du click sur une notification
+ */
 public class MainActivity extends AppCompatActivity implements ActivityLauncher, FragmentLauncher, TitleObserver,
         ServiceUpdate {
 
@@ -39,6 +49,9 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= 21) {
+            if (Storage.getInstance().get(Settings.THEME, 1) == 1) setupStatusbar();
+        }
         setContentView(Theme.mainActivity);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -64,6 +77,13 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
                 transaction.commit();
             }
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void setupStatusbar() {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark_black));
     }
 
     @Override

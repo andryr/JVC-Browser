@@ -3,9 +3,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:background="@color/background_black"
         android:id="@+id/layout_main">
 
-    <include layout="@layout/toolbar"
+    <include layout="@layout/toolbar_black"
              android:id="@+id/toolbar"/>
 
     <FrameLayout android:layout_width="match_parent"
