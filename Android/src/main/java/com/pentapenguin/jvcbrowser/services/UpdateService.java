@@ -6,7 +6,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import com.pentapenguin.jvcbrowser.MainActivity;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.Auth;
@@ -14,7 +13,6 @@ import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
 import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
 import com.pentapenguin.jvcbrowser.util.persistence.Storage;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Connection;
@@ -40,7 +38,6 @@ public class UpdateService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (!Auth.getInstance().isConnected()) return;
 
-        Log.d("service", "start");
         updateMp();
     }
 
@@ -58,7 +55,6 @@ public class UpdateService extends IntentService {
                         if (response != null) {
                             int nb = json(response.body());
                             int last = Storage.getInstance().get(NOTIFICATION_STORAGE, 0);
-                            Log.d("notification", nb + ":" + last);
                             if (nb > last) sendSubscribeNotification(nb - last, nb);
                             Storage.getInstance().put(NOTIFICATION_STORAGE, nb);
                             Intent intent = new Intent(NOTIFICATION_ACTION);
@@ -118,7 +114,6 @@ public class UpdateService extends IntentService {
                                 updateSubscribe(doc);
                                 int mps = Parser.mpUnread(doc);
                                 int lastMps = Storage.getInstance().get(MP_STORAGE, 0);
-                                Log.d("notification", mps + ":" + lastMps);
                                 if (mps > lastMps) sendMpNotification(mps - lastMps, mps);
                                 Storage.getInstance().put(MP_STORAGE, mps);
                                 Intent intent = new Intent(MP_ACTION);

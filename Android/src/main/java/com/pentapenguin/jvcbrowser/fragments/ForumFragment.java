@@ -1,10 +1,13 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
+import android.app.ActivityOptions;
 import android.app.AlertDialog;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,6 +16,9 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.*;
 import android.support.v7.widget.SearchView;
 import android.text.InputType;
+import android.transition.ChangeBounds;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.view.*;
 import android.widget.*;
 import com.pentapenguin.jvcbrowser.TopicNewActivity;
@@ -170,7 +176,7 @@ public class ForumFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == TopicNewActivity.RESULT_CODE) {
-           Topic topic = data.getParcelableExtra(TopicPageFragment.TOPIC_ARG);
+            Topic topic = data.getParcelableExtra(TopicPageFragment.TOPIC_ARG);
             ((FragmentLauncher) getActivity()).launch(TopicFragment.newInstance(topic), true);
         }
     }

@@ -3,31 +3,21 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/background_black"
+
         >
 
         <FrameLayout android:id="@+id/pager_post_new_layout"
                      android:layout_width="match_parent"
                      android:layout_height="wrap_content"
-                     android:layout_alignParentBottom="true"/>
+                     android:layout_alignParentBottom="true"
+                />
 
         <android.support.v4.view.ViewPager
                 android:id="@+id/topic_pager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:transitionName="topic"
                 android:layout_above="@id/pager_post_new_layout">
-
-                <!--
-                <android.support.v4.view.PagerTitleStrip
-                        android:id="@+id/pager_title_strip"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="top"
-                        style="@style/viewpagertitlestrip"
-                        android:background="@color/primary"
-                        android:paddingBottom="1dp"
-                        android:paddingTop="1dp"
-                        android:textColor="#fff" />
-                        -->
 
         </android.support.v4.view.ViewPager>
 

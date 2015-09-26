@@ -3,7 +3,7 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:id="@+id/forum_item"
+        android:id="@+id/item_topic"
         android:clickable="true"
         android:background="?attr/selectableItemBackground"
         >
