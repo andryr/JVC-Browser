@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                 Fragment fragment = Auth.getInstance().isConnected() ? FavoriteFragment
                         .newInstance(FavoriteFragment.ListType.Forum) : ForumListFragment.newInstance();
-                transaction.replace(R.id.frame_main, TopicFragment.newInstance(new Topic(39601482, 42, 9189, 1)));
+                transaction.replace(R.id.frame_main, fragment);
                 transaction.commit();
             }
         }
@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        App.snack(getWindow().getDecorView().getRootView(), "intent appele");
         if (getIntent().getBooleanExtra(UpdateService.MP_ACTION, false)) {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_main, InboxFragment.newInstance())
                     .commit();
@@ -120,7 +119,6 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
             PendingIntent pendingIntent = PendingIntent.getService(this, 0, new Intent(this, UpdateService.class), 0);
             alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(),
                     ALARM_INTERVAL, pendingIntent);
-            Log.d("alarm", "set");
         }
     }
 

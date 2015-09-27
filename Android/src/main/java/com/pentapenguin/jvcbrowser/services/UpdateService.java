@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import com.pentapenguin.jvcbrowser.MainActivity;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.Auth;
@@ -56,6 +57,7 @@ public class UpdateService extends IntentService {
                             int nb = json(response.body());
                             int last = Storage.getInstance().get(NOTIFICATION_STORAGE, 0);
                             if (nb > last) sendSubscribeNotification(nb - last, nb);
+                            Log.d(nb+"",last+"");
                             Storage.getInstance().put(NOTIFICATION_STORAGE, nb);
                             Intent intent = new Intent(NOTIFICATION_ACTION);
                             intent.putExtra(NOTIFICATION_ARG, nb);

@@ -180,6 +180,8 @@ public class InboxFragment extends Fragment{
         if (resultCode == InboxNewActivity.RESULT_CODE) {
             Mp mp = data.getParcelableExtra(MpFragment.MP_ARG);
             ((FragmentLauncher) getActivity()).launch(MpFragment.newInstance(mp), true);
+        } else {
+            mAdapter.load();
         }
     }
 

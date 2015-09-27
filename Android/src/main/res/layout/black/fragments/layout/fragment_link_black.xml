@@ -24,6 +24,7 @@
             android:visibility="gone"
             android:layout_centerHorizontal="true"
             android:id="@+id/link_empty_text"
+            android:textColor="@color/soft_grey2"
             android:text="@string/no_result"/>
 
 </RelativeLayout>

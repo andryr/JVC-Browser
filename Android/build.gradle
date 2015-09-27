@@ -19,7 +19,7 @@ android {
     defaultConfig {
         applicationId "com.pentapenguin.jvcbrowser"
         minSdkVersion 9
-        targetSdkVersion 23
+        targetSdkVersion 20
         versionCode 8
         versionName "1.0"
     }

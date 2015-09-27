@@ -12,8 +12,8 @@ import com.pentapenguin.jvcbrowser.util.persistence.Storage;
 
 public class SettingsActivity extends PreferenceActivity {
 
-    private Boolean mTopicAuto;
-    private Boolean mMpAuto;
+//    private Boolean mTopicAuto;
+//    private Boolean mMpAuto;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,8 +50,9 @@ public class SettingsActivity extends PreferenceActivity {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 Storage.getInstance().put(Settings.THEME, Integer.parseInt(newValue.toString()) - 1);
-                Toast.makeText(SettingsActivity.this, "Vous devez supprimer l'application de la liste des taches puis la relancer !"
-                        + Integer.parseInt(newValue.toString()), Toast.LENGTH_LONG).show();
+                Toast.makeText(SettingsActivity.this,
+                        "Vous devez supprimer l'application de la liste des taches puis la relancer !"
+                       , Toast.LENGTH_LONG).show();
                 return false;
             }
         });
