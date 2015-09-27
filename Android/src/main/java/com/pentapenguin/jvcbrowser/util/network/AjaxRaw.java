@@ -21,7 +21,7 @@ public class AjaxRaw extends AsyncTask<Void, Void, String> {
     private String getHttp() throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(mUrl).openConnection();
         connection.setUseCaches(false);
-        connection.setRequestProperty("Cache-control", "no-store");
+        connection.setRequestProperty("Cache-control", "max-age=0, no-cache, must-revalidate, proxy-revalidate, private");
         connection.setRequestProperty("Cache-store", "no-store");
         connection.setInstanceFollowRedirects(true);
         connection.setConnectTimeout(5000);
@@ -37,7 +37,8 @@ public class AjaxRaw extends AsyncTask<Void, Void, String> {
     @Override
     protected String doInBackground(Void... params) {
         try {
-            return getHttp();
+            String result = getHttp();
+            if (mListener != null) mListener.onComplete(result);
         } catch (IOException ignored) {
 
         }
@@ -47,6 +48,6 @@ public class AjaxRaw extends AsyncTask<Void, Void, String> {
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
-        if (mListener != null) mListener.onComplete(s);
+        if (mListener != null) mListener.updateUI();
     }
 }

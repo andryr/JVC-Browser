@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                 Fragment fragment = Auth.getInstance().isConnected() ? FavoriteFragment
                         .newInstance(FavoriteFragment.ListType.Forum) : ForumListFragment.newInstance();
-                transaction.replace(R.id.frame_main, fragment);
+                transaction.replace(R.id.frame_main, TopicFragment.newInstance(new Topic(39601482, 42, 9189, 1)));
                 transaction.commit();
             }
         }

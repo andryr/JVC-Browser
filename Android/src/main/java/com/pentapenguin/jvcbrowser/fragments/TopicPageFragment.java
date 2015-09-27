@@ -26,10 +26,7 @@ import com.pentapenguin.jvcbrowser.entities.Post;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.exceptions.NoContentFoundException;
 import com.pentapenguin.jvcbrowser.util.*;
-import com.pentapenguin.jvcbrowser.util.network.Ajax;
-import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
-import com.pentapenguin.jvcbrowser.util.network.AjaxRawCallback;
-import com.pentapenguin.jvcbrowser.util.network.AjaxSocket;
+import com.pentapenguin.jvcbrowser.util.network.*;
 import com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2;
 import com.pentapenguin.jvcbrowser.util.widgets.SwipeRefreshLayoutBottom;
 import com.squareup.okhttp.*;
@@ -45,6 +42,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -165,17 +163,20 @@ public class TopicPageFragment extends Fragment {
         }
 
         public void load() {
-            load2();
+            load4();
         }
 
         public void load1() {
-            Ajax.url(Helper.topicToMobileUrl(mTopic) + "?bide=" + System.currentTimeMillis()).post()
+            Ajax.url(Helper.topicToMobileUrl(mTopic) /*+ "?bide=" + System.currentTimeMillis()*/)
                     .callback(new AjaxCallback() {
                         @Override
                         public void onComplete(Connection.Response response) {
                             if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
                             if (response != null) {
                                 try {
+                                    for (Map.Entry<String, String> entry : response.headers().entrySet()) {
+                                        Log.d(entry.getKey(), entry.getValue());
+                                    }
                                     Document doc = response.parse();
                                     ArrayList<Post> values = Parser.topic(doc);
                                     Iterator<Post> it = values.iterator();
@@ -187,18 +188,17 @@ public class TopicPageFragment extends Fragment {
                                     int max = values.size();
                                     if (max == 0) throw new NoContentFoundException();
                                     int pages = Parser.page(doc);
+                                    String title = Parser.getTitleTopic(doc);
+                                    mValues.clear();
+                                    mValues.add(new Post(pages, title));
+                                    mValues.addAll(values);
+                                    mValues.add(new Post(pages, title));
+                                    mValues.add(new Post(pages, Parser.getTitleTopic(doc)));
                                     ((TopicObserver) getParentFragment()).updatePages(pages);
-                                    if (mValues.size() >= max + 1) return;
-                                    mValues.add(new Post(pages, Parser.getTitleTopic(doc)));
-                                    for (int i = mValues.size(); i < max + 1; i++) {
-                                        mValues.add(values.get(i - 1));
-                                        notifyItemInserted(i);
-                                    }
-                                    mValues.add(new Post(pages, Parser.getTitleTopic(doc)));
                                     ((TopicObserver) getParentFragment()).updatePostUrl(Parser.newPostUrl(doc));
                                     if (mLoaded) scrollToBottom();
                                     mLoaded = true;
-                                    mRecycler.hideEmpties();
+                                    notifyDataSetChanged();
 
                                     return;
                                 } catch (IOException e) {
@@ -215,12 +215,16 @@ public class TopicPageFragment extends Fragment {
         }
 
         private void load2() {
+
             Request request = new Request.Builder()
                     .url(Helper.topicToMobileUrl(mTopic) + "?bide=" + System.currentTimeMillis())
-                    .tag(this)
+//                    .tag(this)
+                    .post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), "{}"))
                     .cacheControl(new CacheControl.Builder().noStore().noCache().build())
+                    .header("Cache-Control", "max-age=0, no-cache")
+                    .header("Cache-Store", "no-store")
+                    .header("User-Agent", "Mozilla / 5.0 (Windows NT 10.0; WOW64; rv:40.0) Gecko/20100101 Firefox/40.0")
                     .build();
-//            mValues.clear();
 
             mClient.newCall(request).enqueue(new Callback() {
                 @Override
@@ -236,6 +240,59 @@ public class TopicPageFragment extends Fragment {
 
                 @Override
                 public void onResponse(Response response) throws IOException {
+                    final String html = response.body().string();
+                    final Document doc = Jsoup.parse(html);
+                    Headers headers = response.headers();
+                    for (int i = 0; i < headers.size(); i++) {
+                        Log.d(headers.name(i), headers.get(headers.name(i)));
+                    }
+                    try {
+                        ArrayList<Post> values = Parser.topic(doc);
+                        Iterator<Post> it = values.iterator();
+                        while (it.hasNext()) {
+                            Post post = it.next();
+                            if (Bans.isBanned(post.getAuthor())) it.remove();
+                        }
+                        final int max = values.size() + 2;
+                        if (max == 2) throw new NoContentFoundException();
+                        String title = Parser.getTitleTopic(doc);
+                        final int pages = Parser.page(doc);
+                        final String newPostUrl = Parser.newPostUrl(doc);
+                        mValues.clear();
+                        mValues.add(new Post(pages, title));
+                        mValues.addAll(values);
+                        mValues.add(new Post(pages, title));
+
+                        if (getParentFragment().getActivity() != null) {
+                            getParentFragment().getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
+                                    ((TopicObserver) getParentFragment()).updatePages(pages);
+                                    ((TopicObserver) getParentFragment()).updatePostUrl(newPostUrl);
+                                    if (mLoaded && max > 3) scrollToBottom();
+                                    notifyDataSetChanged();
+                                    mLoaded = true;
+                                    Log.d("length", mValues.size()+"");
+                                }
+                            });
+                        }
+                    } catch (NoContentFoundException e) {
+                        if (getParentFragment().getActivity() != null) {
+                            getParentFragment().getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mValues.clear();
+                                    notifyDataSetChanged();
+                                    mRecycler.showNoResults();
+                                    if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
+                                }
+                            });
+                        }
+                    }
+                }
+
+                public void onResponse3(Response response) throws IOException {
                     final Document doc = Jsoup.parse(response.body().string());
                     try {
                         ArrayList<Post> values = Parser.topic(doc);
@@ -320,43 +377,54 @@ public class TopicPageFragment extends Fragment {
             });
         }
 
-        private void load3() {
-            new AjaxSocket(Helper.topicToMobileUrl(mTopic), new AjaxRawCallback() {
+        private void load4() {
+            new AjaxRaw(Helper.topicToMobileUrl(mTopic), new AjaxRawCallback() {
+
+                public int mMax;
+                public String mPostUrl;
+                public int mPages;
+                private boolean noContent = false;
+
                 @Override
                 public void onComplete(String result) {
-                    String lol = result;
-                    Log.d("lol", lol);
-                    final Document doc = Jsoup.parse(lol);
+                    mValues.clear();
                     try {
+                        if (result == null) throw new NoContentFoundException();
+                        final Document doc = Jsoup.parse(result);
                         ArrayList<Post> values = Parser.topic(doc);
+                        String title = Parser.getTitleTopic(doc);
+                        mPostUrl = Parser.newPostUrl(doc);
+                        mPages = Parser.page(doc);
                         Iterator<Post> it = values.iterator();
                         while (it.hasNext()) {
                             Post post = it.next();
                             if (Bans.isBanned(post.getAuthor())) it.remove();
                         }
-                        int max = values.size();
-                        if (max == 0) throw new NoContentFoundException();
-                        String title = Parser.getTitleTopic(doc);
-                        final int pages = Parser.page(doc);
-                        mValues.add(new Post(pages, title));
-                        mValues.addAll(values);
-                        mValues.add(new Post(pages, title));
-                        if (getParentFragment().getActivity() != null) {
-                            getParentFragment().getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    ((TopicObserver) getParentFragment()).updatePages(pages);
-                                    ((TopicObserver) getParentFragment()).updatePostUrl(Parser.newPostUrl(doc));
-                                    if (mLoaded) scrollToBottom();
-                                    mLoaded = true;
-                                    notifyDataSetChanged();
-                                    if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
-                                }
-                            });
+                        mMax = values.size() + 2;
+                        if (mMax == 2) throw new NoContentFoundException();
+                        final int current = mValues.size();
+                        if (current < mMax) {
+                            mValues.add(new Post(mPages, title));
+                            mValues.addAll(values);
+                            mValues.add(new Post(mPages, title));
                         }
                     } catch (NoContentFoundException e) {
-
+                        noContent = true;
                     }
+                }
+
+                @Override
+                public void updateUI() {
+                    notifyDataSetChanged();
+                    if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
+                    if (noContent) {
+                        mRecycler.showNoResults();
+                        return;
+                    }
+                    ((TopicObserver) getParentFragment()).updatePages(mPages);
+                    ((TopicObserver) getParentFragment()).updatePostUrl(mPostUrl);
+                    if (mLoaded && mMax > 3) scrollToBottom();
+                    mLoaded = true;
                 }
             }).execute();
         }

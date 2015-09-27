@@ -351,6 +351,10 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
                             return;
                         }
                         int page = Integer.parseInt(pageNumber.getText().toString());
+                        if (page > 5000) {
+                            App.toast(R.string.go_to_page_over_9000);
+                            return;
+                        }
                         mPager.setCurrentItem(page - 1);
                         App.hideKeyboard(pageNumber.getWindowToken());
                     }

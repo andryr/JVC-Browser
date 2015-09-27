@@ -26,6 +26,7 @@
     <string name="drawer_close">Close</string>
     <string name="page_number">Numéro de la page</string>
     <string name="field_empty">Champs vide</string>
+    <string name="go_to_page_over_9000">It\'s over 9000</string>
     <string name="write">écrit</string>
     <string name="no_banned">Pas d\'indésirables</string>
     <string name="no_history">Pas d\'historique</string>

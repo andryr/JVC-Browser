@@ -15,10 +15,9 @@ public class Ajax extends AsyncTask<Void, Void, Connection.Response> {
 
     private Ajax(String url) {
         connection = HttpConnection.connect(url);
-        header("Cache-control", "no-cache");
+        header("Cache-control", "no-cache, max-age=0");
         header("Cache-store", "no-store");
-        header("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " +
-                "Chrome/37.0.2049.0 Safari/537.36");
+        header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:40.0) Gecko/20100101 Firefox/40.0");
     }
 
     public static Ajax url(String url) {
