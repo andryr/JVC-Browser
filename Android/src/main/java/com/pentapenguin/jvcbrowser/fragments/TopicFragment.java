@@ -371,8 +371,8 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
 
     private void reloadCurrentPage() {
         for (Fragment fragment : getChildFragmentManager().getFragments()) {
-            if (fragment != null && fragment instanceof TopicPageFragment && fragment.isVisible()) {
-                ((TopicPageFragment) fragment).reload();
+            if (fragment != null && fragment instanceof TopicPageFragment) {
+                ((TopicPageFragment) fragment).reload(true);
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
@@ -13,9 +14,7 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.*;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.webkit.*;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.pentapenguin.jvcbrowser.*;
@@ -114,7 +113,7 @@ public class TopicPageFragment extends Fragment {
         mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayoutBottom.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                reload();
+                mAdapter.load(false);
             }
         });
 
@@ -125,7 +124,7 @@ public class TopicPageFragment extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser && !mLoaded && mAdapter != null) {
-            mAdapter.load();
+            mAdapter.load(false);
         }
     }
 
@@ -142,8 +141,14 @@ public class TopicPageFragment extends Fragment {
         mClient.cancel(this);
     }
 
-    public void reload() {
-        mAdapter.load();
+    public void reload(final boolean isAll) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mAdapter.load(isAll);
+
+            }
+        }, 1000);
     }
 
     public void scrollToBottom() {
@@ -162,8 +167,8 @@ public class TopicPageFragment extends Fragment {
             mValues = new ArrayList<Post>(values);
         }
 
-        public void load() {
-            load4();
+        public void load(boolean isAll) {
+            load3(isAll);
         }
 
         public void load1() {
@@ -375,6 +380,107 @@ public class TopicPageFragment extends Fragment {
                     }
                 }
             });
+        }
+
+        @SuppressLint({ "SetJavaScriptEnabled", "JavascriptInterface" })
+        private void load3(final boolean isAll) {
+            final String command = "javascript:window.android.onComplete(document.documentElement.innerHTML);";
+            final WebView web = new WebView(App.getContext());
+            final String url = Helper.topicToMobileUrl(mTopic);
+            web.setWebChromeClient(new WebChromeClient());
+            web.getSettings().setJavaScriptEnabled(true);
+            web.getSettings().setUserAgentString("Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.4) Gecko/20100101 " +
+                    "Firefox/4.0");
+            web.addJavascriptInterface(new Object() {
+
+                public int mCurrent;
+                public int mMax;
+                public String mPostUrl;
+                public int mPages;
+                private boolean mNoContent = false;
+                private String mTitle;
+
+                @JavascriptInterface
+                public void onComplete(final String result) {
+                    try {
+                        mNoContent = false;
+                        if (result == null) mNoContent = true;
+                        final Document doc = Jsoup.parse(result);
+                        ArrayList<Post> values = Parser.topic(doc);
+                        mTitle = Parser.getTitleTopic(doc);
+                        mPostUrl = Parser.newPostUrl(doc);
+                        mPages = Parser.page(doc);
+                        Iterator<Post> it = values.iterator();
+                        while (it.hasNext()) {
+                            Post post = it.next();
+                            if (Bans.isBanned(post.getAuthor())) it.remove();
+                        }
+                        mMax = values.size() + 2;
+                        if (mMax == 2) mNoContent = true;
+                        mCurrent = mValues.size();
+                        if (isAll) {
+                            reloadAll(values);
+                        } else {
+                            reload(values);
+                        }
+
+                        updateUI();
+
+                    } catch (NoContentFoundException ignored) {
+                    }
+
+                }
+
+                private void reloadAll(ArrayList<Post> values) {
+                    mValues.clear();
+                    mValues.add(new Post(mPages, mTitle));
+                    mValues.addAll(values);
+                    mValues.add(new Post(mPages, mTitle));
+
+                }
+
+                private void reload(ArrayList<Post> values) {
+                    if (mCurrent < mMax) reloadAll(values);
+                }
+
+                private void updateUI() {
+                    getActivity().runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            if (isAll) {
+                                notifyDataSetChanged();
+                            } else if (mCurrent < mMax) {
+                                notifyDataSetChanged();
+                            }
+                            if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
+                            if (mNoContent) {
+                                mRecycler.showNoResults();
+                                return;
+                            }
+                            ((TopicObserver) getParentFragment()).updatePages(mPages);
+                            ((TopicObserver) getParentFragment()).updatePostUrl(mPostUrl);
+                            if (mLoaded && mMax > 3) scrollToBottom();
+                            mLoaded = true;
+                        }
+                    });
+                }
+
+            }, "android");
+            web.setWebViewClient(new WebViewClient() {
+                @Override
+                public void onPageFinished(WebView view, String url) {
+                    web.loadUrl(command);
+                }
+
+                @Override
+                public WebResourceResponse shouldInterceptRequest(WebView view, String uurl) {
+                    if (url.equals(uurl)) return super.shouldInterceptRequest(view, uurl);
+
+                    return new WebResourceResponse(null, null, null);
+                }
+            });
+            web.loadUrl(url);
         }
 
         private void load4() {
@@ -589,7 +695,7 @@ public class TopicPageFragment extends Fragment {
 
         private void ignore(Post post) {
             Bans.add(post.getAuthor());
-            reload();
+            reload(true);
         }
 
         private void delete(final Post post, final int position) {

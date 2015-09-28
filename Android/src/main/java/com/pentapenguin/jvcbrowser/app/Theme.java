@@ -66,12 +66,6 @@ public class Theme {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-        for (Field field : fields) {
-            try {
-                Log.d(field.getName(), field.get(field).toString());
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
+
     }
 }
