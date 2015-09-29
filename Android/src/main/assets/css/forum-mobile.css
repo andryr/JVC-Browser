@@ -4,12 +4,42 @@
 }
 
 blockquote.blockquote-jv {
-    border-left: 3px solid #aaa;
-    margin-left: 5px;
-    padding: 3px;
+    border-left: 3px solid rgba(3, 169, 244, 0.33);
+    margin: 1em 0;
+    padding: 1px 5px ;
+    background: rgba(3, 169, 244, 0.05) none repeat scroll 0 0;
 }
 
-.message {
+.pre-jv {
+    background: rgba(230, 230, 235, 0.5) none repeat scroll 0 0;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    border-radius: 2px;
+    padding: 10px;
+    font-size: 120%;
+    color: #000;
+}
+
+.bloc-spoil-jv .txt-spoil {
+    background: #0288D1 none repeat scroll 0 0;
+    color: #fff;
+    display: block;
+    font-size: 1em;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+    width: 75px;
+    margin: 0 auto;
+}
+
+.bloc-spoil-jv .contenu-spoil {
+    background: #ffecec none repeat scroll 0 0;
+    border: 1px solid #fdd;
+    padding: 10px;
+    display: block;
+    color: #000;
+}
+
+.text-enrichi-forum, .message {
     color: #000;
 }
 

@@ -3,6 +3,7 @@ package com.pentapenguin.jvcbrowser.fragments;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.*;
@@ -113,6 +114,7 @@ public class TopicPageFragment extends Fragment {
         mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayoutBottom.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                mSwipeLayout.setRefreshing(false);
                 mAdapter.load(false);
             }
         });
@@ -142,13 +144,14 @@ public class TopicPageFragment extends Fragment {
     }
 
     public void reload(final boolean isAll) {
+        mSwipeLayout.setRefreshing(true);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 mAdapter.load(isAll);
 
             }
-        }, 1000);
+        }, 500);
     }
 
     public void scrollToBottom() {
@@ -158,6 +161,7 @@ public class TopicPageFragment extends Fragment {
     private class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         protected ArrayList<Post> mValues;
+        private boolean mNoContent;
 
         public TopicAdapter() {
             mValues = new ArrayList<Post>();
@@ -397,15 +401,12 @@ public class TopicPageFragment extends Fragment {
                 public int mMax;
                 public String mPostUrl;
                 public int mPages;
-                private boolean mNoContent = false;
                 private String mTitle;
 
                 @JavascriptInterface
                 public void onComplete(final String result) {
                     try {
                         Log.d("test", "1");
-                        mNoContent = false;
-                        if (result == null) mNoContent = true;
                         final Document doc = Jsoup.parse(result);
                         ArrayList<Post> values = Parser.topic(doc);
                         mTitle = Parser.getTitleTopic(doc);
@@ -427,8 +428,9 @@ public class TopicPageFragment extends Fragment {
                         }
 
                         successUI();
+                        mNoContent = false;
                         Log.d("test", "3");
-
+                        Log.d("values", values.toString());
                     } catch (NoContentFoundException ignored) {
                         failUI();
                         Log.d("test", "4");
@@ -437,6 +439,12 @@ public class TopicPageFragment extends Fragment {
 
                 private void reloadAll(ArrayList<Post> values) {
                     mValues.clear();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyDataSetChanged();
+                        }
+                    });
                     mValues.add(new Post(mPages, mTitle));
                     mValues.addAll(values);
                     mValues.add(new Post(mPages, mTitle));
@@ -462,6 +470,7 @@ public class TopicPageFragment extends Fragment {
 
                         @Override
                         public void run() {
+                            if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
                             if (isAll || mCurrent < mMax) {
                                 notifyDataSetChanged();
                             }
@@ -469,13 +478,27 @@ public class TopicPageFragment extends Fragment {
                             ((TopicObserver) getParentFragment()).updatePostUrl(mPostUrl);
                             if (mLoaded && mMax > 3) scrollToBottom();
                             mLoaded = true;
-                            if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
                         }
                     });
                 }
 
             }, "android");
             web.setWebViewClient(new WebViewClient() {
+
+                @Override
+                public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                    super.onPageStarted(view, url, favicon);
+                    mNoContent = true;
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (mNoContent) {
+                                if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
+                                web.stopLoading();
+                            }
+                        }
+                    }, 5000);
+                }
 
                 @Override
                 public void onPageFinished(WebView view, String url) {
@@ -618,8 +641,6 @@ public class TopicPageFragment extends Fragment {
 
             mControl.setVisibility(Auth.getInstance().isConnected() ? View.VISIBLE : View.GONE);
             mContent.getSettings().setDefaultTextEncodingName("utf-8");
-            mContent.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-            mContent.getSettings().setAppCacheEnabled(false);
             mContent.setBackgroundColor(Color.TRANSPARENT);
             mContent.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -656,9 +677,6 @@ public class TopicPageFragment extends Fragment {
                     startActivity(browserIntent);
                 }
             });
-            mContent.getSettings().setLoadWithOverviewMode(true);
-            mContent.clearCache(true);
-            mContent.setDrawingCacheEnabled(false);
         }
 
         public void bind(final Post post, final int position) {

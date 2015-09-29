@@ -46,9 +46,7 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= 21) {
-            if (Storage.getInstance().get(Settings.THEME, 1) == 1) setupStatusbar();
-        }
+        if (Build.VERSION.SDK_INT >= 21) setupStatusbar(Storage.getInstance().get(Settings.THEME, 1));
         Theme.load();
         setContentView(Theme.mainActivity);
 
@@ -78,10 +76,11 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void setupStatusbar() {
+    private void setupStatusbar(int theme) {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 //        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark_black));
+        getWindow().setStatusBarColor(getResources().getColor(theme == Theme.Value.DEFAULT ?
+                R.color.primary_dark : R.color.primary_dark_black));
     }
 
     @Override

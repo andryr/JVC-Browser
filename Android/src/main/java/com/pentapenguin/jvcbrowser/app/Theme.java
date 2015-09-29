@@ -1,6 +1,5 @@
 package com.pentapenguin.jvcbrowser.app;
 
-import android.util.Log;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.util.persistence.Storage;
 import org.json.JSONException;
@@ -56,7 +55,7 @@ public class Theme {
     public static void load() {
         Field[] fields = Theme.class.getDeclaredFields();
         try {
-            String theme = App.getResourceAsset(Assets.themes[Storage.getInstance().get(Settings.THEME, 0)]);
+            String theme = App.getResourceAsset(Assets.themes[Storage.getInstance().get(Settings.THEME, Value.DEFAULT)]);
             JSONObject json = new JSONObject(theme);
             for (Field field : fields) {
                 field.setInt(field, App.getRessourceId(R.layout.class, json.getString(field.getName())));
@@ -70,5 +69,11 @@ public class Theme {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    public class Value {
+
+        public static final int DEFAULT = 0;
+        public static final int BLACK = 1;
     }
 }
