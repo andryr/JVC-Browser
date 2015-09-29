@@ -50,9 +50,13 @@ public class Theme {
     public static int navigationItem;
 
     static {
+        load();
+    }
+
+    public static void load() {
         Field[] fields = Theme.class.getDeclaredFields();
         try {
-            String theme = App.getResourceAsset(Assets.themes[Storage.getInstance().get(Settings.THEME, 1)]);
+            String theme = App.getResourceAsset(Assets.themes[Storage.getInstance().get(Settings.THEME, 0)]);
             JSONObject json = new JSONObject(theme);
             for (Field field : fields) {
                 field.setInt(field, App.getRessourceId(R.layout.class, json.getString(field.getName())));
@@ -66,6 +70,5 @@ public class Theme {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-
     }
 }

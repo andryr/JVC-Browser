@@ -403,6 +403,7 @@ public class TopicPageFragment extends Fragment {
                 @JavascriptInterface
                 public void onComplete(final String result) {
                     try {
+                        Log.d("test", "1");
                         mNoContent = false;
                         if (result == null) mNoContent = true;
                         final Document doc = Jsoup.parse(result);
@@ -416,7 +417,8 @@ public class TopicPageFragment extends Fragment {
                             if (Bans.isBanned(post.getAuthor())) it.remove();
                         }
                         mMax = values.size() + 2;
-                        if (mMax == 2) mNoContent = true;
+                        if (mMax == 2) throw new NoContentFoundException();
+                        Log.d("test", "2");
                         mCurrent = mValues.size();
                         if (isAll) {
                             reloadAll(values);
@@ -424,11 +426,13 @@ public class TopicPageFragment extends Fragment {
                             reload(values);
                         }
 
-                        updateUI();
+                        successUI();
+                        Log.d("test", "3");
 
                     } catch (NoContentFoundException ignored) {
+                        failUI();
+                        Log.d("test", "4");
                     }
-
                 }
 
                 private void reloadAll(ArrayList<Post> values) {
@@ -443,31 +447,36 @@ public class TopicPageFragment extends Fragment {
                     if (mCurrent < mMax) reloadAll(values);
                 }
 
-                private void updateUI() {
+                private void failUI() {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
+                            mRecycler.showNoResults();
+                        }
+                    });
+                }
+
+                private void successUI() {
                     getActivity().runOnUiThread(new Runnable() {
 
                         @Override
                         public void run() {
-                            if (isAll) {
+                            if (isAll || mCurrent < mMax) {
                                 notifyDataSetChanged();
-                            } else if (mCurrent < mMax) {
-                                notifyDataSetChanged();
-                            }
-                            if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
-                            if (mNoContent) {
-                                mRecycler.showNoResults();
-                                return;
                             }
                             ((TopicObserver) getParentFragment()).updatePages(mPages);
                             ((TopicObserver) getParentFragment()).updatePostUrl(mPostUrl);
                             if (mLoaded && mMax > 3) scrollToBottom();
                             mLoaded = true;
+                            if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
                         }
                     });
                 }
 
             }, "android");
             web.setWebViewClient(new WebViewClient() {
+
                 @Override
                 public void onPageFinished(WebView view, String url) {
                     web.loadUrl(command);
@@ -478,6 +487,23 @@ public class TopicPageFragment extends Fragment {
                     if (url.equals(uurl)) return super.shouldInterceptRequest(view, uurl);
 
                     return new WebResourceResponse(null, null, null);
+                }
+
+                @Override
+                public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
+                            if (mAdapter.getItemCount() == 0) {
+                                mRecycler.showNoResults();
+                            } else {
+                                App.snack(getView(), R.string.no_response);
+                            }
+                        }
+                    });
+
+                    super.onReceivedError(view, errorCode, description, failingUrl);
                 }
             });
             web.loadUrl(url);

@@ -22,6 +22,7 @@
                 android:layout_height="wrap_content"
                 android:maxLines="5"
                 android:layout_weight="1"
+                android:textSize="13sp"
                 android:id="@+id/new_post_content"
                 android:inputType="textCapSentences|textMultiLine"
                 android:hint="@string/message"/>

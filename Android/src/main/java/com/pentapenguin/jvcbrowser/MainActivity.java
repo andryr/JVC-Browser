@@ -30,9 +30,6 @@ import com.pentapenguin.jvcbrowser.services.UpdateService;
 import com.pentapenguin.jvcbrowser.util.*;
 import com.pentapenguin.jvcbrowser.util.persistence.Storage;
 
-/**
- * NEW INTENT probleme lors du click sur une notification
- */
 public class MainActivity extends AppCompatActivity implements ActivityLauncher, FragmentLauncher, TitleObserver,
         ServiceUpdate {
 
@@ -52,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements ActivityLauncher,
         if (Build.VERSION.SDK_INT >= 21) {
             if (Storage.getInstance().get(Settings.THEME, 1) == 1) setupStatusbar();
         }
+        Theme.load();
         setContentView(Theme.mainActivity);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);

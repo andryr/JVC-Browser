@@ -1,10 +1,10 @@
 * {
-    font-size: medium;
+    font-size: 14px;
     line-height: 140%;
 }
 
 blockquote.blockquote-jv {
-    border-left: 3px solid #6b6b6b;
+    border-left: 3px solid #aaa;
     margin-left: 5px;
     padding: 3px;
 }
