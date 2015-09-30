@@ -146,7 +146,7 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == EditActivity.RESULT_CODE) {
-            reloadCurrentPage();
+            reload(TopicPageFragment.Type.Edit);
         } else if(requestCode == REQUEST_CODE && data != null) {
             Uri uri = data.getData();
             String filePath = App.getFilePath(getActivity(), uri);
@@ -442,14 +442,6 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
                 .create().show();
     }
 
-    private void reloadCurrentPage() {
-        for (Fragment fragment : getChildFragmentManager().getFragments()) {
-            if (fragment != null && fragment instanceof TopicPageFragment) {
-                ((TopicPageFragment) fragment).reload(true);
-            }
-        }
-    }
-
     @Override
     public void updatePostUrl(String postUrl) {
         mPostUrl = postUrl;
@@ -477,9 +469,18 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
     }
 
     @Override
+    public void reload(TopicPageFragment.Type type) {
+        for (Fragment fragment : getChildFragmentManager().getFragments()) {
+            if (fragment != null && fragment instanceof TopicPageFragment) {
+                ((TopicPageFragment) fragment).reload(type);
+            }
+        }
+    }
+
+    @Override
     public void onPost(Item item) {
         gotoLastPage();
-        reloadCurrentPage();
+        reload(TopicPageFragment.Type.Post);
     }
 
     private class PagerAdapter extends FragmentStatePagerAdapter {

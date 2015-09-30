@@ -20,7 +20,7 @@ android {
         applicationId "com.pentapenguin.jvcbrowser"
         minSdkVersion 14
         targetSdkVersion 20
-        versionCode 10
+        versionCode 11
         versionName "1.0"
     }
 

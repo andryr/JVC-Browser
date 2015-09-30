@@ -13,7 +13,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +34,6 @@ import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
 import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
 import com.pentapenguin.jvcbrowser.util.persistence.Storage;
-import com.pentapenguin.jvcbrowser.util.widgets.CircularImageView;
 import com.pentapenguin.jvcbrowser.util.widgets.RecyclerItemListener;
 import com.pentapenguin.jvcbrowser.util.widgets.RecyclerViewAdapter;
 import com.squareup.picasso.Picasso;
@@ -106,7 +104,6 @@ public class NavigationFragment extends Fragment {
         alarmManager.cancel(PendingIntent.getService(getActivity(), 0, new Intent(getActivity(), UpdateService.class),
                 PendingIntent.FLAG_NO_CREATE));
         App.toast(R.string.disconnected);
-        Log.d("Alarm", "unset");
     }
 
     public void updateMp(int mpCount) {

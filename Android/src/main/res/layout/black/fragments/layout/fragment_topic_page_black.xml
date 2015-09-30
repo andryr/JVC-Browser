@@ -1,39 +1,43 @@
 <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:background="@color/background_black"
         android:layout_height="match_parent">
 
-    <com.pentapenguin.jvcbrowser.util.widgets.SwipeRefreshLayoutBottom
-            android:id="@+id/topic_page_swipe"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-        <com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2
+        <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/topic_post_list"/>
+                android:layout_height="match_parent">
 
-    </com.pentapenguin.jvcbrowser.util.widgets.SwipeRefreshLayoutBottom>
+                <com.pentapenguin.jvcbrowser.util.widgets.SwipeRefreshLayoutBottom
+                        android:id="@+id/topic_page_swipe"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
 
-    <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/topic_loading_bar"
-            android:indeterminate="true"
-            android:visibility="gone"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"/>
+                        <com.pentapenguin.jvcbrowser.util.widgets.RecyclerView2
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:id="@+id/topic_post_list"/>
 
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:visibility="gone"
-            android:textColor="@color/soft_grey2"
-            android:id="@+id/topic_empty_text"
-            android:text="@string/no_result"/>
+                </com.pentapenguin.jvcbrowser.util.widgets.SwipeRefreshLayoutBottom>
+        </FrameLayout>
+
+        <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/topic_loading_bar"
+                android:indeterminate="true"
+                android:visibility="gone"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:visibility="gone"
+                android:textColor="@color/soft_grey2"
+                android:id="@+id/topic_empty_text"
+                android:text="@string/no_result"/>
 
 </RelativeLayout>

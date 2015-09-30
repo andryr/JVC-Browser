@@ -13,7 +13,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.*;
 import android.webkit.*;
 import android.widget.ImageView;
@@ -38,11 +37,9 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,6 +53,10 @@ public class TopicPageFragment extends Fragment {
     private static final String DATA_SAVE = "themes";
     private static final String LOADED_SAVE = "loaded";
 
+    public enum Type {
+        FirstUpdate, Update, Post, Edit
+    }
+
     private RecyclerView2 mRecycler;
     private TopicAdapter mAdapter;
     private LinearLayoutManager mLayout;
@@ -63,6 +64,7 @@ public class TopicPageFragment extends Fragment {
     private Topic mTopic;
     private boolean mLoaded;
     final OkHttpClient mClient = new OkHttpClient();
+    private int mEdit;
 
     public static TopicPageFragment newInstance(Topic topic) {
         TopicPageFragment fragment = new TopicPageFragment();
@@ -115,7 +117,7 @@ public class TopicPageFragment extends Fragment {
             @Override
             public void onRefresh() {
                 mSwipeLayout.setRefreshing(false);
-                mAdapter.load(false);
+                mAdapter.load(Type.Update);
             }
         });
 
@@ -126,7 +128,7 @@ public class TopicPageFragment extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser && !mLoaded && mAdapter != null) {
-            mAdapter.load(false);
+            mAdapter.load(Type.FirstUpdate);
         }
     }
 
@@ -143,12 +145,11 @@ public class TopicPageFragment extends Fragment {
         mClient.cancel(this);
     }
 
-    public void reload(final boolean isAll) {
-        mSwipeLayout.setRefreshing(true);
+    public void reload(final Type type) {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                mAdapter.load(isAll);
+                mAdapter.load(type);
 
             }
         }, 500);
@@ -171,223 +172,12 @@ public class TopicPageFragment extends Fragment {
             mValues = new ArrayList<Post>(values);
         }
 
-        public void load(boolean isAll) {
-            load3(isAll);
-        }
-
-        public void load1() {
-            Ajax.url(Helper.topicToMobileUrl(mTopic) /*+ "?bide=" + System.currentTimeMillis()*/)
-                    .callback(new AjaxCallback() {
-                        @Override
-                        public void onComplete(Connection.Response response) {
-                            if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
-                            if (response != null) {
-                                try {
-                                    for (Map.Entry<String, String> entry : response.headers().entrySet()) {
-                                        Log.d(entry.getKey(), entry.getValue());
-                                    }
-                                    Document doc = response.parse();
-                                    ArrayList<Post> values = Parser.topic(doc);
-                                    Iterator<Post> it = values.iterator();
-
-                                    while (it.hasNext()) {
-                                        Post post = it.next();
-                                        if (Bans.isBanned(post.getAuthor())) it.remove();
-                                    }
-                                    int max = values.size();
-                                    if (max == 0) throw new NoContentFoundException();
-                                    int pages = Parser.page(doc);
-                                    String title = Parser.getTitleTopic(doc);
-                                    mValues.clear();
-                                    mValues.add(new Post(pages, title));
-                                    mValues.addAll(values);
-                                    mValues.add(new Post(pages, title));
-                                    mValues.add(new Post(pages, Parser.getTitleTopic(doc)));
-                                    ((TopicObserver) getParentFragment()).updatePages(pages);
-                                    ((TopicObserver) getParentFragment()).updatePostUrl(Parser.newPostUrl(doc));
-                                    if (mLoaded) scrollToBottom();
-                                    mLoaded = true;
-                                    notifyDataSetChanged();
-
-                                    return;
-                                } catch (IOException e) {
-                                    App.alert(getActivity(), e.getMessage());
-                                } catch (NoContentFoundException e) {
-                                    App.snack(getView(), e.getMessage());
-                                }
-                            } else {
-                                App.snack(getView(), R.string.no_response);
-                            }
-                            mRecycler.showNoResults();
-                        }
-                    }).execute();
-        }
-
-        private void load2() {
-
-            Request request = new Request.Builder()
-                    .url(Helper.topicToMobileUrl(mTopic) + "?bide=" + System.currentTimeMillis())
-//                    .tag(this)
-                    .post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), "{}"))
-                    .cacheControl(new CacheControl.Builder().noStore().noCache().build())
-                    .header("Cache-Control", "max-age=0, no-cache")
-                    .header("Cache-Store", "no-store")
-                    .header("User-Agent", "Mozilla / 5.0 (Windows NT 10.0; WOW64; rv:40.0) Gecko/20100101 Firefox/40.0")
-                    .build();
-
-            mClient.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Request request, IOException e) {
-                    getParentFragment().getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
-                            App.snack(getView(), R.string.no_response);
-                        }
-                    });
-                }
-
-                @Override
-                public void onResponse(Response response) throws IOException {
-                    final String html = response.body().string();
-                    final Document doc = Jsoup.parse(html);
-                    Headers headers = response.headers();
-                    for (int i = 0; i < headers.size(); i++) {
-                        Log.d(headers.name(i), headers.get(headers.name(i)));
-                    }
-                    try {
-                        ArrayList<Post> values = Parser.topic(doc);
-                        Iterator<Post> it = values.iterator();
-                        while (it.hasNext()) {
-                            Post post = it.next();
-                            if (Bans.isBanned(post.getAuthor())) it.remove();
-                        }
-                        final int max = values.size() + 2;
-                        if (max == 2) throw new NoContentFoundException();
-                        String title = Parser.getTitleTopic(doc);
-                        final int pages = Parser.page(doc);
-                        final String newPostUrl = Parser.newPostUrl(doc);
-                        mValues.clear();
-                        mValues.add(new Post(pages, title));
-                        mValues.addAll(values);
-                        mValues.add(new Post(pages, title));
-
-                        if (getParentFragment().getActivity() != null) {
-                            getParentFragment().getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
-                                    ((TopicObserver) getParentFragment()).updatePages(pages);
-                                    ((TopicObserver) getParentFragment()).updatePostUrl(newPostUrl);
-                                    if (mLoaded && max > 3) scrollToBottom();
-                                    notifyDataSetChanged();
-                                    mLoaded = true;
-                                    Log.d("length", mValues.size()+"");
-                                }
-                            });
-                        }
-                    } catch (NoContentFoundException e) {
-                        if (getParentFragment().getActivity() != null) {
-                            getParentFragment().getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mValues.clear();
-                                    notifyDataSetChanged();
-                                    mRecycler.showNoResults();
-                                    if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
-                                }
-                            });
-                        }
-                    }
-                }
-
-                public void onResponse3(Response response) throws IOException {
-                    final Document doc = Jsoup.parse(response.body().string());
-                    try {
-                        ArrayList<Post> values = Parser.topic(doc);
-                        Iterator<Post> it = values.iterator();
-                        while (it.hasNext()) {
-                            Post post = it.next();
-                            if (Bans.isBanned(post.getAuthor())) it.remove();
-                        }
-                        final int max = values.size() + 2;
-                        if (max == 0) throw new NoContentFoundException();
-                        final int current = mValues.size();
-                        String title = Parser.getTitleTopic(doc);
-                        final int pages = Parser.page(doc);
-                        if (current < max) {
-                            mValues.clear();
-                            mValues.add(new Post(pages, title));
-                            mValues.addAll(values);
-                            mValues.add(new Post(pages, title));
-                        }
-                        final String newPostUrl = Parser.newPostUrl(doc);
-                        if (getParentFragment().getActivity() != null) {
-                            getParentFragment().getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
-                                    ((TopicObserver) getParentFragment()).updatePages(pages);
-                                    ((TopicObserver) getParentFragment()).updatePostUrl(newPostUrl);
-                                    if (mLoaded && mValues.size() > 1) scrollToBottom();
-                                    if (current < max) notifyDataSetChanged();
-                                    mLoaded = true;
-                                }
-                            });
-                        }
-                    } catch (NoContentFoundException e) {
-                        if (getParentFragment().getActivity() != null) {
-                            getParentFragment().getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mValues.clear();
-                                    notifyDataSetChanged();
-                                    mRecycler.showNoResults();
-                                    if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
-                                }
-                            });
-                        }
-                    }
-                }
-
-                public void onResponse2(Response response) throws IOException {
-                    final Document doc = Jsoup.parse(response.body().string());
-                    try {
-                        ArrayList<Post> values = Parser.topic(doc);
-                        Iterator<Post> it = values.iterator();
-                        while (it.hasNext()) {
-                            Post post = it.next();
-                            if (Bans.isBanned(post.getAuthor())) it.remove();
-                        }
-                        int max = values.size();
-                        if (max == 0) throw new NoContentFoundException();
-                        String title = Parser.getTitleTopic(doc);
-                        final int pages = Parser.page(doc);
-                        mValues.add(new Post(pages, title));
-                        mValues.addAll(values);
-                        mValues.add(new Post(pages, title));
-                        if (getParentFragment().getActivity() != null) {
-                            getParentFragment().getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    ((TopicObserver) getParentFragment()).updatePages(pages);
-                                    ((TopicObserver) getParentFragment()).updatePostUrl(Parser.newPostUrl(doc));
-                                    if (mLoaded) scrollToBottom();
-                                    notifyDataSetChanged();
-                                    if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
-                                    mLoaded = true;
-                                }
-                            });
-                        }
-                    } catch (NoContentFoundException e) {
-
-                    }
-                }
-            });
+        public void load(Type type) {
+            loadData(type);
         }
 
         @SuppressLint({ "SetJavaScriptEnabled", "JavascriptInterface" })
-        private void load3(final boolean isAll) {
+        private void loadData(final Type type) {
             final String command = "javascript:window.android.onComplete(document.documentElement.innerHTML);";
             final WebView web = new WebView(App.getContext());
             final String url = Helper.topicToMobileUrl(mTopic);
@@ -406,7 +196,6 @@ public class TopicPageFragment extends Fragment {
                 @JavascriptInterface
                 public void onComplete(final String result) {
                     try {
-                        Log.d("test", "1");
                         final Document doc = Jsoup.parse(result);
                         ArrayList<Post> values = Parser.topic(doc);
                         mTitle = Parser.getTitleTopic(doc);
@@ -419,40 +208,36 @@ public class TopicPageFragment extends Fragment {
                         }
                         mMax = values.size() + 2;
                         if (mMax == 2) throw new NoContentFoundException();
-                        Log.d("test", "2");
                         mCurrent = mValues.size();
-                        if (isAll) {
-                            reloadAll(values);
-                        } else {
-                            reload(values);
-                        }
+
+                        mValues.clear();
+                        mValues.add(new Post(mPages, mTitle));
+                        mValues.addAll(values);
+                        mValues.add(new Post(mPages, mTitle));
 
                         successUI();
                         mNoContent = false;
-                        Log.d("test", "3");
-                        Log.d("values", values.toString());
                     } catch (NoContentFoundException ignored) {
                         failUI();
-                        Log.d("test", "4");
                     }
                 }
 
-                private void reloadAll(ArrayList<Post> values) {
-                    mValues.clear();
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyDataSetChanged();
-                        }
-                    });
-                    mValues.add(new Post(mPages, mTitle));
-                    mValues.addAll(values);
-                    mValues.add(new Post(mPages, mTitle));
-
+                private void edit() {
+                    notifyItemChanged(mEdit);
                 }
 
-                private void reload(ArrayList<Post> values) {
-                    if (mCurrent < mMax) reloadAll(values);
+                private void post() {
+                    update();
+                }
+
+                private void update() {
+                    for (int i = mCurrent; i < mMax; i++) {
+                        notifyItemInserted(i);
+                    }
+                }
+
+                private void firstUpdate() {
+                    notifyDataSetChanged();
                 }
 
                 private void failUI() {
@@ -467,17 +252,28 @@ public class TopicPageFragment extends Fragment {
 
                 private void successUI() {
                     getActivity().runOnUiThread(new Runnable() {
-
                         @Override
                         public void run() {
                             if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
-                            if (isAll || mCurrent < mMax) {
-                                notifyDataSetChanged();
-                            }
                             ((TopicObserver) getParentFragment()).updatePages(mPages);
                             ((TopicObserver) getParentFragment()).updatePostUrl(mPostUrl);
                             if (mLoaded && mMax > 3) scrollToBottom();
                             mLoaded = true;
+
+                            switch (type) {
+                                case FirstUpdate:
+                                    firstUpdate();
+                                    break;
+                                case Update:
+                                    update();
+                                    break;
+                                case Post:
+                                    post();
+                                    break;
+                                case Edit:
+                                    edit();
+                                    break;
+                            }
                         }
                     });
                 }
@@ -530,58 +326,6 @@ public class TopicPageFragment extends Fragment {
                 }
             });
             web.loadUrl(url);
-        }
-
-        private void load4() {
-            new AjaxRaw(Helper.topicToMobileUrl(mTopic), new AjaxRawCallback() {
-
-                public int mMax;
-                public String mPostUrl;
-                public int mPages;
-                private boolean noContent = false;
-
-                @Override
-                public void onComplete(String result) {
-                    mValues.clear();
-                    try {
-                        if (result == null) throw new NoContentFoundException();
-                        final Document doc = Jsoup.parse(result);
-                        ArrayList<Post> values = Parser.topic(doc);
-                        String title = Parser.getTitleTopic(doc);
-                        mPostUrl = Parser.newPostUrl(doc);
-                        mPages = Parser.page(doc);
-                        Iterator<Post> it = values.iterator();
-                        while (it.hasNext()) {
-                            Post post = it.next();
-                            if (Bans.isBanned(post.getAuthor())) it.remove();
-                        }
-                        mMax = values.size() + 2;
-                        if (mMax == 2) throw new NoContentFoundException();
-                        final int current = mValues.size();
-                        if (current < mMax) {
-                            mValues.add(new Post(mPages, title));
-                            mValues.addAll(values);
-                            mValues.add(new Post(mPages, title));
-                        }
-                    } catch (NoContentFoundException e) {
-                        noContent = true;
-                    }
-                }
-
-                @Override
-                public void updateUI() {
-                    notifyDataSetChanged();
-                    if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
-                    if (noContent) {
-                        mRecycler.showNoResults();
-                        return;
-                    }
-                    ((TopicObserver) getParentFragment()).updatePages(mPages);
-                    ((TopicObserver) getParentFragment()).updatePostUrl(mPostUrl);
-                    if (mLoaded && mMax > 3) scrollToBottom();
-                    mLoaded = true;
-                }
-            }).execute();
         }
 
         public void removeItem(int position) {
@@ -642,6 +386,8 @@ public class TopicPageFragment extends Fragment {
             mControl.setVisibility(Auth.getInstance().isConnected() ? View.VISIBLE : View.GONE);
             mContent.getSettings().setDefaultTextEncodingName("utf-8");
             mContent.setBackgroundColor(Color.TRANSPARENT);
+//            mContent.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+//            mContent.getSettings().setAppCacheEnabled(false);
             mContent.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
@@ -718,7 +464,7 @@ public class TopicPageFragment extends Fragment {
                     if (menuItem.getTitle().equals("Citer")) {
                         quote(post);
                     } else if (menuItem.getTitle().equals("Editer")) {
-                        edit(post);
+                        edit(post, position);
                     } else if (menuItem.getTitle().equals("Delete")) {
                         delete(post, position);
                     } else if (menuItem.getTitle().equals("Ignorer")) {
@@ -730,8 +476,9 @@ public class TopicPageFragment extends Fragment {
             menu.show();
         }
 
-        private void edit(Post post) {
+        private void edit(Post post, int position) {
             Intent intent = new Intent(getActivity(), EditActivity.class);
+            mEdit = position;
             intent.putExtra(EditFragment.EDIT_TOPIC_ARG, mTopic);
             intent.putExtra(EditFragment.POST_ID_ARG, post.getId());
             getParentFragment().startActivityForResult(intent, 777);
@@ -739,7 +486,7 @@ public class TopicPageFragment extends Fragment {
 
         private void ignore(Post post) {
             Bans.add(post.getAuthor());
-            reload(true);
+            reload(Type.FirstUpdate);
         }
 
         private void delete(final Post post, final int position) {
@@ -881,6 +628,7 @@ public class TopicPageFragment extends Fragment {
         void updatePostUrl(String postUrl);
         void gotoLastPage();
         void quote(Topic topic);
+        void reload(Type type);
     }
 
 }

@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
-import android.util.Log;
 import com.pentapenguin.jvcbrowser.MainActivity;
 import com.pentapenguin.jvcbrowser.app.Auth;
 
@@ -20,8 +19,6 @@ public class BootReceiver extends BroadcastReceiver {
                 PendingIntent alarm = PendingIntent.getService(context, 0, new Intent(context, UpdateService.class), 0);
                 alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(),
                         MainActivity.ALARM_INTERVAL, alarm);
-                Log.d("Alarm", "set");
-
             }
         }
     }

@@ -12,17 +12,13 @@ import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 import com.pentapenguin.jvcbrowser.R;
-import com.pentapenguin.jvcbrowser.util.persistence.Storage;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class App extends Application {
 
@@ -37,8 +33,6 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         sContext = getApplicationContext();
-        Log.d("val", Storage.getInstance().get("theme_settings", "okokok"));
-
     }
 
     public static Context getContext() {
