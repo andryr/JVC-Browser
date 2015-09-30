@@ -10,6 +10,8 @@
     <string name="goto_page">Aller a la page</string>
     <string name="add_favorite">Ajouter aux favoris</string>
     <string name="add_subscribe">S\'abonner</string>
+    <string name="smileys">Smileys</string>
+    <string name="toolbar">Toolbar</string>
     <string name="noelshack">Noelshack</string>
     <string name="favorite_added">Ajouté aux favoris</string>
     <string name="subscribe_added">Ajouté aux abonnements</string>

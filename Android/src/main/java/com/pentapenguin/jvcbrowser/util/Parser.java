@@ -501,4 +501,18 @@ public class Parser {
 
         return notifications;
     }
+
+    public static String smileys(Document doc) {
+        Element content = doc.getElementsByClass("bloc-liste-smileys").get(0);
+        Elements smileys = content.getElementsByTag("li");
+        for (Element smiley : smileys) {
+            Element a = smiley.getElementsByTag("a").get(0);
+            Element img = smiley.getElementsByTag("img").get(0);
+            a.attr("onClick", "window.android.onClicked('" + a.text() + "');");
+            img.attr("src", "http:" + img.attr("src"));
+        }
+
+        return "<html><head><link href=\"css/original.css\" rel=\"stylesheet\">" +
+                "</head><body>" + content.html() + "</body></html>";
+    }
 }

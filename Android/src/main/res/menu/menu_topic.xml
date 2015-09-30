@@ -12,7 +12,7 @@
           android:title="@string/last_page"
           android:orderInCategory="2"
           app:showAsAction="always"
-            android:icon="@drawable/action_last_page"/>
+          android:icon="@drawable/action_last_page"/>
 
     <item android:id="@+id/menu_topic_noelshack"
           android:title="@string/noelshack"
@@ -27,6 +27,16 @@
     <item android:id="@+id/menu_topic_subscribe"
           android:title="@string/add_subscribe"
           android:orderInCategory="5"
+          app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_topic_smileys"
+          android:title="@string/smileys"
+          android:orderInCategory="6"
+          app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_topic_toolbar"
+          android:title="@string/toolbar"
+          android:orderInCategory="7"
           app:showAsAction="never"/>
 
 </menu>

@@ -1,5 +1,6 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -12,10 +13,14 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.InputType;
+import android.util.Log;
 import android.view.*;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
 import android.widget.EditText;
 import com.pentapenguin.jvcbrowser.EditActivity;
 import com.pentapenguin.jvcbrowser.R;
+import com.pentapenguin.jvcbrowser.SmileysActivity;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
 import com.pentapenguin.jvcbrowser.app.Theme;
@@ -62,6 +67,7 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
     private String mPostUrl;
     private String mTitle;
     private boolean mLoaded;
+    private final OkHttpClient mClient = new OkHttpClient();
 
     public static TopicFragment newInstance(Topic topic) {
         TopicFragment fragment = new TopicFragment();
@@ -145,6 +151,8 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
             Uri uri = data.getData();
             String filePath = App.getFilePath(getActivity(), uri);
             noelshackUpload(filePath);
+        } else if (resultCode == SmileysActivity.RESULT_CODE && data != null) {
+            mPost.append(" " + data.getStringExtra("smiley"));
         }
     }
 
@@ -152,6 +160,10 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_topic, menu);
         menu.findItem(R.id.menu_topic_favorite).setVisible(Auth.getInstance().isConnected());
+        menu.findItem(R.id.menu_topic_noelshack).setVisible(Auth.getInstance().isConnected());
+        menu.findItem(R.id.menu_topic_smileys).setVisible(Auth.getInstance().isConnected());
+        menu.findItem(R.id.menu_topic_toolbar).setVisible(Auth.getInstance().isConnected());
+        menu.findItem(R.id.menu_topic_subscribe).setVisible(Auth.getInstance().isConnected());
     }
 
     @Override
@@ -172,8 +184,67 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
             case R.id.menu_topic_subscribe:
                 subscribe();
                 return true;
+            case R.id.menu_topic_smileys:
+                smileys();
+                break;
+            case R.id.menu_topic_toolbar:
+                toolbar();
+                break;
         }
         return false;
+    }
+
+    private void toolbar() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setItems(R.array.toolbar, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String what;
+                switch (which) {
+                    case 0:
+                        what = "'''  '''";
+                        break;
+                    case 1:
+                        what = "''  ''";
+                        break;
+                    case 2:
+                        what = "<u>  </u>";
+                        break;
+                    case 3:
+                        what = "<s>  </s>";
+                        break;
+                    case 4:
+                        what = "* ";
+                        break;
+                    case 5:
+                        what = "# ";
+                        break;
+                    case 6:
+                        what = "> ";
+                        break;
+                    case 7:
+                        what = "<code>  </code>";
+                        break;
+                    case 8:
+                        what = "<spoil>  </spoil>";
+                        break;
+                    default:
+                        what = "";
+                }
+                mPost.append(what);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.create().show();
+    }
+
+    private void smileys() {
+        startActivityForResult(new Intent(getActivity(), SmileysActivity.class), 1000);
     }
 
     private void subscribe() {
@@ -243,8 +314,8 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
     }
 
     private void noelshackUpload(String path) {
-        OkHttpClient client = new OkHttpClient();
-        App.snack(getView(), "Upload en cours...");
+        final ProgressDialog dialog = App.progress(getActivity(), R.string.in_progress, true);
+        dialog.show();
         File file = new File(path);
         RequestBody requestBody = new MultipartBuilder()
                 .type(MultipartBuilder.FORM)
@@ -255,9 +326,10 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
                 .url("http://www.noelshack.com/api.php")
                 .post(requestBody)
                 .build();
-        client.newCall(request).enqueue(new Callback() {
+        mClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
+                App.alert(getActivity(), R.string.no_response);
             }
 
             @Override
@@ -267,7 +339,8 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
                         @Override
                         public void run() {
                             try {
-                                mPost.append(response.body().string());
+                                mPost.append("\n" + response.body().string());
+                                if (dialog.isShowing()) dialog.dismiss();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

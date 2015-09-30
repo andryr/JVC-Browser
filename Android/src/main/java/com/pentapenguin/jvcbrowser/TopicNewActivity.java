@@ -35,8 +35,6 @@ public class TopicNewActivity extends AppCompatActivity implements ItemPosted {
             transaction.replace(R.id.frame_main, TopicNewFragment.newInstance(forum), TopicNewFragment.TAG);
             transaction.commit();
         }
-
-        AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
     }
 
     @Override

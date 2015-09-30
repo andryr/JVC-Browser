@@ -1,19 +1,21 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.pentapenguin.jvcbrowser.R;
+import com.pentapenguin.jvcbrowser.SmileysActivity;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
 import com.pentapenguin.jvcbrowser.app.Theme;
@@ -24,10 +26,12 @@ import com.pentapenguin.jvcbrowser.util.ItemPosted;
 import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
 import com.pentapenguin.jvcbrowser.util.network.AjaxCallback;
+import com.squareup.okhttp.*;
 import com.squareup.picasso.Picasso;
 import org.jsoup.Connection;
 import org.jsoup.nodes.Document;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -41,6 +45,7 @@ public class TopicNewFragment extends Fragment {
     private static final String CLASS_FORM = "form-post-msg";
     private static final String CLASS_ERROR = "alert-danger";
     private static final String CLASS_CAPTCHA = "bloc-captcha";
+    public static final int REQUEST_CODE = 737;
 
     private EditText mTitle;
     private EditText mContent;
@@ -77,6 +82,7 @@ public class TopicNewFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mForum = getArguments().getParcelable(TOPIC_NEW_ARG);
+        setHasOptionsMenu(true);
     }
 
     @Nullable
@@ -112,6 +118,143 @@ public class TopicNewFragment extends Fragment {
         outState.putString(TITLE_SAVE, mTitle.getText().toString());
         outState.putString(CONTENT_SAVE, mContent.getText().toString());
     }
+
+    // Copy/Paste from topicfragment
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_CODE && data != null) {
+            Uri uri = data.getData();
+            String filePath = App.getFilePath(getActivity(), uri);
+            noelshackUpload(filePath);
+        } else if (resultCode == SmileysActivity.RESULT_CODE && data != null) {
+            mContent.append(" " + data.getStringExtra("smiley"));
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_topic_new, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_topic_new_noelshack:
+                noelshack();
+                return true;
+            case R.id.menu_topic_new_smileys:
+                smileys();
+                return true;
+            case R.id.menu_topic_new_toolbar:
+                toolbar();
+                return true;
+        }
+        return false;
+    }
+
+    private void toolbar() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setItems(R.array.toolbar, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String what;
+                switch (which) {
+                    case 0:
+                        what = "'''  '''";
+                        break;
+                    case 1:
+                        what = "''  ''";
+                        break;
+                    case 2:
+                        what = "<u>  </u>";
+                        break;
+                    case 3:
+                        what = "<s>  </s>";
+                        break;
+                    case 4:
+                        what = "* ";
+                        break;
+                    case 5:
+                        what = "# ";
+                        break;
+                    case 6:
+                        what = "> ";
+                        break;
+                    case 7:
+                        what = "<code>  </code>";
+                        break;
+                    case 8:
+                        what = "<spoil>  </spoil>";
+                        break;
+                    default:
+                        what = "";
+                }
+                mContent.append(what);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.create().show();
+    }
+
+    private void smileys() {
+        startActivityForResult(new Intent(getActivity(), SmileysActivity.class), 1000);
+    }
+
+    private void noelshack() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        startActivityForResult(
+                Intent.createChooser(intent, "Selectionnez une image"), REQUEST_CODE);
+    }
+
+    private void noelshackUpload(String path) {
+        final OkHttpClient client = new OkHttpClient();
+        final ProgressDialog dialog = App.progress(getActivity(), R.string.in_progress, true);
+        dialog.show();
+        File file = new File(path);
+        RequestBody requestBody = new MultipartBuilder()
+                .type(MultipartBuilder.FORM)
+                .addFormDataPart("fichier", file.getName(), RequestBody.create(MediaType.parse("image/*"), file))
+                .build();
+
+        Request request = new Request.Builder()
+                .url("http://www.noelshack.com/api.php")
+                .post(requestBody)
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+                App.alert(getActivity(), R.string.no_response);
+            }
+
+            @Override
+            public void onResponse(final Response response) throws IOException {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                mContent.append("\n" + response.body().string());
+                                if (dialog.isShowing()) dialog.dismiss();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    //
 
     private void init() {
         final String url = URL + Integer.toString(mForum.getId());

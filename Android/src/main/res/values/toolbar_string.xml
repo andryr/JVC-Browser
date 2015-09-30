@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="toolbar">
+		<item>Gras</item>
+		<item>Italique</item>
+		<item>Souligné</item>
+		<item>Barré</item>
+		<item>Liste à puce</item>
+		<item>Liste numérotée</item>
+		<item>Citation</item>
+		<item>Code</item>
+		<item>Spoil</item>
+	</string-array>
+</resources>
