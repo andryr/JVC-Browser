@@ -1,7 +1,6 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,12 +11,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.pentapenguin.jvcbrowser.EditActivity;
 import com.pentapenguin.jvcbrowser.R;
 import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
 import com.pentapenguin.jvcbrowser.app.Theme;
-import com.pentapenguin.jvcbrowser.entities.Post;
 import com.pentapenguin.jvcbrowser.entities.Topic;
 import com.pentapenguin.jvcbrowser.util.Helper;
 import com.pentapenguin.jvcbrowser.util.ItemPosted;

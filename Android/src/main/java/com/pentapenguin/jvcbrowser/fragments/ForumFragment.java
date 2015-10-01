@@ -1,13 +1,10 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
-import android.app.ActivityOptions;
 import android.app.AlertDialog;
-import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,9 +13,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.*;
 import android.support.v7.widget.SearchView;
 import android.text.InputType;
-import android.transition.ChangeBounds;
-import android.transition.Transition;
-import android.transition.TransitionInflater;
 import android.view.*;
 import android.widget.*;
 import com.pentapenguin.jvcbrowser.TopicNewActivity;
@@ -65,7 +59,6 @@ public class ForumFragment extends Fragment {
     private int mSearchChoice;
     private String mSearch;
     private int mCurrentPage;
-    private boolean mLoaded;
     private String mTitle;
 
     public static ForumFragment newInstance(Forum forum) {
@@ -159,7 +152,6 @@ public class ForumFragment extends Fragment {
                 mAdapter.load();
             }
         });
-        mLoaded = false;
     }
 
     @Override
@@ -395,7 +387,6 @@ public class ForumFragment extends Fragment {
                             ((TitleObserver) getActivity()).updateTitle(mTitle);
                             if (getActivity() != null) getActivity().supportInvalidateOptionsMenu();
                             notifyDataSetChanged();
-                            mLoaded = true;
 
                             return;
                         } catch (NoContentFoundException e) {
@@ -435,7 +426,6 @@ public class ForumFragment extends Fragment {
         private TextView mPostsNumber;
         private TextView mDate;
         private ImageView mThumb;
-
         public ForumHolder(View itemView) {
             super(itemView);
 

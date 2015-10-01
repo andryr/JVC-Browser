@@ -1,6 +1,5 @@
 package com.pentapenguin.jvcbrowser.fragments;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -13,10 +12,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.InputType;
-import android.util.Log;
 import android.view.*;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
 import android.widget.EditText;
 import com.pentapenguin.jvcbrowser.EditActivity;
 import com.pentapenguin.jvcbrowser.R;
@@ -53,10 +49,9 @@ public class TopicFragment extends Fragment implements TopicPageFragment.TopicOb
     public static final String POST_URL_SAVE = "post_url";
     public static final String POST_CONTENT_SAVE = "post_content";
     public static final String LOADED_SAVE = "loaded";
-    public static final String NOELSHACK_URL = "http://www.noelshack.com/api.php";
     public static final int REQUEST_CODE = 747;
 
-    public enum TopicType { Title, Core;}
+    public enum TopicType { Title, Core}
 
     private Topic mTopic;
     private ViewPager mPager;

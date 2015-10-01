@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import com.pentapenguin.jvcbrowser.MainActivity;
 import com.pentapenguin.jvcbrowser.R;
+import com.pentapenguin.jvcbrowser.app.App;
 import com.pentapenguin.jvcbrowser.app.Auth;
 import com.pentapenguin.jvcbrowser.util.Parser;
 import com.pentapenguin.jvcbrowser.util.network.Ajax;
@@ -37,8 +38,7 @@ public class UpdateService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         if (!Auth.getInstance().isConnected()) return;
-
-        updateMp();
+        if (App.isOnline()) updateMp();
     }
 
     private void updateSubscribe(Document doc) {
