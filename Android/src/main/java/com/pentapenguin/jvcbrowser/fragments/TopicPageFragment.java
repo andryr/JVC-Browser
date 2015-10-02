@@ -146,13 +146,9 @@ public class TopicPageFragment extends Fragment {
     }
 
     public void reload(final Type type) {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mAdapter.load(type);
-
-            }
-        }, 500);
+        if (!mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(true);
+        mLoaded = true;
+        mAdapter.load(type);
     }
 
     public void scrollToBottom() {
@@ -374,6 +370,7 @@ public class TopicPageFragment extends Fragment {
         private TextView mDate;
         private TextView mControl;
         private WebView mContent;
+        private View mFrame;
 
         public TopicHolder(View view) {
             super(view);
@@ -382,12 +379,11 @@ public class TopicPageFragment extends Fragment {
             mDate = (TextView) view.findViewById(R.id.post_date_text);
             mControl = (TextView) view.findViewById(R.id.post_control);
             mContent = (WebView) view.findViewById(R.id.post_content);
+            mFrame = view.findViewById(R.id.item_post);
 
             mControl.setVisibility(Auth.getInstance().isConnected() ? View.VISIBLE : View.GONE);
             mContent.getSettings().setDefaultTextEncodingName("utf-8");
             mContent.setBackgroundColor(Color.TRANSPARENT);
-//            mContent.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-//            mContent.getSettings().setAppCacheEnabled(false);
             mContent.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {

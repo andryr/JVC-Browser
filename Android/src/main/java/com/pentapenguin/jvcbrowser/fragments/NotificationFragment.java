@@ -166,7 +166,10 @@ public class NotificationFragment extends Fragment{
                                         if (html != null) {
                                             Document doc = Jsoup.parse(html);
                                             mValues = Parser.subscribeNotifications(doc);
-                                            ((ServiceUpdate) getActivity()).notificationUpdate(mAdapter.getItemCount());
+                                            if (getActivity() != null) {
+                                                ((ServiceUpdate) getActivity())
+                                                        .notificationUpdate(mAdapter.getItemCount());
+                                            }
                                             if (!mValues.isEmpty()) {
                                                 notifyDataSetChanged();
                                             } else {

@@ -13,8 +13,6 @@ import java.util.regex.Pattern;
 
 public class Parser {
 
-    // Divers
-
     public static HashMap<String, String> hidden(Document doc, String classForm) {
         HashMap<String, String> map = new HashMap<String, String>();
         Element form;
@@ -50,10 +48,6 @@ public class Parser {
 
         return content.get(0).text();
     }
-
-    // Forum
-
-    // Topic
 
     public static ArrayList<Link> listFavorite(Document doc, int what) throws NoContentFoundException {
         ArrayList<Link> links = new ArrayList<Link>();
@@ -153,6 +147,13 @@ public class Parser {
             Element msg = div.getElementsByClass("contenu").get(0);
             msg.getElementsByClass("lire-suite-msg").remove();
             message = div.getElementsByClass("contenu").get(0);
+            Elements quotes = message.select("div.message > blockquote.blockquote-jv");
+            for (Element quote : quotes) {
+                Elements q = quote.getElementsByTag("blockquote");
+                for (int i = 1; i < q.size(); i++) {
+                    q.get(i).remove();
+                }
+            }
             posts.add(new Post(id, NormalizePost.parse(message).text(), message, author, date, thumb, thumbUrl));
         }
 
