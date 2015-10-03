@@ -55,7 +55,6 @@ android {
                             'src/main/res/layout/black/navigation',
                             'src/main/res/layout',
                             'src/main/res'
-
                     ]
         }
     }
