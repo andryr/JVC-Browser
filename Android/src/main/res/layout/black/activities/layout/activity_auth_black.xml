@@ -8,62 +8,9 @@
         android:background="@color/background_black"
         >
 
-    <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="vertical"
-                  android:layout_centerVertical="true"
-                  android:layout_alignParentRight="true"
-                  android:layout_alignParentEnd="true">
-
-        <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/text_pseudo"
-                android:maxLines="1"
-                android:hint="Pseudo"
-                android:textColor="@color/white"
-                android:textColorHint="@color/soft_grey2"
-                />
-        <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/text_passwd"
-                android:inputType="textPassword"
-                android:hint="Mot de passe"
-                android:textColor="@color/white"
-                android:textColorHint="@color/soft_grey2"
-                />
-        <LinearLayout android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:orientation="horizontal">
-            <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    android:id="@+id/image_connect_captcha"
-                    android:layout_weight="1"/>
-            <EditText
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:ems="10"
-                    android:visibility="gone"
-                    android:textColor="@color/white"
-                    android:id="@+id/edit_connect_captcha"
-                    android:layout_weight="1"/>
-        </LinearLayout>
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:textColor="@color/red"
-                android:id="@+id/text_connect_error"/>
-        <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Connect"
-                android:id="@+id/button_connect"
-                android:layout_gravity="center_horizontal"/>
-    </LinearLayout>
+   <WebView
+       android:id="@+id/web_view"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"/>
 
 </RelativeLayout>
